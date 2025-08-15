@@ -1,0 +1,220 @@
+/* General styles */
+body {
+    background-color: #6A8DFF;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+}
+
+/* HOME*/
+.hero {
+    background-image: url('/static/img/efondo.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #FFFFFF;
+    text-align: center;
+}
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+.hero p {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+.hero .btn {
+    margin: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+}
+.btn-tour {
+    background-color: #56C596;
+    color: #FFFFFF;
+}
+.btn-learn {
+    background-color: #255857;
+    color: #FFFFFF;
+}
+
+/* Availability section */
+.availability {
+    background-color: #FFFFFF;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: -5rem;
+    text-align: center;
+}
+.availability input, .availability select, .availability button {
+    margin: 0.5rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #daeaf6;
+    border-radius: 5px;
+}
+.availability button {
+    background-color: #56C596;
+    color: #FFFFFF;
+    border: none;
+}
+
+/* Navbar styles */
+.navbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+    z-index: 1000;
+}
+.navbar.scrolled {
+    background-color: rgba(37, 88, 87, 0.8);
+}
+.navbar-nav {
+    margin: 0 auto;
+}
+.navbar-brand, .nav-link {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #FFFFFF !important;
+}
+.btn-login {
+    margin-left: auto;
+    background-color: #56C596;
+    color: #FFFFFF;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* stylos de letra */
+
+v
+    .navbar-nav .nav-link,
+    .btn-login {
+        font-family: 'Poppins', sans-serif;
+        font-size: 20px; /* tamaño de letra */
+        font-weight: 500; /* negrita */
+        letter-spacing: 1.0px; /* espacio entre letras */
+        color: #f5f0f0 !important; /* color */
+    }
+
+    /* Opcional: efecto hover más elegante */
+    .navbar-nav .nav-link:hover {
+        color: #0c0f12 !important; /* azul Bootstrap */
+        text-decoration: underline;
+    }
+
+/* stylos de letra del hotel encanto */
+
+
+    .navbar-brand {
+        font-size: 25px; /* Cambia este valor al tamaño que quieras */
+        font-weight: bold; /* Negrita */
+        font-family: 'Poppins', sans-serif; /* Fuente bonita */
+    }
+
+/* ards planes styles */
+.pricing-card {
+    background-color: #97b6e7;
+    color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 2rem;
+    margin: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 300px;
+    height: 450px;
+}
+.pricing-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+.pricing-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #56C596;
+}
+.pricing-card p {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+.pricing-card .price {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+.pricing-card .btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #56C596;
+    color: #FFFFFF;
+    transition: background-color 0.3s ease;
+}
+.pricing-card .btn:hover {
+    background-color: #329D9C;
+}
+
+/* stylos del restaurante */
+
+/* Estilo del nombre tipo Dior */
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: white !important;
+            margin-right: 10px;
+        }
+
+        /* Color y estilo del menú */
+        .navbar-nav .nav-link {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: white !important;
+            margin-right: 15px;
+        }
+
+        /* Efecto hover */
+        .navbar-nav .nav-link:hover {
+            color: #0a0a0aff !important; /* Dorado */
+        }
+
+        /* Fondo transparente */
+        .navbar {
+            background: transparent !important;
+        }
+    
+        
+
+        /* Botón login */
+        .btn-login {
+            background-color: #13e11aff;
+            border-radius: 8px;
+            padding: 6px 12px;
+            margin-left: auto;
+            color: white;
+        }
+        .btn-login:hover {
+            background-color: #13ea1dff;
+        } 
+
+    
+        body {
+            background-color: #148bf3; /* Azul brillante, puedes cambiar el código si quieres otro tono */
+        }
+ 
+
+
+
+   /*------------------------------stylos login-------------------------------------*/
+
+   

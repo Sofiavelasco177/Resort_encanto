@@ -4,8 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospedaje</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/Styles.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f5f9ff;
+            color: #FFFFFF;
+            font-family: Arial, sans-serif;
+        }
+        .pricing-card {
+            background-color: #0C1E3E;
+            color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 2rem;
+            margin: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 300px;
+            height: 450px;
+        }
+        .pricing-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #56C596;
+        }
+        .pricing-card p {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .pricing-card .price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        .pricing-card .btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #56C596;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease;
+        }
+        .pricing-card .btn:hover {
+            background-color: #329D9C;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenido a la página de Hospedaje</h1>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">Hotel Isla Encanto</a>
+            <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo" height="40">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('hospedaje') }}">Hospedaje</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('restaurantes') }}">Restaurante</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('nosotros') }}">Nosotros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('experiencias') }}">Experiencias</a>
+                    </li>
+                </ul>
+                <a href="{{ url_for('login') }}" class="btn btn-login">
+                    <i class="bi bi-box-arrow-right"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                    </svg></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+
+    <!--planes-->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <div class="pricing-card">
+                    <h3>Basic</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur</p>
+                    <p>✔ Sed diam nonummy nibh euismod tincidunt</p>
+                    <p>✘ Duis autem vel eum iriure dolor in hendrerit</p>
+                    <p>✘ Quis nostrud exerci tation ullamcorper suscipit lobortis</p>
+                    <div class="price">$4.999 <span>Adquiere</span></div>
+                    <button class="btn">RESERVA YA</button>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="pricing-card">
+                    <h3>Standard</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur</p>
+                    <p>✔ Sed diam nonummy nibh euismod tincidunt</p>
+                    <p>✔ Duis autem vel eum iriure dolor in hendrerit</p>
+                    <p>✘ Quis nostrud exerci tation ullamcorper suscipit lobortis</p>
+                    <div class="price">$14.99 <span>Adquiere</span></div>
+                    <button class="btn">RESERVA YA</button>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="pricing-card">
+                    <h3>Premium</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur</p>
+                    <p>✔ Sed diam nonummy nibh euismod tincidunt</p>
+                    <p>✔ Duis autem vel eum iriure dolor in hendrerit</p>
+                    <p>✔ Quis nostrud exerci tation ullamcorper suscipit lobortis</p>
+                    <div class="price">$24.99 <span>Adquiere</span></div>
+                    <button class="btn">RESERVA YA </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

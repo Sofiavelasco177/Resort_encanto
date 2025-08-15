@@ -10,19 +10,23 @@ def home():
 # Rutas adicionales
 @app.route("/hospedaje")
 def hospedaje():
-    return "Página de Hospedaje"
+    return render_template("hospedaje.html")
 
-@app.route("/restaurantes")
+@app.route("/restaurante")
 def restaurantes():
-    return "Página de Restaurantes"
+    return render_template("restaurante.html")
 
 @app.route("/nosotros")
 def nosotros():
-    return "Página de Nosotros"
+    return render_template("nosotros.html")
+
+@app.route("/Experiencias")
+def experiencias():
+    return render_template("Experiencias.html")
 
 @app.route("/login")
 def login():
-    return "Página de Login/Registro"
+    return render_template("login.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)

@@ -1,11 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Registro</title>
+    <title>Hotel - Login / Registro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #eaf6fb;
+            background-image: url('https://www.transparenttextures.com/patterns/symphony.png');
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        .login-container {
+            background: rgba(255,255,255,0.98);
+            border-radius: 24px;
+            box-shadow: 0 4px 32px rgba(33, 118, 174, 0.10);
+            max-width: 370px;
+            width: 100%;
+            padding: 2.5rem 2rem 2rem 2rem;
+            margin: 2rem;
+            position: relative;
+        }
+        .decor-img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 18px;
+            border: 4px solid #b5d6ea;
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(33, 118, 174, 0.10);
+        }
+        .hotel-title {
+            font-family: 'Georgia', serif;
+            font-size: 2rem;
+            color: #2176ae;
+            margin-top: 60px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .hotel-sub {
+            color: #3a8dde;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Georgia', serif;
+        }
+        .form-label {
+            color: #2176ae;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #b5d6ea;
+            background: #f5fbff;
+            color: #174c6f;
+            font-size: 1rem;
+        }
+        .form-control:focus {
+            border-color: #3a8dde;
+            box-shadow: 0 0 0 2px #b5d6ea33;
+        }
+        .btn-main {
+            background: linear-gradient(90deg, #3a8dde 60%, #2176ae 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+        }
+        .btn-main:hover {
+            background: linear-gradient(90deg, #2176ae 60%, #3a8dde 100%);
+        }
+        .btn-link {
+            color: #2176ae;
+            font-size: 1rem;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        .btn-link:hover {
+            color: #174c6f;
+        }
+        .google-btn {
+            background: #eaf6fb;
+            color: #2176ae;
+            border: 1px solid #b5d6ea;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .google-btn:hover {
+            background: #d0e6f6;
+            color: #174c6f;
+        }
+        @media (max-width: 800px) {
+            body {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenido a la página de Login / Registro</h1>
+    <div class="login-container text-center" id="login-card">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="decor-img" alt="Hotel">
+        <div class="hotel-title">Isla Encanto</div>
+        <div class="hotel-sub" id="form-title">Bienvenido</div>
+        <!-- Formulario de Iniciar Sesión -->
+        <form id="login-form">
+            <div class="mb-3 text-start">
+                <label class="form-label">Usuario</label>
+                <input type="text" class="form-control" placeholder="Escribe tu usuario" required>
+            </div>
+            <div class="mb-3 text-start">
+                <label class="form-label">Contraseña</label>
+                <input type="password" class="form-control" placeholder="Escribe tu contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-main w-100">Iniciar Sesión</button>
+            <button type="button" class="btn btn-link w-100" id="show-register">¿No tienes cuenta? Regístrate</button>
+            <button type="button" class="btn google-btn w-100 mb-2">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google" style="width:20px;vertical-align:middle;margin-right:8px;">
+                Iniciar sesión con Google
+            </button>
+        </form>
+        <!-- Formulario de Registro (oculto por defecto) -->
+        <form id="register-form" style="display: none;">
+            <div class="mb-3 text-start">
+                <label class="form-label">Usuario</label>
+                <input type="text" class="form-control" placeholder="Escribe tu usuario" required>
+            </div>
+            <div class="mb-3 text-start">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" placeholder="Escribe tu correo" required>
+            </div>
+            <div class="mb-3 text-start">
+                <label class="form-label">Contraseña</label>
+                <input type="password" class="form-control" placeholder="Crea una contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-main w-100">Registrarse</button>
+            <button type="button" class="btn btn-link w-100" id="show-login">¿Ya tienes cuenta? Inicia sesión</button>
+        </form>
+    </div>
+    <script>
+        // Cambiar entre formularios
+        document.getElementById('show-register').onclick = function() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('form-title').textContent = 'Registro';
+        };
+        document.getElementById('show-login').onclick = function() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('form-title').textContent = 'Bienvenido';
+        };
+    </script>
 </body>
 </html>
