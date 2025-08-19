@@ -1,7 +1,7 @@
 /* General styles */
 body {
-    background-color: #6A8DFF;
-    color: #FFFFFF;
+    background-color: #F4F6FC;
+    color: #050A30;
     font-family: Arial, sans-serif;
 }
 
@@ -72,6 +72,7 @@ body {
     background-color: transparent;
     transition: background-color 0.3s ease;
     z-index: 1000;
+    margin-bottom: 2rem; /* Agrega distancia entre el navbar y el contenido */
 }
 .navbar.scrolled {
     background-color: rgba(37, 88, 87, 0.8);
@@ -86,7 +87,7 @@ body {
 }
 .btn-login {
     margin-left: auto;
-    background-color: #56C596;
+    background-color: #56c5c3;
     color: #FFFFFF;
     font-size: 1rem;
     font-weight: bold;
@@ -94,7 +95,7 @@ body {
 
 /* stylos de letra */
 
-v
+
     .navbar-nav .nav-link,
     .btn-login {
         font-family: 'Poppins', sans-serif;
@@ -121,8 +122,8 @@ v
 
 /* ards planes styles */
 .pricing-card {
-    background-color: #97b6e7;
-    color: #FFFFFF;
+    background-color: #050A30;
+    color: #F4F6FC;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -139,7 +140,7 @@ v
 .pricing-card h3 {
     font-size: 1.8rem;
     margin-bottom: 1rem;
-    color: #56C596;
+    color: #B79347;
 }
 .pricing-card p {
     font-size: 1rem;
@@ -149,6 +150,7 @@ v
     font-size: 2rem;
     font-weight: bold;
     margin: 1rem 0;
+    color: #8B8383;
 }
 .pricing-card .btn {
     margin-top: 1rem;
@@ -156,12 +158,12 @@ v
     font-size: 1rem;
     border: none;
     border-radius: 5px;
-    background-color: #56C596;
-    color: #FFFFFF;
+    background-color: #B79347;
+    color: #F4F6FC;
     transition: background-color 0.3s ease;
 }
 .pricing-card .btn:hover {
-    background-color: #329D9C;
+    background-color: #8B8383;
 }
 
 /* stylos del restaurante */
@@ -197,7 +199,7 @@ v
 
         /* Botón login */
         .btn-login {
-            background-color: #13e11aff;
+            background-color: rgb(11, 216, 202);
             border-radius: 8px;
             padding: 6px 12px;
             margin-left: auto;
@@ -207,14 +209,111 @@ v
             background-color: #13ea1dff;
         } 
 
-    
-        body {
-            background-color: #148bf3; /* Azul brillante, puedes cambiar el código si quieres otro tono */
+ body {
+            background-color: #131517; /* Azul brillante, puedes cambiar el código si quieres otro tono */
         }
- 
 
 
 
-   /*------------------------------stylos login-------------------------------------*/
+    /*Hospedaje*/
+        body {
+            background-color: #090909ff;
+            color: #FFFFFF;
+            font-family: Arial, sans-serif;
+        }
+        .pricing-card {
+            background-color: #0C1E3E;
+            color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 2rem;
+            margin: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 300px;
+            height: 450px;
+        }
+        .pricing-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #56C596;
+        }
+        .pricing-card p {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .pricing-card .price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        .pricing-card .btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #56C596;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease;
+        }
+        .pricing-card .btn:hover {
+            background-color: #329D9C;
+        }
 
-   
+/* Amenities card styles */
+.amenities-card {
+    background-color: #050A30;
+    color: #F4F6FC;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.amenities-card h4 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+.amenities-card .row div {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Updated button styles */
+.btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #4A90E2; /* Azul claro marino */
+    color: #FFFFFF;
+    transition: background-color 0.3s ease;
+}
+.btn:hover {
+    background-color: #357ABD; /* Azul más oscuro al pasar el mouse */
+}
+
+/* Updated header section styles */
+.header-section {
+    background: linear-gradient(to bottom, #000000, #050A30); /* Degradado entre negro y azul oscuro */
+    color: #B79347; /* Texto dorado */
+    padding: 2rem 0;
+    text-align: center;
+}
+.header-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+.header-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+.header-section p {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}

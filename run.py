@@ -1,6 +1,10 @@
 from flask import Flask, render_template
+from models.usuario import db  # Corrige aquí la importación
+from config import Config   # Agrega esto si usas config.py
 
 app = Flask(__name__)
+app.config.from_object(Config) # Configura la base de datos
+db.init_app(app)               # Inicializa SQLAlchemy con la app
 
 # Ruta para la página principal
 @app.route("/")
@@ -29,4 +33,8 @@ def login():
     return render_template("login.html")
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=True, host="0.0.0.0", port=5000)
+
+
