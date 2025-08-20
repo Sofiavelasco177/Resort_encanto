@@ -222,7 +222,7 @@ body {
             font-family: Arial, sans-serif;
         }
         .pricing-card {
-            background-color: #0C1E3E;
+            background-color: #110556;
             color: #FFFFFF;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -240,7 +240,7 @@ body {
         .pricing-card h3 {
             font-size: 1.8rem;
             margin-bottom: 1rem;
-            color: #56C596;
+            color: #568ac5;
         }
         .pricing-card p {
             font-size: 1rem;
@@ -267,7 +267,7 @@ body {
 
 /* Amenities card styles */
 .amenities-card {
-    background-color: #050A30;
+    background-color: #040e5b;
     color: #F4F6FC;
     padding: 1rem;
     border-radius: 10px;

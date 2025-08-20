@@ -26,7 +26,7 @@ def register():
     correo = request.form['correo']
     contraseña = request.form['contraseña']
     direccion = request.form['direccion']
-    fecha_nacimiento = datetime.strptime(request.form['fechaNacimiento'], "%Y-%m-%d").date()
+    fechaNacimiento = datetime.strptime(request.form['fechaNacimiento'], "%Y-%m-%d").date()
 
     # Verificar si el correo ya existe
     if Usuario.query.filter_by(correo=correo).first():
@@ -36,10 +36,9 @@ def register():
     nuevo_usuario = Usuario(
         usuario=usuario,
         correo=correo,
-        contrasña=contraseña,
+        contraseña=contraseña,  # Corregido
         direccion=direccion,
-        fechaNacimiento=fecha_nacimiento,
-        rol='usuario'
+        fechaNacimiento=fechaNacimiento
     )
     db.session.add(nuevo_usuario)
     db.session.commit()

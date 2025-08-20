@@ -1,10 +1,16 @@
 from flask import Flask, render_template
 from models.usuario import db  # Corrige aquí la importación
 from config import Config   # Agrega esto si usas config.py
+from routes.registro import registro_bp
 
 app = Flask(__name__)
 app.config.from_object(Config) # Configura la base de datos
 db.init_app(app)               # Inicializa SQLAlchemy con la app
+app.register_blueprint(registro_bp, url_prefix='/registro')
+
+# ...existing code...
+app.secret_key = 'islaencanto'  
+# ...existing code...
 
 # Ruta para la página principal
 @app.route("/")
@@ -31,6 +37,7 @@ def experiencias():
 @app.route("/login")
 def login():
     return render_template("login.html")
+
 
 if __name__ == "__main__":
     with app.app_context():
