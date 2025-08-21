@@ -13,12 +13,12 @@ def login():
         if user:
             flash(f'¡Bienvenido, {user.usuario}!')
             if hasattr(user, 'rol') and user.rol == 'admin':
-                return redirect(url_for('dashboard'))  # Cambia 'dashboard' por tu ruta real
+                return redirect(url_for('dashboard/index.html'))  # Cambia 'dashboard' por tu ruta real
             else:
-                return redirect(url_for('home'))  # Cambia 'home' por tu ruta real
+                return redirect(url_for('home/home'))  # Cambia 'home' por tu ruta real
         else:
             flash('Usuario o contraseña incorrectos')
-    return render_template('Login.html')
+    return render_template('home/Login.html')
 
 @registro_bp.route('/register', methods=['POST'])
 def register():

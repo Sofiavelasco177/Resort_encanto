@@ -1,13 +1,17 @@
-/* General styles */
+/* =======================
+   ESTILOS BASE/GENERALES
+   ======================= */
 body {
-    background-color: #F4F6FC;
-    color: #050A30;
+    background-color: #daeaf6;
+    color: #856e6e;
     font-family: Arial, sans-serif;
 }
 
-/* HOME*/
+/* =======================
+   ESTILOS HOME
+   ======================= */
 .hero {
-    background-image: url('/static/img/efondo.jpg');
+    background-video: url('/static/img/video.mp4');
     background-size: cover;
     background-position: center;
     height: 100vh;
@@ -15,7 +19,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #FFFFFF;
+    color: #f5f2f2;
     text-align: center;
 }
 .hero h1 {
@@ -35,16 +39,18 @@ body {
 }
 .btn-tour {
     background-color: #56C596;
-    color: #FFFFFF;
+    color: #f3f0f0;
 }
 .btn-learn {
     background-color: #255857;
-    color: #FFFFFF;
+    color: #e8e5e5;
 }
 
-/* Availability section */
+/* =======================
+   ESTILOS DISPONIBILIDAD
+   ======================= */
 .availability {
-    background-color: #FFFFFF;
+    background-color: #edecec;
     padding: 2rem;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -55,75 +61,72 @@ body {
     margin: 0.5rem;
     padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid #daeaf6;
+    border: 1px solid #e3e3ed;
     border-radius: 5px;
 }
 .availability button {
     background-color: #56C596;
-    color: #FFFFFF;
+    color: #f2e8e8;
     border: none;
 }
 
-/* Navbar styles */
+/* =======================
+   ESTILOS NAVBAR (base.html)
+   ======================= */
 .navbar {
     position: absolute;
     top: 0;
     width: 100%;
-    background-color: transparent;
+    background: #174c6f !important;
     transition: background-color 0.3s ease;
     z-index: 1000;
-    margin-bottom: 2rem; /* Agrega distancia entre el navbar y el contenido */
 }
 .navbar.scrolled {
-    background-color: rgba(37, 88, 87, 0.8);
+    background-color: rgba(11, 37, 60, 0.8);
 }
 .navbar-nav {
     margin: 0 auto;
 }
-.navbar-brand, .nav-link {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #FFFFFF !important;
+.navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: white !important;
+    margin-right: 10px;
+}
+.navbar-nav .nav-link,
+.btn-login {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: white !important;
+    margin-right: 15px;
+    font-weight: 500;
+    letter-spacing: 1.0px;
+}
+.navbar-nav .nav-link:hover,
+.btn-login:hover {
+    color: #0a0a0aff !important;
+    text-decoration: underline;
 }
 .btn-login {
     margin-left: auto;
-    background-color: #56c5c3;
-    color: #FFFFFF;
+    background-color: rgb(11, 216, 202);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: white;
     font-size: 1rem;
     font-weight: bold;
 }
+.btn-login:hover {
+    background-color: #13ea1dff;
+}
 
-/* stylos de letra */
-
-
-    .navbar-nav .nav-link,
-    .btn-login {
-        font-family: 'Poppins', sans-serif;
-        font-size: 20px; /* tamaño de letra */
-        font-weight: 500; /* negrita */
-        letter-spacing: 1.0px; /* espacio entre letras */
-        color: #f5f0f0 !important; /* color */
-    }
-
-    /* Opcional: efecto hover más elegante */
-    .navbar-nav .nav-link:hover {
-        color: #0c0f12 !important; /* azul Bootstrap */
-        text-decoration: underline;
-    }
-
-/* stylos de letra del hotel encanto */
-
-
-    .navbar-brand {
-        font-size: 25px; /* Cambia este valor al tamaño que quieras */
-        font-weight: bold; /* Negrita */
-        font-family: 'Poppins', sans-serif; /* Fuente bonita */
-    }
-
-/* ards planes styles */
+/* =======================
+   ESTILOS HOSPEDAJE
+   ======================= */
 .pricing-card {
-    background-color: #050A30;
-    color: #F4F6FC;
+    background-color: #110556;
+    color: #FFFFFF;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -140,7 +143,7 @@ body {
 .pricing-card h3 {
     font-size: 1.8rem;
     margin-bottom: 1rem;
-    color: #B79347;
+    color: #568ac5;
 }
 .pricing-card p {
     font-size: 1rem;
@@ -150,7 +153,6 @@ body {
     font-size: 2rem;
     font-weight: bold;
     margin: 1rem 0;
-    color: #8B8383;
 }
 .pricing-card .btn {
     margin-top: 1rem;
@@ -158,162 +160,179 @@ body {
     font-size: 1rem;
     border: none;
     border-radius: 5px;
-    background-color: #B79347;
-    color: #F4F6FC;
-    transition: background-color 0.3s ease;
-}
-.pricing-card .btn:hover {
-    background-color: #8B8383;
-}
-
-/* stylos del restaurante */
-
-/* Estilo del nombre tipo Dior */
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: white !important;
-            margin-right: 10px;
-        }
-
-        /* Color y estilo del menú */
-        .navbar-nav .nav-link {
-            font-family: 'Playfair Display', serif;
-            font-size: 18px;
-            color: white !important;
-            margin-right: 15px;
-        }
-
-        /* Efecto hover */
-        .navbar-nav .nav-link:hover {
-            color: #0a0a0aff !important; /* Dorado */
-        }
-
-        /* Fondo transparente */
-        .navbar {
-            background: transparent !important;
-        }
-    
-        
-
-        /* Botón login */
-        .btn-login {
-            background-color: rgb(11, 216, 202);
-            border-radius: 8px;
-            padding: 6px 12px;
-            margin-left: auto;
-            color: white;
-        }
-        .btn-login:hover {
-            background-color: #13ea1dff;
-        } 
-
- body {
-            background-color: #131517; /* Azul brillante, puedes cambiar el código si quieres otro tono */
-        }
-
-
-
-    /*Hospedaje*/
-        body {
-            background-color: #090909ff;
-            color: #FFFFFF;
-            font-family: Arial, sans-serif;
-        }
-        .pricing-card {
-            background-color: #110556;
-            color: #FFFFFF;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            padding: 2rem;
-            margin: 1rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            width: 300px;
-            height: 450px;
-        }
-        .pricing-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
-        }
-        .pricing-card h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: #568ac5;
-        }
-        .pricing-card p {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        .pricing-card .price {
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 1rem 0;
-        }
-        .pricing-card .btn {
-            margin-top: 1rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
-            background-color: #56C596;
-            color: #FFFFFF;
-            transition: background-color 0.3s ease;
-        }
-        .pricing-card .btn:hover {
-            background-color: #329D9C;
-        }
-
-/* Amenities card styles */
-.amenities-card {
-    background-color: #040e5b;
-    color: #F4F6FC;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-top: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.amenities-card h4 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-.amenities-card .row div {
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-}
-
-/* Updated button styles */
-.btn {
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    background-color: #4A90E2; /* Azul claro marino */
+    background-color: #56C596;
     color: #FFFFFF;
     transition: background-color 0.3s ease;
 }
-.btn:hover {
-    background-color: #357ABD; /* Azul más oscuro al pasar el mouse */
+.pricing-card .btn:hover {
+    background-color: #329D9C;
 }
 
-/* Updated header section styles */
-.header-section {
-    background: linear-gradient(to bottom, #000000, #050A30); /* Degradado entre negro y azul oscuro */
-    color: #B79347; /* Texto dorado */
-    padding: 2rem 0;
-    text-align: center;
+/* =======================
+   ESTILOS LOGIN Y REGISTRO
+   ======================= */
+.login-hero-wrapper {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 80vh;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    gap: 48px; /* Separación real entre imagen y formulario */
 }
-.header-section h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+.login-hero-img {
+    width: 450px;           /* Imagen más ancha */
+    height: 100%;           /* Ocupa todo el alto del contenedor padre */
+    min-height: 560px;      /* Igual que el formulario */
+    max-height: 600px;
+    object-fit: cover;
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(44, 130, 167, 0.10);
+    display: block;
 }
-.header-section h2 {
+.login-container {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(44, 130, 167, 0.10), 0 1.5px 8px rgba(0,0,0,0.04);
+    width: 460px;           /* Formulario más ancho */
+    min-height: 500px;      /* Igual que la imagen */
+    max-height: 750px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2.5rem 2.5rem 2.5rem;
+    box-sizing: border-box;
+}
+#login-form, #register-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.hotel-title {
+    font-family: 'Poppins', 'Georgia', serif;
     font-size: 2rem;
-    margin-bottom: 1rem;
+    color: #2176ae;
+    margin-bottom: 0.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
-.header-section p {
+.hotel-sub {
+    color: #3a8dde;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    font-family: 'Poppins', serif;
+}
+.form-label {
+    color: #2176ae;
+    font-weight: 500;
     font-size: 1rem;
+    margin-bottom: 0.2rem;
+}
+.form-control {
+    border-radius: 10px;
+    border: 1.5px solid #b5d6ea;
+    background: #f5fbff;
+    color: #174c6f;
+    font-size: 1rem;
+    margin-bottom: 1.1rem;
+    padding: 0.85rem 1rem;
+    transition: border-color 0.2s;
+}
+.form-control:focus {
+    border-color: #3a8dde;
+    box-shadow: 0 0 0 2px #b5d6ea33;
+    background: #fff;
+}
+.btn-main {
+    background: linear-gradient(90deg, #3a8dde 60%, #2176ae 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+    transition: background 0.2s;
+    padding: 0.8rem 0;
+}
+.btn-main:hover {
+    background: linear-gradient(90deg, #2176ae 60%, #3a8dde 100%);
+}
+.btn-link {
+    color: #2176ae;
+    font-size: 1rem;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    margin-bottom: 1rem;
+    margin-top: 0.2rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.btn-link:hover {
+    color: #174c6f;
+}
+.google-btn {
+    background: #eaf6fb;
+    color: #2176ae;
+    border: 1px solid #b5d6ea;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.7rem 0;
+    transition: background 0.2s, color 0.2s;
+}
+.google-btn:hover {
+    background: #d0e6f6;
+    color: #174c6f;
+}
+@media (max-width: 1100px) {
+    .login-hero-wrapper {
+        flex-direction: column;
+        min-height: unset;
+        align-items: center;
+        gap: 24px;
+    }
+    .login-hero-img {
+        width: 100%;
+        height: 220px;
+        min-height: unset;
+        max-height: 300px;
+        border-radius: 24px 24px 0 0;
+    }
+    .login-container {
+        border-radius: 0 0 24px 24px;
+        width: 100%;
+        min-height: unset;
+        max-height: unset;
+        padding: 2rem 1rem 1.5rem 1rem;
+    }
+}
+
+/* =======================
+   ESTILOS MODAL RESTAURANTE
+   ======================= */
+.modal-dialog {
+    max-width: fit-content; /* el modal se ajusta al contenido */
+    margin: auto;           /* lo centra en la pantalla */
+}
+.modal-body img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* stylos para que se levante las tarjetas del restaurante*/
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-10px); /* Se levanta */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); /* Más sombra */
 }

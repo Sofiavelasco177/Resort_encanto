@@ -1,0 +1,35 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Experiencias{% endblock %}
+
+{% block content %}
+<br>
+<div class="container mt-5">
+    <h2>Experiencias de nuestros huéspedes</h2>
+    {% if current_user.is_authenticated %}
+        <form method="POST" action="{{ url_for('experiencias') }}">
+            <div class="mb-3">
+                <textarea class="form-control" name="contenido" rows="3" placeholder="Comparte tu experiencia..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Comentar</button>
+        </form>
+    {% else %}
+        <script>
+            window.location.href = "{{ url_for('login') }}";
+        </script>
+    {% endif %}
+
+    <div class="mt-4">
+        {% for comentario in comentarios %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <strong>{{ comentario.user.username }}</strong> dijo:<br>
+                    {{ comentario.contenido }}
+                </div>
+            </div>
+        {% else %}
+            <p>No hay experiencias compartidas aún.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

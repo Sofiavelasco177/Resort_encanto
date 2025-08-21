@@ -1,0 +1,109 @@
+{% extends 'home/base.html' %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<br>
+
+<!--Habitaciones Section-->
+<div class="container mt-5">
+
+    
+
+    <!-- Basic Room -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 order-md-2">
+            <img src="{{ url_for('static', filename='img/habitacion(1).jpg') }}" alt="Habitación Básica" class="img-fluid">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h3>Habitación Básica</h3>
+            <p>Vista al jardín, cama queen size, baño privado, Wi-Fi gratuito, minibar básico.</p>
+            <div class="price">Desde $750.000 COP</div>
+            <button class="btn btn-link" onclick="toggleDescription('basic-room')">Leer más</button>
+            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Reservar Ahora</button>
+            <div id="basic-room" class="room-description" style="display: none;">
+                
+                <h4>Comodidades En La Habitación</h4>
+                <ul>
+                    <li>Aire acondicionado</li>
+                    <li>TV</li>
+                    <li>Secador de pelo</li>
+                    <li>Control remoto</li>
+                    <li>Minibar/nevera</li>
+                    <li>Satélite Direct TV</li>
+                    <li>Caja de seguridad</li>
+                    <li>Servicios L'occitane</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standard Room -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 order-md-2">
+            <img src="{{ url_for('static', filename='img/habitacion(2).jpg') }}" alt="Habitación Estándar" class="img-fluid">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h3>Habitación Estándar</h3>
+            <p>Vista parcial al mar, cama king size, baño con ducha y bañera, Wi-Fi de alta velocidad, minibar surtido.</p>
+            <div class="price">Desde $1.170.000 COP</div>
+            <button class="btn btn-link" onclick="toggleDescription('standard-room')">Leer más</button>
+            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Reservar Ahora</button>
+            <div id="standard-room" class="room-description" style="display: none;">
+                
+                <h4>Comodidades En La Habitación</h4>
+                <ul>
+                    <li>Aire acondicionado</li>
+                    <li>TV</li>
+                    <li>Secador de pelo</li>
+                    <li>Control remoto</li>
+                    <li>Minibar/nevera</li>
+                    <li>Satélite Direct TV</li>
+                    <li>Caja de seguridad</li>
+                    <li>Servicios L'occitane</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Room -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 order-md-2">
+            <img src="{{ url_for('static', filename='img/habitacion(3).jpg') }}" alt="Habitación Premium" class="img-fluid">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h3>Habitación Premium</h3>
+            <p>Vista al mar, cama king size premium, baño de mármol con jacuzzi, Wi-Fi VIP ultra rápido, minibar premium.</p>
+            <div class="price">Desde $2.300.000 COP</div>
+            <button class="btn btn-link" onclick="toggleDescription('premium-room')">Leer más</button>
+            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Reservar Ahora</button>
+            <div id="premium-room" class="room-description" style="display: none;">
+                
+                <h4>Comodidades En La Habitación</h4>
+                <ul>
+                    <li>Aire acondicionado</li>
+                    <li>TV</li>
+                    <li>Secador de pelo</li>
+                    <li>Control remoto</li>
+                    <li>Minibar/nevera</li>
+                    <li>Satélite Direct TV</li>
+                    <li>Caja de seguridad</li>
+                    <li>Servicios L'occitane</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function toggleDescription(roomId) {
+    const description = document.getElementById(roomId);
+    description.style.display = description.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+
+{% endblock %}

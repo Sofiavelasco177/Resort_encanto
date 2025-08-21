@@ -1,0 +1,539 @@
+{% extends 'home/base.html' %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<div class="container mt-5">
+  <h1 class="mb-4 text-center" style="font-family: 'Playfair Display', serif;">Restaurante</h1>
+  
+  <div class="row align-items-center">
+    <!-- Imagen a la izquierda -->
+    <div class="col-md-6">
+      <img src="{{ url_for('static', filename='img/r1.jpg') }}" alt="Restaurante" class="img-fluid rounded mb-4">
+    </div>
+
+    <!-- Texto a la derecha -->
+    <div class="col-md-6">
+      <p>
+        En el corazón del paraíso, el Hotel Isla Encanto te invita a vivir una experiencia única donde el descanso, la comodidad y la magia del mar se unen en un solo lugar.  
+        Nuestro compromiso es brindarte momentos inolvidables, rodeados de paisajes encantadores y un servicio pensado para ti.  
+        🍴 En nuestro restaurante encontrarás una gran variedad gastronómica, con sabores que combinan lo mejor de la cocina local e internacional. Cada plato es preparado con ingredientes frescos y auténticos, para que disfrutes de una experiencia culinaria que deleitará todos tus sentidos.
+      </p>
+      <p class="fw-bold text-warning">✨ Tu refugio frente al mar, tu lugar para soñar. ✨</p>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Agrega aquí más contenido, menús, imágenes, etc. -->
+     <div class="container my-5">
+    <h2 class="text-center mb-4">Descubre lo que tenemos para ti</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        
+        <!-- Tarjeta 1 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r2.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🍽 1. Frescura del Mar</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal1">Descubrir menú</a>
+
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Tarjeta 2 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r3.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🍽 2. Sabor Caribeño</h5>
+                </div>
+                <div class="card-footer text-center">
+                        <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal2">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 3 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r4.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🍽️ 3. Exquisito al Paladar</h5>
+                </div>
+                <div class="card-footer text-center">
+                  <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal3">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 4 -->
+          <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r5.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🍹 4. Cóctel Caribeño</h5>
+                </div>
+                <div class="card-footer text-center">
+                  <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal4">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 5 -->
+            <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r6.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🐟 5. Filete de Salmón con Vegetales</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal5">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 6 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r7.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🥖 6. Pan de Coco con Relleno de Mariscos</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal6">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 7 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r8.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🐟 7. Filete de Pescado con Vegetales y Camarones en Salsa</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal7">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 8 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r10.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🍹 8. Cóctel Azul Tropical</h5>
+                </div>
+                <div class="card-footer text-center">
+                  <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal8">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 9 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r11.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🍊 9. Cóctel Frutal Caribeño</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal9">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+          <!-- Tarjeta 10 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r12.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🐟 10. Salmón a la Plancha con Salsa Verde</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal10">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+          <!-- Tarjeta 11 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r13.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🐠 11. Filete de Pescado con Camarones y Vegetales</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal11">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+          <!-- Tarjeta 12 -->
+        <div class="col">
+            <div class="card h-100 shadow-lg">
+                <img src="{{ url_for('static', filename='img/r14.jpg') }}" class="card-img-top" alt="Experiencias">
+                <div class="card-body">
+                    <h5 class="card-title">🐟 12. Pescado Frito al Estilo Caribeño</h5>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modal12">Descubrir menú</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row align-items-center my-5">
+    <div class="col-md-6 text-center">
+        <img src="{{ url_for('static', filename='img/r9.jpg') }}" alt="Restaurante" class="img-fluid rounded mb-4" style="height: 500px; width: auto;">
+    </div>
+    <div class="col-md-6">
+        <h3>Ambiente único frente al mar</h3>
+        <p>
+            “En Isla Encanto, cada comida se convierte en una experiencia que une corazones. Nuestro restaurante está diseñado para que disfrutes de los sabores del paraíso mientras compartes risas, historias y momentos inolvidables con tu familia. Aquí, la naturaleza, la tranquilidad y la buena mesa se encuentran para crear recuerdos que permanecerán para siempre.”
+        </p>
+    </div>
+</div>
+
+<!-- modal para las tarjetas -->
+
+<!-- Modal 1 -->
+<div class="modal fade" id="modal1" tabindex="-1" aria-labelledby="modal1Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 solo esto -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal1Label">🍽 1. Frescura del Mar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img src="{{ url_for('static', filename='img/r2.jpg') }}" 
+            class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          Un plato que combina la suavidad del pescado fresco con el toque único de la cocina isleña.
+          Acompañado de arroz con tinta de calamar y coronado con cebolla encurtida y finas hierbas,
+          este manjar ofrece una explosión de sabores marinos que deleitan desde el primer bocado.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 2 -->
+<div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="modal2Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal2Label">🍽 2. Sabor Caribeño</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos igual que en el primero -->
+        <img src="{{ url_for('static', filename='img/r3.jpg') }}" class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          El auténtico espíritu del Caribe servido en un plato. Pulpo tierno y jugoso acompañado 
+          de camarones y vegetales frescos, realzado con un sazón lleno de tradición. Cada ingrediente 
+          cuenta una historia de mar y cultura que se funde en una experiencia vibrante y tropical.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 3 -->
+<div class="modal fade" id="modal3" tabindex="-1" aria-labelledby="modal3Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal3Label">🍽️ 3. Exquisito al Paladar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centrado como los otros -->
+        <img src="{{ url_for('static', filename='img/r4.jpg') }}" 
+            class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          Un corte de res cuidadosamente cocinado a fuego lento hasta lograr una textura suave y jugosa. 
+          Bañado en su propia salsa, se acompaña de vegetales al vapor que resaltan su sabor intenso 
+          y sofisticado. Ideal para quienes buscan un toque gourmet en medio del paraíso.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 4 -->
+<div class="modal fade" id="modal4" tabindex="-1" aria-labelledby="modal4Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal4Label">🍹 4. Cóctel Caribeño</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos contenido -->
+        <img src="{{ url_for('static', filename='img/r5.jpg') }}" 
+            class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          Un trago refrescante que combina el azul del mar con la alegría tropical. 
+          Con notas cítricas, frutas frescas y un toque caribeño, cada sorbo es una 
+          invitación a relajarte y disfrutar del paraíso.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 5 -->
+<div class="modal fade" id="modal5" tabindex="-1" aria-labelledby="modal5Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal5Label">🐟 5. Filete de Salmón con Vegetales</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos contenido -->
+        <img src="{{ url_for('static', filename='img/r6.jpg') }}" 
+            class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          Salmón a la plancha jugoso y dorado, acompañado de vegetales salteados 
+          que resaltan su frescura. Una opción saludable y deliciosa que refleja 
+          el sabor auténtico de Barú, servido con un toque de salsa que realza 
+          cada bocado.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 6 -->
+<div class="modal fade" id="modal6" tabindex="-1" aria-labelledby="modal6Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal6Label">🥖 6. Pan de Coco con Relleno de Mariscos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos contenido -->
+        <img src="{{ url_for('static', filename='img/r7.jpg') }}" 
+            class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          Una joya de la gastronomía local: pan artesanal de coco relleno de un 
+          cremoso guiso de mariscos. La combinación perfecta entre lo tradicional 
+          y lo exquisito, que te conecta con las raíces culinarias del Caribe.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 7 -->
+<div class="modal fade" id="modal7" tabindex="-1" aria-labelledby="modal7Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal7Label">🐟 7. Filete de Pescado con Vegetales y Camarones en Salsa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos -->
+        <img src="{{ url_for('static', filename='img/r8.jpg') }}" 
+            class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          Un plato que celebra lo mejor del mar y la tierra. Filete de pescado 
+          dorado acompañado de vegetales frescos al vapor y una irresistible cazuela 
+          de camarones en salsa cremosa. Una combinación balanceada y llena de sabor caribeño.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 8 -->
+<div class="modal fade" id="modal8" tabindex="-1" aria-labelledby="modal8Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal8Label">🍹 8. Cóctel Azul Tropical</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos -->
+        <img src="{{ url_for('static', filename='img/r10.jpg') }}" 
+          class="img-fluid rounded mb-3">
+
+        <p class="card-text">
+          Refrescante y vibrante, este cóctel mezcla notas frutales con un toque exótico 
+          que evoca la brisa marina. Servido frío, es perfecto para disfrutar una tarde en 
+          el paraíso mientras el sol se oculta en el horizonte.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 9 -->
+<div class="modal fade" id="modal9" tabindex="-1" aria-labelledby="modal9Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal9Label">🍊 9. Cóctel Frutal Caribeño</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos contenido -->
+        <img src="{{ url_for('static', filename='img/r11.jpg') }}" 
+        class="img-fluid rounded mb-3">
+        
+        <p class="card-text">
+          Una explosión de frescura en cada sorbo. Con el dulce sabor de las frutas tropicales, 
+          cítricos frescos y un toque de licor, este cóctel es ideal para brindar y dejarse llevar 
+          por el ritmo relajado del Caribe.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 10 -->
+<div class="modal fade" id="modal10" tabindex="-1" aria-labelledby="modal10Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal10Label">🐟 10. Salmón a la Plancha con Salsa Verde</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos el contenido -->
+        <img src="{{ url_for('static', filename='img/r12.jpg') }}" 
+            class="img-fluid rounded mb-3">
+          
+        <p class="card-text">
+          Un filete de salmón jugoso y dorado, acompañado de vegetales frescos y 
+          una irresistible salsa verde que resalta su sabor natural. Una propuesta 
+          sofisticada y saludable que evoca la frescura del mar en cada bocado.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 11 -->
+<div class="modal fade" id="modal11" tabindex="-1" aria-labelledby="modal11Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal11Label">🐠 11. Filete de Pescado con Camarones y Vegetales</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos contenido -->
+        <img src="{{ url_for('static', filename='img/r13.jpg') }}" 
+            class="img-fluid rounded mb-3">
+            
+        <p class="card-text">
+          Pescado a la plancha de textura suave, servido con vegetales al vapor 
+          y una deliciosa guarnición de camarones en salsa cremosa. 
+          Un plato que equilibra lo tradicional con un toque gourmet caribeño.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal 12 -->
+<div class="modal fade" id="modal12" tabindex="-1" aria-labelledby="modal12Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- 👈 quitamos modal-lg -->
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modal12Label">🐟 12. Pescado Frito al Estilo Caribeño</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center"> <!-- 👈 centramos contenido -->
+        <img src="{{ url_for('static', filename='img/r14.jpg') }}" 
+            class="img-fluid rounded mb-3">
+            
+        <p class="card-text">
+          Crujiente por fuera y tierno por dentro, este pescado frito conserva el auténtico sabor 
+          de la cocina costeña. Acompañado de rodajas de limón, es la elección perfecta para quienes 
+          disfrutan la tradición y el sabor inconfundible del mar.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" class="btn btn-warning">Hacer Pedido</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}
