@@ -1,0 +1,88 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Restaurante - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Restaurante - Administración</h2>
+    </div>
+
+    <!-- Tabla de platos -->
+    <h4>📋 Platos registrados</h4>
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Plato</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in platos %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.categoria }}</td>
+                <td>${{ '%.2f'|format(p.precio) }}</td>
+                <td class="text-end">
+                    <a href="{{ url_for('admin_restaurante_editar', plato_id=p.id) }}" class="btn btn-sm btn-primary me-2">Editar</a>
+                    <form method="POST" action="{{ url_for('admin_restaurante_eliminar', plato_id=p.id) }}" style="display:inline-block;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este plato?');">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5" class="text-center">No hay platos registrados.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <hr class="my-4">
+
+    <!-- Formulario Nuevo Plato -->
+    <h4>➕ Crear nuevo plato</h4>
+    <form method="POST" action="{{ url_for('admin_restaurante_nuevo') }}" class="mt-3">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input class="form-control" name="nombre" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Categoria</label>
+            <input class="form-control" name="categoria">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Precio</label>
+            <input class="form-control" name="precio" type="number" required>
+        </div>
+        <button class="btn btn-success" type="submit">Crear</button>
+    </form>
+
+    <hr class="my-4">
+
+    <!-- Formulario Editar Plato -->
+    {% if plato %}
+    <h4>✏️ Editar plato</h4>
+    <form method="POST" action="{{ url_for('admin_restaurante_editar', plato_id=plato.id) }}" class="mt-3">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input class="form-control" name="nombre" value="{{ plato.nombre }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Categoria</label>
+            <input class="form-control" name="categoria" value="{{ plato.categoria }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Precio</label>
+            <input class="form-control" name="precio" type="number" value="{{ plato.precio }}" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Guardar</button>
+    </form>
+    {% endif %}
+
+</div>
+{% endblock %}

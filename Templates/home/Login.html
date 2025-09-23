@@ -1,60 +1,80 @@
 {% extends 'home/base.html' %}
 
-{% block title %}Experiencias{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
 <br>
 <br>
 
 <div class="login-hero-wrapper">
-    <img src="{{ url_for('static', filename='img/login.jpg') }}" class="login-hero-img" alt="Hotel">
+    <img src="{{ url_for('static', filename='img/login.jpg') }}" 
+        class="login-hero-img" 
+        alt="Hotel">
+
     <div class="login-container text-center" id="login-card">
         <div class="hotel-title">Isla Encanto</div>
         <div class="hotel-sub" id="form-title">Bienvenido</div>
+
         <!-- Formulario de Iniciar Sesión -->
         <form id="login-form" method="post" action="{{ url_for('login')}}">
             <div class="mb-3 text-start">
                 <label class="form-label">Usuario</label>
                 <input type="text" class="form-control" name="usuario" placeholder="Escribe tu usuario" required>
             </div>
+
             <div class="mb-3 text-start">
-                <label class="form-label">Contraseña</label>
-                <input type="password" class="form-control" name="contraseña" placeholder="Escribe tu contraseña" required>
+                <label class="form-label">contrasena</label>
+                <input type="password" class="form-control" name="contrasena" placeholder="Escribe tu contrasena" required>
+                <div class="forgot-link mt-3">
+                <a href="{{ url_for('recuperar.recuperar_contrasena') }}">¿Olvidaste tu contraseña?</a>
+                </div>
             </div>
+
             <button type="submit" class="btn btn-main w-100">Iniciar Sesión</button>
             <button type="button" class="btn btn-link w-100" id="show-register">¿No tienes cuenta? Regístrate</button>
-            <button type="button" class="btn google-btn w-100 mb-2">
-                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google" style="width:20px;vertical-align:middle;margin-right:8px;">
-                Iniciar sesión con Google
-            </button>
+
+            <a href="{{ url_for('auth.google_login') }}" class="btn btn-light border w-100 mb-2 d-flex align-items-center justify-content-center">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" 
+            alt="Google" style="width:20px; height:20px; margin-right:8px;">
+            <span>Iniciar sesión con Google</span>
+            </a>
+
+
         </form>
+
         <!-- Formulario de Registro (oculto por defecto) -->
         <form id="register-form" method="POST" action="{{ url_for('registro.register')}}" style="display: none;">
             <div class="mb-3 text-start">
                 <label class="form-label">Usuario</label>
                 <input type="text" class="form-control" name="usuario" placeholder="Escribe tu usuario" required>
             </div>
+
             <div class="mb-3 text-start">
                 <label class="form-label">Correo electrónico</label>
                 <input type="email" class="form-control" name="correo" placeholder="Escribe tu correo" required>
             </div>
+
             <div class="mb-3 text-start">
-                <label class="form-label">Contraseña</label>
-                <input type="password" class="form-control" name="contraseña" placeholder="Crea una contraseña" required>
+                <label class="form-label">contrasena</label>
+                <input type="password" class="form-control" name="contrasena" placeholder="Crea una contrasena" required>
             </div>
+
             <div class="mb-3 text-start">
                 <label class="form-label">Dirección</label>
                 <input type="text" class="form-control" name="direccion" placeholder="Escribe tu dirección" required>
             </div>
+
             <div class="mb-3 text-start">
                 <label class="form-label">Fecha de Nacimeinto</label>
                 <input type="date" class="form-control" name="fechaNacimiento" placeholder="Escribe tu fecha de nacimiento" required>
             </div>
+
             <button type="submit" class="btn btn-main w-100">Registrarse</button>
             <button type="button" class="btn btn-link w-100" id="show-login">¿Ya tienes cuenta? Inicia sesión</button>
         </form>
     </div>
 </div>
+
 <script>
     // Cambiar entre formularios
     document.getElementById('show-register').onclick = function() {
@@ -62,6 +82,7 @@
         document.getElementById('register-form').style.display = 'block';
         document.getElementById('form-title').textContent = 'Registro';
     };
+
     document.getElementById('show-login').onclick = function() {
         document.getElementById('register-form').style.display = 'none';
         document.getElementById('login-form').style.display = 'block';

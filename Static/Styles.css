@@ -2,8 +2,8 @@
    ESTILOS BASE/GENERALES
    ======================= */
 body {
-    background-color: #daeaf6;
-    color: #856e6e;
+    background-color: #f0f8ff; /* Fondo más claro */
+    color: #ffffff; /* Gris claro */
     font-family: Arial, sans-serif;
 }
 
@@ -19,6 +19,66 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+/* =======================
+     ESTILOS CARDS ADMIN HABITACIONES
+     ======================= */
+.habitacion-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    transition: box-shadow 0.3s, transform 0.3s;
+    overflow: hidden;
+    position: relative;
+    width: 340px;
+    min-height: 420px;
+    max-height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    margin: 0 auto;
+}
+.habitacion-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    transform: translateY(-4px) scale(1.03);
+}
+.habitacion-card .card-img-top {
+    height: 180px;
+    object-fit: cover;
+    width: 100%;
+}
+.estado-label {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5em 1em;
+    border-radius: 999px;
+    display: inline-block;
+    margin-top: 0.5em;
+    animation: estadoPulse 1.2s infinite alternate;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.estado-disponible .estado-label {
+    background: #d4f8e8;
+    color: #1fa63b;
+    box-shadow: 0 0 8px 2px #1fa63b44;
+}
+.estado-mantenimiento .estado-label {
+    background: #fff9d4;
+    color: #e6b800;
+    box-shadow: 0 0 8px 2px #e6b80044;
+}
+.estado-ocupada .estado-label {
+    background: #ffd4d4;
+    color: #d32f2f;
+    box-shadow: 0 0 8px 2px #d32f2f44;
+}
+@keyframes estadoPulse {
+    0% { filter: brightness(1); box-shadow: 0 0 8px 2px rgba(0,0,0,0.08); }
+    100% { filter: brightness(1.15); box-shadow: 0 0 16px 4px rgba(0,0,0,0.18); }
+}
     color: #f5f2f2;
     text-align: center;
 }
@@ -53,7 +113,7 @@ body {
     background-color: #edecec;
     padding: 2rem;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(10, 10, 10, 0.1);
     margin-top: -5rem;
     text-align: center;
 }
@@ -80,6 +140,7 @@ body {
     background: #174c6f !important;
     transition: background-color 0.3s ease;
     z-index: 1000;
+    color: black; /* Cambia el color de la letra del navbar a negro */
 }
 .navbar.scrolled {
     background-color: rgba(11, 37, 60, 0.8);
@@ -87,12 +148,22 @@ body {
 .navbar-nav {
     margin: 0 auto;
 }
+
 .navbar-brand {
     font-family: 'Playfair Display', serif;
     font-size: 28px;
     font-weight: 700;
-    color: white !important;
+    color: #111 !important;    /* Cambiado a color oscuro del navbar */
     margin-right: 10px;
+}
+.navbar-nav .nav-link,
+.btn-login {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: #111 !important;    /* Cambiado a color oscuro */
+    margin-right: 15px;
+    font-weight: 500;
+    letter-spacing: 1.0px;
 }
 .navbar-nav .nav-link,
 .btn-login {
@@ -105,7 +176,7 @@ body {
 }
 .navbar-nav .nav-link:hover,
 .btn-login:hover {
-    color: #0a0a0aff !important;
+    color: rgb(19, 17, 17) !important;
     text-decoration: underline;
 }
 .btn-login {
@@ -128,11 +199,16 @@ body {
     background-color: #110556;
     color: #FFFFFF;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(12, 12, 12, 0.1);
     text-align: center;
     padding: 2rem;
     margin: 1rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 420px;
+    max-height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
     width: 300px;
     height: 450px;
 }
@@ -167,148 +243,246 @@ body {
 .pricing-card .btn:hover {
     background-color: #329D9C;
 }
-
 /* =======================
    ESTILOS LOGIN Y REGISTRO
    ======================= */
 .login-hero-wrapper {
     display: flex;
-    align-items: stretch;
+    align-items: stretch; /* que imagen y card ocupen toda la altura */
     justify-content: center;
-    min-height: 80vh;
-    margin-top: 40px;
-    margin-bottom: 40px;
-    gap: 48px; /* Separación real entre imagen y formulario */
+    min-height: 100vh;
+    background: #f9f6f1; /* tono beige claro */
+    padding: 0;
 }
+
+/* Imagen lateral */
 .login-hero-img {
-    width: 450px;           /* Imagen más ancha */
-    height: 100%;           /* Ocupa todo el alto del contenedor padre */
-    min-height: 560px;      /* Igual que el formulario */
-    max-height: 600px;
+    width: 50%;              /* ocupa la mitad */
+    height: 100vh;           /* pantalla completa */
     object-fit: cover;
-    border-radius: 24px;
-    box-shadow: 0 8px 40px rgba(44, 130, 167, 0.10);
-    display: block;
+    border-radius: 0;        /* sin esquinas redondeadas */
+    box-shadow: none;        /* limpio */
 }
+
+/* Card principal */
 .login-container {
+    width: 50%;              /* la otra mitad */
     background: #fff;
-    border-radius: 24px;
-    box-shadow: 0 8px 40px rgba(44, 130, 167, 0.10), 0 1.5px 8px rgba(0,0,0,0.04);
-    width: 460px;           /* Formulario más ancho */
-    min-height: 500px;      /* Igual que la imagen */
-    max-height: 750px;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    padding: 3rem 2.5rem 2.5rem 2.5rem;
-    box-sizing: border-box;
-}
-#login-form, #register-form {
+    padding: 4rem 3rem;
+    border-radius: 0;
+    box-shadow: none;
+    text-align: left;        /* como en la referencia */
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
+
+    
+/* Títulos */
 .hotel-title {
-    font-family: 'Poppins', 'Georgia', serif;
+    font-family: 'Poppins', serif;
     font-size: 2rem;
-    color: #2176ae;
-    margin-bottom: 0.2rem;
     font-weight: 700;
-    letter-spacing: 1px;
+    color: #9a7b4f; /* dorado elegante */
+    margin-bottom: 0.5rem;
 }
 .hotel-sub {
-    color: #3a8dde;
     font-size: 1.1rem;
+    color: #7a7a7a;
     margin-bottom: 2rem;
-    font-family: 'Poppins', serif;
 }
+
+/* Inputs */
 .form-label {
-    color: #2176ae;
-    font-weight: 500;
-    font-size: 1rem;
-    margin-bottom: 0.2rem;
+    color: #444;
+    font-weight: 600;
+    font-size: 0.95rem;
 }
 .form-control {
-    border-radius: 10px;
-    border: 1.5px solid #b5d6ea;
-    background: #f5fbff;
-    color: #174c6f;
+    border-radius: 8px;
+    border: 1.5px solid #d9d4cc;
+    background: #faf9f7;
+    color: #333;
     font-size: 1rem;
-    margin-bottom: 1.1rem;
-    padding: 0.85rem 1rem;
-    transition: border-color 0.2s;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1.2rem;
+    transition: all 0.3s;
 }
 .form-control:focus {
-    border-color: #3a8dde;
-    box-shadow: 0 0 0 2px #b5d6ea33;
+    border-color: #c6a76c;
+    box-shadow: 0 0 6px rgba(198,167,108,0.3);
     background: #fff;
 }
+
+/* Botón principal */
 .btn-main {
-    background: linear-gradient(90deg, #3a8dde 60%, #2176ae 100%);
+    background: #c6a76c;  /* dorado */
     color: #fff;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 1.1rem;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    transition: background 0.2s;
-    padding: 0.8rem 0;
+    font-size: 1.05rem;
+    padding: 0.85rem 0;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
 }
 .btn-main:hover {
-    background: linear-gradient(90deg, #2176ae 60%, #3a8dde 100%);
+    background: #b18f56;
+    transform: translateY(-2px);
 }
+
+/* Botón link */
 .btn-link {
-    color: #2176ae;
-    font-size: 1rem;
-    text-decoration: underline;
+    color: #c6a76c;
+    font-size: 0.95rem;
     background: none;
     border: none;
+    margin-top: 0.5rem;
     margin-bottom: 1rem;
-    margin-top: 0.2rem;
     font-weight: 500;
     transition: color 0.2s;
 }
 .btn-link:hover {
-    color: #174c6f;
+    color: #9a7b4f;
+    text-decoration: underline;
 }
+
+/* Botón Google */
 .google-btn {
-    background: #eaf6fb;
-    color: #2176ae;
-    border: 1px solid #b5d6ea;
-    border-radius: 10px;
+    background: #faf9f7;
+    border: 1px solid #d9d4cc;
+    border-radius: 8px;
+    padding: 0.8rem 0;
     font-weight: 500;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    padding: 0.7rem 0;
-    transition: background 0.2s, color 0.2s;
+    font-size: 0.95rem;
+    color: #333;
+    transition: all 0.3s;
 }
 .google-btn:hover {
-    background: #d0e6f6;
-    color: #174c6f;
+    background: #f1ede8;
+    transform: translateY(-2px);
 }
-@media (max-width: 1100px) {
+
+/* =======================
+   ESTILOS RECUPERACIÓN DE CONTRASEÑA
+   ======================= */
+.recover-hero-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 4rem 1rem;
+}
+
+.recover-card {
+    width: 520px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 2.2rem 2.4rem;
+    box-shadow: 0 10px 30px rgba(16,20,24,0.08);
+    margin: 0 auto;
+}
+
+.recover-card h2 {
+    font-size: 1.4rem;
+    color: #2b2b2b;
+    margin-bottom: 0.75rem;
+}
+
+.recover-card p.helper {
+    color: #6b6b6b;
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+}
+
+.recover-card .form-control {
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+}
+
+.recover-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.btn-secondary-light {
+    background: transparent;
+    border: 1px solid #e6dfd1;
+    color: #423423;
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+}
+
+/* Link pequeño situado en el form de login */
+.login-container .text-end a {
+    color: #c6a76c;
+    font-weight: 600;
+    text-decoration: none;
+}
+.login-container .text-end a:hover {
+    color: #9a7b4f;
+    text-decoration: underline;
+}
+
+/* Mensajes (flash) personalizados para que encajen con el tema */
+.flash-message {
+    max-width: 900px;
+    margin: 1rem auto;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(12, 12, 12, 0.06);
+}
+.flash-message.info { background: #eef6f4; color: #0b4a45; border: 1px solid #d6efe9; }
+.flash-message.success { background: #f3f7ee; color: #2e5a2f; border: 1px solid #e1efd7; }
+.flash-message.warning { background: #fff6ea; color: #6a4a1a; border: 1px solid #f3e6c9; }
+.flash-message.danger { background: #fff6f6; color: #6a1a1a; border: 1px solid #f3d6d6; }
+
+@media (max-width: 700px) {
+    .recover-card { width: 92%; padding: 1.5rem; }
+}
+
+/* Centrar el enlace de 'olvidaste contraseña' y hacerlo proporcional */
+.forgot-link {
+    text-align: center;
+}
+.forgot-link a {
+    display: inline-block;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(198,167,108,0.1);
+    color: #c6a76c;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(198,167,108,0.12);
+    transition: all 0.18s ease;
+    font-size: 0.95rem;
+}
+.forgot-link a:hover {
+    background: rgba(198,167,108,0.15);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 900px) {
+    .forgot-link a { font-size: 0.95rem; padding: 0.5rem 1rem; }
+}
+
+
+
+/* Responsivo */
+@media (max-width: 900px) {
     .login-hero-wrapper {
         flex-direction: column;
-        min-height: unset;
-        align-items: center;
-        gap: 24px;
     }
-    .login-hero-img {
+    .login-hero-img, .login-container {
         width: 100%;
-        height: 220px;
-        min-height: unset;
-        max-height: 300px;
-        border-radius: 24px 24px 0 0;
+        height: auto;
     }
     .login-container {
-        border-radius: 0 0 24px 24px;
-        width: 100%;
-        min-height: unset;
-        max-height: unset;
-        padding: 2rem 1rem 1.5rem 1rem;
+        padding: 2rem 1.5rem;
+        text-align: center;
     }
 }
 
@@ -336,3 +510,417 @@ body {
   transform: translateY(-10px); /* Se levanta */
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); /* Más sombra */
 }
+
+/* Estilos base del body y background */
+body {
+    font-family: 'Arial', sans-serif;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(211, 215, 212, 0.3) 0%, transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(232, 232, 230, 0.25) 0%, transparent 60%),
+        radial-gradient(circle at 40% 80%, rgba(211, 215, 212, 0.25) 0%, transparent 60%),
+        linear-gradient(135deg, #D3D7D4 0%, #DEE1DE 40%, #E3E5E3 80%, #E8E8E6 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="waves" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.25)"/><circle cx="75" cy="75" r="0.9" fill="rgba(211,215,212,0.2)"/><circle cx="50" cy="10" r="1.1" fill="rgba(232,232,230,0.18)"/><circle cx="10" cy="60" r="0.8" fill="rgba(255,255,255,0.15)"/><circle cx="90" cy="30" r="1" fill="rgba(211,215,212,0.2)"/></pattern></defs><rect width="100" height="100" fill="url(%23waves)"/></svg>') repeat;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Navbar cristalina */
+.navbar {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(18px) saturate(160%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+    transition: all 0.4s ease !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1030 !important;
+}
+
+/* Navbar al hacer scroll */
+.navbar-scrolled {
+    background: linear-gradient(135deg, 
+        rgba(211, 215, 212, 0.9), 
+        rgba(232, 232, 230, 0.95)
+    ) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    box-shadow: 
+        0 8px 30px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Logo */
+.navbar img {
+    transition: all 0.4s ease !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 12px rgba(211, 215, 212, 0.7) !important;
+}
+
+.navbar img:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 18px rgba(232, 232, 230, 0.9) !important;
+}
+
+/* Texto */
+.navbar .fw-bold {
+    color: #090909 !important;
+    text-shadow: 0 0 10px rgba(232, 232, 230, 0.7) !important;
+    transition: all 0.4s ease !important;
+}
+
+.navbar .fw-bold:hover {
+    color: #0e0e0e !important;
+    text-shadow: 0 0 15px rgba(211, 215, 212, 0.9) !important;
+}
+
+/* Enlaces */
+.navbar-nav .nav-link {
+    color: #0f0f0f !important;
+    font-weight: 500 !important;
+    transition: all 0.4s ease !important;
+    padding: 10px 18px !important;
+    border-radius: 30px !important;
+    position: relative !important;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: #0e0e0e !important;
+    background: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(232, 232, 230, 0.4) !important;
+}
+
+/* Botón login */
+.btn-login {
+    background: linear-gradient(135deg, 
+        rgba(211, 215, 212, 0.5), 
+        rgba(232, 232, 230, 0.5)
+    ) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    color: #ffffff !important;
+    padding: 8px 16px !important;
+    border-radius: 25px !important;
+    transition: all 0.4s ease !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 12px rgba(211, 215, 212, 0.3) !important;
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, 
+        rgba(211, 215, 212, 0.8), 
+        rgba(232, 232, 230, 0.8)
+    ) !important;
+    box-shadow: 0 6px 18px rgba(211, 215, 212, 0.5) !important;
+}
+
+/* Footer */
+footer {
+    background: linear-gradient(135deg, 
+        rgba(211, 215, 212, 0.9), 
+        rgba(232, 232, 230, 0.95)
+    ) !important;
+    backdrop-filter: blur(15px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: black; /* Cambia el color de la letra del footer a negro */
+}
+
+body {
+  color: #070707 !important;   /* texto base blanco */
+}
+
+/* =======================
+   ROOM IMAGE FIX
+   Uniform room images with fixed height and object-fit
+   ======================= */
+.room-img {
+    width: 100%;
+    height: 640px; /* increased visual height for room thumbnails */
+    object-fit: cover; /* crop smartly to fill area */
+    border-radius: 8px;
+    display: block;
+}
+@media (max-width: 768px) {
+    .room-img {
+        height: auto; /* let it flow on small screens */
+    }
+
+/* Plan / pricing cards for Selección de Habitación */
+.plans-grid .plan-card {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #030303; /* casi negro */
+    color: #ffffff;
+    min-height: 600px; /* ahora mucho más largas */
+    display: flex;
+    flex-direction: column;
+}
+.plans-grid .plan-card .plan-body {
+    background: transparent;
+    padding: 3.5rem; /* más espacio vertical */
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+}
+.plans-grid .plan-card .plan-title { font-weight: 800; font-size: 1.5rem; }
+.plans-grid .plan-price { font-size: 2.4rem; font-weight: 900; }
+.plans-grid .plan-price .price-amount { font-size: 2.4rem; }
+.plans-grid .plan-card.featured {
+    background: #000000; /* tarjeta destacada aún más oscura */
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.7), 0 4px 10px rgba(0,0,0,0.6);
+    transform: translateY(-8px);
+    border: 1px solid rgba(255,255,255,0.03);
+}
+.plans-grid .plan-card.featured .plan-body { padding: 4rem; }
+.plans-grid .plan-card .plan-select-btn {
+    border-radius: 30px;
+    padding: 0.95rem 1.25rem;
+    font-weight: 800;
+    font-size: 1.1rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: transparent;
+    color: #ffffff;
+}
+.plans-grid .plan-card.featured .plan-select-btn {
+    background: #ffffff; color: #000000; border: none;
+}
+.plans-grid .plan-card ul { font-size: 1.12rem; line-height: 1.8; }
+
+@media (max-width: 767px) {
+    .plans-grid .plan-card { margin-bottom: 0.5rem; min-height: auto; }
+    .plans-grid .plan-card .plan-body { padding: 1.25rem; }
+    .plans-grid .plan-card .plan-title { font-size: 1.15rem; }
+    .plans-grid .plan-price { font-size: 1.5rem; }
+}
+
+/* Tablet: two columns and slightly reduced heights */
+@media (min-width: 768px) and (max-width: 991px) {
+    .plans-grid .col-md-4 { flex: 0 0 50%; max-width: 50%; }
+    .plans-grid .plan-card { min-height: 520px; }
+    .plans-grid .plan-card .plan-body { padding: 2rem; }
+    .plans-grid .plan-card .plan-title { font-size: 1.25rem; }
+    .plans-grid .plan-price { font-size: 1.8rem; }
+}
+
+/* Ensure full-width buttons and comfortable spacing on all sizes */
+.plans-grid .plan-card .plan-select-btn { width: 100%; display: inline-block; }
+.plans-grid { display: flex; flex-wrap: wrap; }
+.plans-grid > .col-md-4 { display: flex; }
+.plans-grid > .col-md-4 .plan-card { flex: 1 1 auto; }
+
+/* Small polish: reduce transform on very small screens */
+@media (max-width: 991px) {
+    .plans-grid .plan-card.featured { transform: none; box-shadow: 0 8px 18px rgba(0,0,0,0.45); }
+}
+
+/* feature icon in list items */
+.plans-grid .plan-card ul li { display: flex; align-items: center; gap: 0.6rem; }
+.plans-grid .plan-card .feature-icon svg { display: block; color: #0d6efd; }
+.plans-grid .plan-card.featured .feature-icon svg { color: #ffd166; }
+
+/* Dashboard card color variants */
+.card-occupancy { background: linear-gradient(180deg,#0d6efd17,#0d6efd05); border-left: 6px solid #0d6efd; }
+.card-revenue { background: linear-gradient(180deg,#19875410,#19875405); border-left: 6px solid #198754; }
+.card-checkins { background: linear-gradient(180deg,#fd7e1410,#fd7e1405); border-left: 6px solid #fd7e14; }
+.card-sat { background: linear-gradient(180deg,#6610f210,#6610f205); border-left: 6px solid #6610f2; }
+.card-occupancy .card-body, .card-revenue .card-body, .card-checkins .card-body, .card-sat .card-body { color: #0b1320; }
+
+/* Make login hero taller and proportional when user wanted 'mas alto' */
+.login-hero-wrapper { min-height: 80vh; }
+.login-hero-img { min-height: 80vh; }
+
+/* Make proportional home image taller as requested */
+.proportional-img { max-height: 70vh; }
+.room-img { height: 640px; }
+}
+
+/* Nosotros page typography */
+.nosotros-content p {
+    font-size: 1.12rem; /* slightly larger */
+    line-height: 1.75;
+    color: #222222;
+}
+@media (min-width: 992px) {
+    .nosotros-content p {
+        font-size: 1.15rem;
+    }
+}
+
+/* Proportional images that align visually with adjacent text */
+.proportional-img {
+    width: 100%;
+    height: auto;
+    max-height: 70vh; /* much taller and responsive to viewport */
+    object-fit: cover;
+}
+
+/* Login hero: image as background-like element with proportional sizing */
+.login-hero-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    min-height: 80vh; /* taller login section */
+}
+.login-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    filter: brightness(0.45) saturate(0.9);
+}
+.login-container {
+    position: relative;
+    z-index: 2;
+    max-width: 420px;
+    width: 100%;
+    background: rgba(255,255,255,0.96);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 767px) {
+    .login-hero-wrapper { padding: 1rem; }
+    .login-container { background: rgba(255,255,255,0.98); }
+    .room-img { height: 360px; }
+    .proportional-img { max-height: 50vh; }
+}
+
+/* =======================
+   RECOLOR .btn-warning TO BRAND GOLD (from provided image)
+   ======================= */
+.btn-warning {
+    background-color: #c6a76c !important; /* dorado pedido */
+    border-color: #b89a57 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(198,167,108,0.12);
+}
+.btn-warning:hover,
+.btn-warning:focus {
+    background-color: #b18f56 !important;
+    border-color: #a07b45 !important;
+    color: #ffffff !important;
+}
+.btn-warning:active {
+    background-color: #9f7b45 !important;
+    border-color: #8d6f3b !important;
+    transform: translateY(1px);
+}
+
+/* Highlight button used for calls-to-action (blue variant) */
+.btn-highlight {
+    background-color: #0d6efd !important; /* Bootstrap blue */
+    border-color: #0a58ca !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(13,110,253,0.18);
+    padding: 0.6rem 1rem !important;
+    border-radius: 8px !important;
+}
+.btn-highlight:hover,
+.btn-highlight:focus {
+    background-color: #0b5ed7 !important;
+    border-color: #084298 !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+.btn-highlight:active {
+    background-color: #084298 !important;
+    border-color: #052f5f !important;
+}
+
+/* =======================
+   ESTILOS CARDS HABITACIONES ADMIN
+   ======================= */
+.habitacion-card {
+  background: #f8fffa;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(86,197,150,0.08);
+  padding: 2rem 1.5rem;
+  transition: box-shadow 0.3s, border 0.3s;
+  border: 2px solid #e3fbe3;
+  position: relative;
+}
+.habitacion-card h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.habitacion-card .iconos span {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+.estado-label {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4em 1em;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  animation: estadoAnim 1.2s infinite alternate;
+}
+.estado-label.disponible {
+  background: #56C596;
+}
+.estado-label.mantenimiento {
+  background: #ffe082;
+  color: #333;
+}
+.estado-label.ocupada {
+  background: #ff6f6f;
+}
+.estado-opciones .btn {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0.5em;
+  border-radius: 12px;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.estado-opciones .btn-success {
+  background: #56C596;
+  border: none;
+}
+.estado-opciones .btn-warning {
+  background: #ffe082;
+  color: #333;
+  border: none;
+}
+.estado-opciones .btn-danger {
+  background: #ff6f6f;
+  border: none;
+}
+.animate-estado {
+  animation: cardAnim 1.2s infinite alternate;
+}
+@keyframes estadoAnim {
+  0% { box-shadow: 0 0 0 0 rgba(86,197,150,0.15); }
+  100% { box-shadow: 0 0 16px 4px rgba(86,197,150,0.15); }
+}
+@keyframes cardAnim {
+  0% { border-color: #e3fbe3; }
+  100% { border-color: #56C596; }
+}
+
+

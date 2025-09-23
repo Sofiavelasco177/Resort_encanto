@@ -5,53 +5,117 @@
 {% block content %}
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+/* Small local styles for the filter pill */
+.filter-pill {
+    background: #ffffffcc; /* slight translucency */
+    border-radius: 999px;
+    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.filter-pill svg { width:18px; height:18px; display:block; fill: #0d6efd; }
+.filter-pill .pill-text { font-size: 14px; color: #212529; font-weight:500; }
+@media (max-width: 576px) {
+    .filter-pill .pill-text { display:none; }
+}
+</style>
+
 
 <br>
 
 <!--Habitaciones Section-->
 <div class="container mt-5">
 
-    
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="dropdown">
+                <button class="filter-pill dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <!-- filter SVG icon -->
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M10 18h4v-2h-4v2zm-7-8v2h18v-2H3zm3-6v2h12V4H6z" />
+                    </svg>
+                    <span class="pill-text">Filtrar</span>
+                </button>
 
-    <!-- Basic Room -->
-    <div class="row align-items-center mb-5">
-        <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(1).jpg') }}" alt="Habitación Básica" class="img-fluid">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <h3>Habitación Básica</h3>
-            <p>Vista al jardín, cama queen size, baño privado, Wi-Fi gratuito, minibar básico.</p>
-            <div class="price">Desde $750.000 COP</div>
-            <button class="btn btn-link" onclick="toggleDescription('basic-room')">Leer más</button>
-            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Reservar Ahora</button>
-            <div id="basic-room" class="room-description" style="display: none;">
-                
-                <h4>Comodidades En La Habitación</h4>
-                <ul>
-                    <li>Aire acondicionado</li>
-                    <li>TV</li>
-                    <li>Secador de pelo</li>
-                    <li>Control remoto</li>
-                    <li>Minibar/nevera</li>
-                    <li>Satélite Direct TV</li>
-                    <li>Caja de seguridad</li>
-                    <li>Servicios L'occitane</li>
-                </ul>
+                <div class="dropdown-menu p-3" aria-labelledby="filterDropdown">
+                    <form id="filter-form" class="row g-2 align-items-center" onsubmit="return false;">
+                        <div class="col-12">
+                            <label for="filter-type" class="form-label">Tipo</label>
+                            <select id="filter-type" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="Basica">Habitación Básica</option>
+                                <option value="Estandar">Habitación Estándar</option>
+                                <option value="Premium">Habitación Premium</option>
+                                <option value="Familiar">Suite Familiar</option>
+                                <option value="Deluxe">Suite Deluxe</option>
+                                <option value="Villa">Villa Privada</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="filter-guests" class="form-label">Personas</label>
+                            <input id="filter-guests" type="number" class="form-control" min="1" placeholder="Cualquiera">
+                        </div>
+                        <div class="col-12">
+                            <label for="filter-price-order" class="form-label">Ordenar por precio</label>
+                            <select id="filter-price-order" class="form-select">
+                                <option value="">Sin orden</option>
+                                <option value="asc">Menor a mayor</option>
+                                <option value="desc">Mayor a menor</option>
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end mt-2">
+                            <button type="button" class="btn btn-primary me-2" onclick="applyFiltersAndClose()">Aplicar</button>
+                            <button type="button" class="btn btn-link" onclick="resetFilters()">Limpiar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
+        <div class="row" id="habitaciones-publicas">
+            {% for h in habitaciones %}
+                <div class="col-md-6 mb-5 room-block" data-type="{{ h.nombre }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 order-md-2">
+                            <img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="img-fluid room-img">
+                        </div>
+                        <div class="col-md-6 order-md-1">
+                            <h3>{{ h.nombre }}</h3>
+                            <p>Cupo: {{ h.cupo_personas }}<br>Precio: ${{ '{:,.0f}'.format(h.precio) }} COP</p>
+                            <div class="price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
+                            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
     <!-- Standard Room -->
-    <div class="row align-items-center mb-5">
+    <div class="row align-items-center mb-5 room-block" data-type="Estandar" data-capacity="2" data-price="1170000">
         <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(2).jpg') }}" alt="Habitación Estándar" class="img-fluid">
+            <img src="{{ url_for('static', filename='img/habitacion(2).jpg') }}" alt="Habitación Estándar" class="img-fluid room-img">
         </div>
         <div class="col-md-6 order-md-1">
             <h3>Habitación Estándar</h3>
             <p>Vista parcial al mar, cama king size, baño con ducha y bañera, Wi-Fi de alta velocidad, minibar surtido.</p>
             <div class="price">Desde $1.170.000 COP</div>
+            <div class="rating">
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">☆</span>
+            </div>
             <button class="btn btn-link" onclick="toggleDescription('standard-room')">Leer más</button>
-            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Reservar Ahora</button>
+            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
             <div id="standard-room" class="room-description" style="display: none;">
                 
                 <h4>Comodidades En La Habitación</h4>
@@ -70,16 +134,23 @@
     </div>
 
     <!-- Premium Room -->
-    <div class="row align-items-center mb-5">
+    <div class="row align-items-center mb-5 room-block" data-type="Premium" data-capacity="2" data-price="2300000">
         <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(3).jpg') }}" alt="Habitación Premium" class="img-fluid">
+            <img src="{{ url_for('static', filename='img/habitacion(3).jpg') }}" alt="Habitación Premium" class="img-fluid room-img">
         </div>
         <div class="col-md-6 order-md-1">
             <h3>Habitación Premium</h3>
             <p>Vista al mar, cama king size premium, baño de mármol con jacuzzi, Wi-Fi VIP ultra rápido, minibar premium.</p>
             <div class="price">Desde $2.300.000 COP</div>
+            <div class="rating">
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+            </div>
             <button class="btn btn-link" onclick="toggleDescription('premium-room')">Leer más</button>
-            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Reservar Ahora</button>
+            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
             <div id="premium-room" class="room-description" style="display: none;">
                 
                 <h4>Comodidades En La Habitación</h4>
@@ -97,12 +168,198 @@
         </div>
     </div>
 
+    <div class="row align-items-center mb-5 room-block" data-type="Familiar" data-capacity="4" data-price="1850000">
+        <div class="col-md-6 order-md-2">
+            <img src="{{ url_for('static', filename='img/habitacion(7).jpg') }}" alt="Suite Familiar" class="img-fluid room-img">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h3>Suite Familiar</h3>
+            <p>Espaciosa suite para familias, con dos ambientes, sala privada, y vistas al jardín. Capacidad para 4 personas.</p>
+            <div class="price">Desde $1.850.000 COP</div>
+            <div class="rating">
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">☆</span>
+            </div>
+            <button class="btn btn-link" onclick="toggleDescription('family-suite')">Leer más</button>
+            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            <div id="family-suite" class="room-description" style="display: none;">
+                <h4>Comodidades En La Habitación</h4>
+                <ul>
+                    <li>Dos camas king o una king + sofá cama</li>
+                    <li>Sala de estar privada</li>
+                    <li>Balcony con vista al jardín</li>
+                    <li>Jacuzzi opcional</li>
+                    <li>Minibar completo</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center mb-5 room-block" data-type="Deluxe" data-capacity="2" data-price="2750000">
+        <div class="col-md-6 order-md-2">
+            <img src="{{ url_for('static', filename='img/habitacion(5).jpg') }}" alt="Suite Deluxe" class="img-fluid room-img">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h3>Suite Deluxe</h3>
+            <p>Lujo y confort en una suite con vistas parciales al mar, cama king size, y baño en mármol con amenities premium.</p>
+            <div class="price">Desde $2.750.000 COP</div>
+            <div class="rating">
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+            </div>
+            <button class="btn btn-link" onclick="toggleDescription('deluxe-suite')">Leer más</button>
+            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            <div id="deluxe-suite" class="room-description" style="display: none;">
+                <h4>Comodidades En La Habitación</h4>
+                <ul>
+                    <li>Cama king size premium</li>
+                    <li>Baño en mármol con ducha y bañera</li>
+                    <li>Smart TV y sistema de sonido</li>
+                    <li>Servicio a la habitación 24h</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="row align-items-center mb-5 room-block" data-type="Villa" data-capacity="6" data-price="6500000">
+        <div class="col-md-6 order-md-2">
+            <img src="{{ url_for('static', filename='img/habitacion(6).jpg') }}" alt="Villa Privada" class="img-fluid room-img">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h3>Villa Privada</h3>
+            <p>Villa independiente con piscina privada, jardín y servicio personalizado. Ideal para grupos o celebraciones.</p>
+            <div class="price">Desde $6.500.000 COP</div>
+            <div class="rating">
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+              <span class="star" style="color: blue;">★</span>
+            </div>
+            <button class="btn btn-link" onclick="toggleDescription('villa')">Leer más</button>
+            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            <div id="villa" class="room-description" style="display: none;">
+                <h4>Comodidades En La Habitación</h4>
+                <ul>
+                    <li>Piscina privada</li>
+                    <li>Cocineta y comedor</li>
+                    <li>Servicio de mayordomo</li>
+                    <li>Traslado privado desde el muelle</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4 text-center">
+      <h5 class="modal-title mb-3">⚠️ Atención</h5>
+      <p>Debes registrarte o iniciar sesión para continuar con la reserva.</p>
+      <div class="d-flex justify-content-center mt-3">
+        <button class="btn btn-secondary me-2" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Ir a Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 function toggleDescription(roomId) {
     const description = document.getElementById(roomId);
     description.style.display = description.style.display === 'none' ? 'block' : 'none';
+}
+function mostrarModal() {
+    var modal = new bootstrap.Modal(document.getElementById('loginModal'));
+    modal.show();
+}
+
+function filterRooms() {
+    const type = document.getElementById('filter-type').value;
+    const guests = parseInt(document.getElementById('filter-guests').value) || 0;
+    const priceOrder = document.getElementById('filter-price-order').value;
+    const blocks = document.querySelectorAll('.room-block');
+    let roomsArray = Array.from(blocks);
+    
+    // Filter
+    roomsArray = roomsArray.filter(b => {
+        const t = b.getAttribute('data-type') || '';
+        const cap = parseInt(b.getAttribute('data-capacity') || '0');
+        let visible = true;
+        if (type && type !== '' && type !== t) visible = false;
+        if (guests > 0 && cap < guests) visible = false;
+        return visible;
+    });
+
+    // Sort
+    if (priceOrder === 'asc') {
+        roomsArray.sort((a, b) => parseInt(a.getAttribute('data-price')) - parseInt(b.getAttribute('data-price')));
+    } else if (priceOrder === 'desc') {
+        roomsArray.sort((a, b) => parseInt(b.getAttribute('data-price')) - parseInt(a.getAttribute('data-price')));
+    }
+
+    // Append sorted/filtered rooms to the container
+    const container = document.querySelector('.container.mt-5');
+    container.innerHTML = '';
+    roomsArray.forEach(room => container.appendChild(room));
+}
+
+function resetFilters() {
+    document.getElementById('filter-type').value = '';
+    document.getElementById('filter-guests').value = '';
+    document.getElementById('filter-price-order').value = '';
+    document.querySelectorAll('.room-block').forEach(b => b.style.display = '');
+}
+
+function applyFiltersAndClose() {
+    // Filtrar habitaciones según los criterios seleccionados
+    const type = document.getElementById('filter-type').value;
+    const guests = parseInt(document.getElementById('filter-guests').value) || 0;
+    const priceOrder = document.getElementById('filter-price-order').value;
+    const blocks = document.querySelectorAll('.room-block');
+    let roomsArray = Array.from(blocks);
+    
+    // Filtrar
+    roomsArray = roomsArray.filter(b => {
+        const t = b.getAttribute('data-type') || '';
+        const cap = parseInt(b.getAttribute('data-capacity') || '0');
+        let visible = true;
+        if (type && type !== '' && type !== t) visible = false;
+        if (guests > 0 && cap < guests) visible = false;
+        return visible;
+    });
+
+    // Ordenar por precio
+    var order = document.getElementById('filter-price-order').value;
+    var roomBlocks = Array.from(document.querySelectorAll('.room-block'));
+    if (order) {
+        roomBlocks.sort(function(a, b) {
+            var priceA = parseFloat(a.getAttribute('data-price'));
+            var priceB = parseFloat(b.getAttribute('data-price'));
+            return order === 'asc' ? priceA - priceB : priceB - priceA;
+        });
+        var container = document.querySelector('.container.mt-5');
+        roomBlocks.forEach(function(block) {
+            container.appendChild(block);
+        });
+    }
+
+    // close bootstrap dropdown
+    const dropdownEl = document.getElementById('filterDropdown');
+    if (dropdownEl) {
+        const dd = bootstrap.Dropdown.getInstance(dropdownEl) || new bootstrap.Dropdown(dropdownEl);
+        dd.hide();
+    }
 }
 </script>
 
