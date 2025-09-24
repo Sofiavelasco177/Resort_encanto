@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=run.py
+      - DATABASE_URL=mysql+pymysql://root:password@db:3306/islaencanto
+    depends_on:
+      - db
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped
+    networks:
+      - resort-network
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: islaencanto
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - resort-network
+
+networks:
+  resort-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

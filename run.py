@@ -16,7 +16,7 @@ from flask import Blueprint
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='Static', static_url_path='/static')
 app.config.from_object(Config)
 app.secret_key = 'isla_encanto'
 
@@ -45,33 +45,51 @@ def inject_current_user():
 
 
 # Verificar y crear columnas necesarias en la tabla usuario
+def init_database():
+    try:
+        with app.app_context():
+            # Asegurar que el directorio instance existe y tiene permisos
+            import os
+            # Usar ruta relativa para desarrollo local
+            instance_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+            
+            if not os.path.exists(instance_dir):
+                os.makedirs(instance_dir, exist_ok=True)
+                app.logger.info(f'Directorio instance creado: {instance_dir}')
+            
+            try:
+                # Crear las tablas primero
+                db.create_all()
+                app.logger.info('Tablas de la base de datos creadas/verificadas')
+                
+                # Luego verificar columnas
+                inspector = inspect(db.engine)
+                cols = [c['name'] for c in inspector.get_columns('usuario')] if 'usuario' in inspector.get_table_names() else []
+                stmts = []
+                # Agregar columnas para recuperación de contraseña si no existen
+                if cols and 'reset_code' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN reset_code VARCHAR(6) NULL")
+                if cols and 'reset_expire' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN reset_expire DATETIME NULL")
+                for s in stmts:
+                    try:
+                        db.session.execute(text(s))
+                        db.session.commit()
+                        app.logger.info('Migración aplicada: %s', s)
+                    except Exception as e:
+                        app.logger.exception('No se pudo aplicar la migración %s: %s', s, e)
+
+            except Exception as e:
+                app.logger.exception('Error revisando/alterando la tabla usuario al iniciar: %s', e)
+
+    except Exception as e:
+        app.logger.exception('Error inicializando la base de datos: %s', e)
+
+# Inicializar la base de datos solo si la app está lista
 try:
-    with app.app_context():
-        try:
-            inspector = inspect(db.engine)
-            cols = [c['name'] for c in inspector.get_columns('usuario')] if 'usuario' in inspector.get_table_names() else []
-            stmts = []
-            # Agregar columnas para recuperación de contraseña si no existen
-            if 'reset_code' not in cols:
-                stmts.append("ALTER TABLE usuario ADD COLUMN reset_code VARCHAR(6) NULL")
-            if 'reset_expire' not in cols:
-                stmts.append("ALTER TABLE usuario ADD COLUMN reset_expire DATETIME NULL")
-            for s in stmts:
-                try:
-                    db.session.execute(text(s))
-                    db.session.commit()
-                    app.logger.info('Migración aplicada: %s', s)
-                except Exception as e:
-                    app.logger.exception('No se pudo aplicar la migración %s: %s', s, e)
-
-        except Exception as e:
-            app.logger.exception('Error revisando/alterando la tabla usuario al iniciar: %s', e)
-
-        # Crear las tablas faltantes
-        try:
-            db.create_all()
-        except Exception as e:
-            app.logger.exception('Error creando tablas al iniciar: %s', e)
+    # Deshabilitado temporalmente para evitar errores al inicio
+    # init_database()
+    pass
 except Exception:
     # Ignorar si la app no está lista todavía
     pass
@@ -80,13 +98,22 @@ except Exception:
 oauth = OAuth(app)
 app.config['OAUTH'] = oauth
 
-oauth.register(
-    name='google',
-    client_id=os.getenv("GOOGLE_CLIENT_ID"),
-    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-    client_kwargs={"scope": "openid email profile"}
-)
+# Verificar que las credenciales estén cargadas
+client_id = os.getenv("GOOGLE_CLIENT_ID")
+client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+
+if client_id and client_secret:
+    app.logger.info(f'Google OAuth configurado con Client ID: {client_id[:10]}...')
+    oauth.register(
+        name='google',
+        client_id=client_id,
+        client_secret=client_secret,
+        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+        client_kwargs={"scope": "openid email profile"}
+    )
+else:
+    app.logger.warning('Credenciales de Google OAuth no encontradas. Usando modo desarrollo.')
+    app.config['ENABLE_DEV_GOOGLE'] = True
 
 
 
@@ -138,30 +165,14 @@ app.add_url_rule('/google-login', endpoint='google_login', view_func=_auth.googl
 # ------------------- Configuración de logs -------------------
 logging.basicConfig(level=logging.DEBUG)
 
-with app.app_context():
-        # Asegurar columnas necesarias en la tabla usuario
-        try:
-            inspector = inspect(db.engine)
-            cols = [c['name'] for c in inspector.get_columns('usuario')] if 'usuario' in inspector.get_table_names() else []
-            stmts = []
-            if 'reset_code' not in cols:
-                stmts.append("ALTER TABLE usuario ADD COLUMN reset_code VARCHAR(6) NULL")
-            if 'reset_expire' not in cols:
-                stmts.append("ALTER TABLE usuario ADD COLUMN reset_expire DATETIME NULL")
-            for s in stmts:
-                try:
-                    db.session.execute(text(s))
-                    db.session.commit()
-                    app.logger.info('Migración aplicada: %s', s)
-                except Exception as e:
-                    app.logger.exception('No se pudo aplicar la migración %s: %s', s, e)
-        except Exception as e:
-            app.logger.exception('Error revisando/alterando la tabla usuario: %s', e)
-
-        # Crear tablas faltantes
-        db.create_all()
 # ------------------- Ejecución de la aplicación -------------------
 if __name__ == '__main__':
-
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    import os
+    
+    # En desarrollo usa el servidor de Flask
+    if os.getenv('FLASK_ENV') == 'development':
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    else:
+        # En producción, usar Gunicorn es más seguro
+        app.run(debug=False, host='0.0.0.0', port=5000)
 

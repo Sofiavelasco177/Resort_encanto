@@ -3,7 +3,8 @@ import os
 
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@127.0.0.1:3306/islaencanto')
+    # Usar SQLite por defecto para facilitar el despliegue
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///instance/tu_base_de_datos.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY', 'your_unique_and_secret_key')  # Clave secreta para sesiones
     # Google OAuth2 credentials (set these env vars to enable Google login locally)
