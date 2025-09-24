@@ -40,6 +40,3 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Comando para ejecutar la aplicación con Gunicorn
 CMD ["gunicorn", "--config", "gunicorn.conf.py", "run:app"]
-
-# Detener el contenedor en ejecución
-RUN docker stop resort-encanto
