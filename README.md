@@ -16,11 +16,7 @@ git clone <tu-repositorio>
 cd Resort_encanto
 ```
 
-2. **Configurar variables de entorno**
-```bash
-cp .env.example .env
-# Editar .env con tus valores reales
-```
+
 
 3. **Construir y ejecutar con Docker Compose**
 ```bash
@@ -58,13 +54,7 @@ docker-compose down
 2. Configura las variables de entorno
 3. Deploy automático
 
-### Heroku
-```bash
-heroku create tu-app-name
-heroku config:set GOOGLE_CLIENT_ID=tu_client_id
-heroku config:set GOOGLE_CLIENT_SECRET=tu_client_secret
-git push heroku main
-```
+
 
 ### DigitalOcean App Platform
 1. Conecta tu repositorio
