@@ -21,11 +21,23 @@ from flask import Blueprint
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__, static_folder='Static', static_url_path='/static')
+app = Flask(__name__, template_folder='templates', static_folder='Static', static_url_path='/static')
 
 # Debug: Log de la configuración de la base de datos
 logger.info(f"DATABASE_URL configurada: {'Sí' if os.environ.get('DATABASE_URL') else 'No'}")
 logger.info(f"DB_USER configurada: {'Sí' if os.environ.get('DB_USER') else 'No'}")
+
+# Asegurar ruta de plantillas y loguearla para diagnosticar TemplateNotFound
+templates_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+try:
+    search_paths = getattr(app.jinja_loader, 'searchpath', [])
+    logger.info(f"Rutas de búsqueda de plantillas iniciales: {search_paths}")
+    if templates_path not in search_paths:
+        search_paths.insert(0, templates_path)
+        app.jinja_loader.searchpath = search_paths
+        logger.info(f"Rutas de búsqueda de plantillas actualizadas: {app.jinja_loader.searchpath}")
+except Exception as e:
+    logger.warning(f"No se pudo ajustar rutas de plantillas: {e}")
 
 try:
     app.config.from_object(Config)
