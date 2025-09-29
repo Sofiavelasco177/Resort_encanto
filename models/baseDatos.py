@@ -1,6 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from utils.extensions import db
+"""
+Los modelos usan la configuración de SQLAlchemy definida en Flask (app.config['SQLALCHEMY_DATABASE_URI']).
+No definir URIs aquí para permitir seleccionar MySQL o SQLite desde variables de entorno.
+"""
 
 # ------------------------------
 # Tabla de Usuario

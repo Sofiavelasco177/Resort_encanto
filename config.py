@@ -10,8 +10,9 @@ class Config:
     DB_PORT = os.environ.get('DB_PORT', '3306')
     DB_NAME = os.environ.get('DB_NAME', 'f58_adriana')
     
-    # URI de base de datos - Usar SQLite como principal temporalmente
-    # Priorizar SQLite para evitar problemas de conexión
+    # Estrategia dual:
+    # - Si existe DATABASE_URL -> usarla (MySQL en producción)
+    # - Si no existe -> usar SQLite local en 'instance/tu_base_de_datos.db'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///instance/tu_base_de_datos.db')
     
     # Si necesitas MySQL, descomenta estas líneas y comenta la de arriba:

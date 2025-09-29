@@ -138,14 +138,13 @@ def init_database():
     except Exception as e:
         app.logger.exception('Error inicializando la base de datos: %s', e)
 
-# Inicializar la base de datos solo si la app está lista
+# Inicializar la base de datos (útil cuando se usa SQLite)
 try:
-    # Deshabilitado temporalmente para evitar errores al inicio
-    # init_database()
-    pass
-except Exception:
-    # Ignorar si la app no está lista todavía
-    pass
+    if 'sqlite' in app.config.get('SQLALCHEMY_DATABASE_URI', ''):
+        logger.info('Inicializando base de datos SQLite y verificando tablas...')
+        init_database()
+except Exception as _e:
+    logger.warning(f"No se pudo inicializar automáticamente la base de datos: {_e}")
 
 # ---------------- GOOGLE OAUTH ---------------- #
 oauth = OAuth(app)
