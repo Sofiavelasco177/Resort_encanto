@@ -36,6 +36,18 @@ try:
         search_paths.insert(0, templates_path)
         app.jinja_loader.searchpath = search_paths
         logger.info(f"Rutas de búsqueda de plantillas actualizadas: {app.jinja_loader.searchpath}")
+    # Comprobar si existe la plantilla principal esperada
+    home_tpl = os.path.join(templates_path, 'home', 'Home.html')
+    logger.info(f"Existe templates/home/Home.html? {'Sí' if os.path.exists(home_tpl) else 'No'} ({home_tpl})")
+    try:
+        logger.info(f"Listado de templates/: {os.listdir(templates_path)}")
+        home_dir = os.path.join(templates_path, 'home')
+        if os.path.isdir(home_dir):
+            logger.info(f"Listado de templates/home: {os.listdir(home_dir)}")
+        else:
+            logger.info("La carpeta templates/home no existe")
+    except Exception as e_ls:
+        logger.warning(f"No se pudo listar templates: {e_ls}")
 except Exception as e:
     logger.warning(f"No se pudo ajustar rutas de plantillas: {e}")
 

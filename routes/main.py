@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
+from jinja2 import TemplateNotFound
 from datetime import datetime
 from models.baseDatos import nuevaHabitacion
 
@@ -8,7 +9,17 @@ main_bp = Blueprint('main', __name__)
  
 @main_bp.route('/')
 def home():
-    return render_template('home/Home.html')
+    try:
+        return render_template('home/Home.html')
+    except TemplateNotFound as e:
+        # Evitar 500 y dar pistas claras en logs
+        current_app.logger.error(f"Plantilla no encontrada: {e}. Se esperaba 'home/Home.html'")
+        return (
+            "<h1>Plantilla no encontrada</h1>"
+            "<p>No se encontró templates/home/Home.html en el contenedor.</p>"
+            "<p>Revisa los Application Logs para ver el listado de archivos en templates/ y templates/home.</p>",
+            500,
+        )
 
 @main_bp.route('/hospedaje')
 def hospedaje():
