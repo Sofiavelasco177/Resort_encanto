@@ -104,13 +104,18 @@ client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
 
 if client_id and client_secret:
     app.logger.info(f'Google OAuth configurado con Client ID: {client_id[:10]}...')
-    oauth.register(
-        name='google',
-        client_id=client_id,
-        client_secret=client_secret,
-        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-        client_kwargs={"scope": "openid email profile"}
-    )
+    try:
+        # Configurar OAuth con timeout más corto
+        oauth.register(
+            name='google',
+            client_id=client_id,
+            client_secret=client_secret,
+            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email profile", "timeout": 10}  # Timeout de 10 segundos
+        )
+    except Exception as e:
+        app.logger.warning(f'Error configurando Google OAuth: {e}. Usando modo desarrollo.')
+        app.config['ENABLE_DEV_GOOGLE'] = True
 else:
     app.logger.warning('Credenciales de Google OAuth no encontradas. Usando modo desarrollo.')
     app.config['ENABLE_DEV_GOOGLE'] = True
