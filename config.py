@@ -8,7 +8,7 @@ class Config:
     DB_PASSWORD = os.environ.get('DB_PASSWORD', 'password')  # ← Usando 'password' por defecto
     DB_HOST = os.environ.get('DB_HOST')
     DB_PORT = os.environ.get('DB_PORT', '3306')
-    DB_NAME = os.environ.get('DB_NAME')
+    DB_NAME = os.environ.get('DB_NAME', 'f58_adriana')
     
     # URI de base de datos - Usar SQLite como principal temporalmente
     # Priorizar SQLite para evitar problemas de conexión

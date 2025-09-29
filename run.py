@@ -142,12 +142,31 @@ if client_id and client_secret:
             server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
             client_kwargs={"scope": "openid email profile", "timeout": 10}  # Timeout de 10 segundos
         )
+        app.logger.info('Google OAuth registrado exitosamente')
     except Exception as e:
         app.logger.warning(f'Error configurando Google OAuth: {e}. Usando modo desarrollo.')
         app.config['ENABLE_DEV_GOOGLE'] = True
+        # Registrar cliente dummy para evitar errores
+        oauth.register(
+            name='google',
+            client_id='dummy',
+            client_secret='dummy',
+            authorize_url='https://accounts.google.com/oauth2/auth',
+            token_url='https://oauth2.googleapis.com/token',
+            client_kwargs={"scope": "openid email profile"}
+        )
 else:
     app.logger.warning('Credenciales de Google OAuth no encontradas. Usando modo desarrollo.')
     app.config['ENABLE_DEV_GOOGLE'] = True
+    # Registrar cliente dummy para evitar errores
+    oauth.register(
+        name='google',
+        client_id='dummy',
+        client_secret='dummy',
+        authorize_url='https://accounts.google.com/oauth2/auth',
+        token_url='https://oauth2.googleapis.com/token',
+        client_kwargs={"scope": "openid email profile"}
+    )
 
 
 

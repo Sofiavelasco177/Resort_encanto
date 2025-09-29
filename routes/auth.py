@@ -16,8 +16,16 @@ def google_login():
         flash('Google OAuth no está configurado.')
         return redirect(url_for('registro.login'))
 
-    redirect_uri = url_for('auth.google_authorize', _external=True)
-    return oauth.google.authorize_redirect(redirect_uri)
+    try:
+        redirect_uri = url_for('auth.google_authorize', _external=True)
+        return oauth.google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        current_app.logger.error(f'Error en Google login: {e}')
+        # Si falla, usar modo desarrollo
+        if current_app.config.get('ENABLE_DEV_GOOGLE'):
+            return redirect(url_for('auth.google_dev_login'))
+        flash('Error al iniciar sesión con Google. Intenta con usuario y contraseña.')
+        return redirect(url_for('registro.login'))
 
 
 @auth_bp.route('/google_authorize')
