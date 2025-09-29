@@ -1,7 +1,12 @@
 from flask import Flask, render_template
 import logging
 import os
+from datetime import datetime
 from config import Config
+
+# Configurar logging temprano
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from sqlalchemy import inspect, text
 from models.baseDatos import Usuario
 from routes.main import main_bp
@@ -17,12 +22,36 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__, static_folder='Static', static_url_path='/static')
-app.config.from_object(Config)
-app.secret_key = 'isla_encanto'
+
+# Debug: Log de la configuración de la base de datos
+logger.info(f"DATABASE_URL configurada: {'Sí' if os.environ.get('DATABASE_URL') else 'No'}")
+logger.info(f"DB_USER configurada: {'Sí' if os.environ.get('DB_USER') else 'No'}")
+
+try:
+    app.config.from_object(Config)
+    app.secret_key = 'isla_encanto'
+    
+    # Log de la URI final que se está usando (sin mostrar credenciales completas)
+    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+    if 'mysql' in db_uri:
+        logger.info("Usando MySQL como base de datos")
+    else:
+        logger.info("Usando SQLite como base de datos de fallback")
+        
+    logger.info("Configuración de Flask aplicada exitosamente")
+except Exception as e:
+    logger.error(f"Error al configurar Flask: {e}")
+    raise
 
 # inicializar extensiones
-db.init_app(app)
-bcrypt.init_app(app)
+try:
+    db.init_app(app)
+    logger.info("SQLAlchemy inicializado correctamente")
+    bcrypt.init_app(app)
+    logger.info("Bcrypt inicializado correctamente")
+except Exception as e:
+    logger.error(f"Error al inicializar extensiones: {e}")
+    raise
 
 from itsdangerous import URLSafeTimedSerializer
 import utils.extensions as extensions
@@ -158,6 +187,26 @@ app.add_url_rule('/login', endpoint='login', view_func=_registro.login, methods=
 #Ruta de autenticación con Google (implementada en auth.py)
 app.add_url_rule('/google-login', endpoint='google_login', view_func=_auth.google_login)
 
+
+# Health check endpoint para debug
+@app.route('/health')
+def health_check():
+    try:
+        # Probar conexión a la base de datos
+        db.engine.execute(text('SELECT 1'))
+        return {
+            'status': 'healthy', 
+            'database': 'connected',
+            'timestamp': str(datetime.now())
+        }, 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {
+            'status': 'unhealthy', 
+            'database': 'disconnected',
+            'error': str(e),
+            'timestamp': str(datetime.now())
+        }, 500
 
 # Aliases para el administrador (dashboard restaurante)
 #from routes import admin as _admin
