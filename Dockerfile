@@ -17,8 +17,14 @@ COPY requirements.txt .
 # Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el código de la aplicación
+# Copiar el código de la aplicación (todo el repo)
 COPY . .
+
+# Asegurar que las plantillas y estáticos se copien explícitamente (por seguridad frente a .dockerignore)
+COPY templates/ /app/templates/
+COPY Static/ /app/Static/
+RUN echo "Contenido de /app/templates durante build:" && ls -la /app/templates || true && \
+    echo "Contenido de /app/templates/home durante build:" && ls -la /app/templates/home || true
 
 # Copiar script de entrada y darle permisos
 COPY docker-entrypoint.sh /usr/local/bin/
