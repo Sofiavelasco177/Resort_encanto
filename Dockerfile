@@ -20,6 +20,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar el código de la aplicación (todo el repo)
 COPY . .
 
+# Normalizar nombre de carpeta de plantillas a minúsculas (Linux es case-sensitive)
+RUN if [ -d "Templates" ] && [ ! -d "templates" ]; then \
+            echo "Renombrando Templates -> templates"; \
+            mv Templates templates; \
+        fi
+
 # Comprobación en tiempo de build para verificar que las carpetas existen en la imagen
 # (no falla la build si no existen, pero imprime el contenido para diagnóstico)
 RUN echo "Build check: contenido de /app y /app/templates:" && \

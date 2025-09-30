@@ -23,12 +23,38 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='Static', static_url_path='/static')
 
+# Soportar nombres de carpetas con mayúsculas (por compatibilidad)
+base_dir = os.path.dirname(os.path.abspath(__file__))
+templates_dir = os.path.join(base_dir, 'templates')
+templates_dir_cap = os.path.join(base_dir, 'Templates')
+static_dir = os.path.join(base_dir, 'Static')
+static_dir_lower = os.path.join(base_dir, 'static')
+
+if not os.path.isdir(templates_dir) and os.path.isdir(templates_dir_cap):
+    # Añadir Templates a las rutas de búsqueda de Jinja si templates/ no existe
+    try:
+        search_paths = getattr(app.jinja_loader, 'searchpath', [])
+        if templates_dir_cap not in search_paths:
+            search_paths.insert(0, templates_dir_cap)
+            app.jinja_loader.searchpath = search_paths
+        logger.info("Usando carpeta 'Templates' como fallback para plantillas")
+    except Exception as e:
+        logger.warning(f"No se pudo agregar 'Templates' a rutas Jinja: {e}")
+
+if not os.path.isdir(static_dir) and os.path.isdir(static_dir_lower):
+    # Reasignar static_folder si solo existe 'static'
+    try:
+        app.static_folder = static_dir_lower
+        logger.info("Usando carpeta 'static' como fallback para archivos estáticos")
+    except Exception as e:
+        logger.warning(f"No se pudo reasignar static_folder a 'static': {e}")
+
 # Debug: Log de la configuración de la base de datos
 logger.info(f"DATABASE_URL configurada: {'Sí' if os.environ.get('DATABASE_URL') else 'No'}")
 logger.info(f"DB_USER configurada: {'Sí' if os.environ.get('DB_USER') else 'No'}")
 
 # Asegurar ruta de plantillas y loguearla para diagnosticar TemplateNotFound
-templates_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+templates_path = templates_dir if os.path.isdir(templates_dir) else (templates_dir_cap if os.path.isdir(templates_dir_cap) else os.path.join(base_dir, 'templates'))
 try:
     search_paths = getattr(app.jinja_loader, 'searchpath', [])
     logger.info(f"Rutas de búsqueda de plantillas iniciales: {search_paths}")
