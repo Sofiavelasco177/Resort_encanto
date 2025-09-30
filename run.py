@@ -21,14 +21,16 @@ from flask import Blueprint
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__, template_folder='templates', static_folder='Static', static_url_path='/static')
+# Preferir minúsculas por compatibilidad Linux; fallback a 'Static' si es lo que existe
+default_static = 'static' if os.path.isdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')) else 'Static'
+app = Flask(__name__, template_folder='templates', static_folder=default_static, static_url_path='/static')
 
 # Soportar nombres de carpetas con mayúsculas (por compatibilidad)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 templates_dir = os.path.join(base_dir, 'templates')
 templates_dir_cap = os.path.join(base_dir, 'Templates')
-static_dir = os.path.join(base_dir, 'Static')
-static_dir_lower = os.path.join(base_dir, 'static')
+static_dir = os.path.join(base_dir, 'static')
+static_dir_cap = os.path.join(base_dir, 'Static')
 
 if not os.path.isdir(templates_dir) and os.path.isdir(templates_dir_cap):
     # Añadir Templates a las rutas de búsqueda de Jinja si templates/ no existe
@@ -41,13 +43,13 @@ if not os.path.isdir(templates_dir) and os.path.isdir(templates_dir_cap):
     except Exception as e:
         logger.warning(f"No se pudo agregar 'Templates' a rutas Jinja: {e}")
 
-if not os.path.isdir(static_dir) and os.path.isdir(static_dir_lower):
-    # Reasignar static_folder si solo existe 'static'
+if not os.path.isdir(static_dir) and os.path.isdir(static_dir_cap):
+    # Reasignar static_folder si solo existe 'Static'
     try:
-        app.static_folder = static_dir_lower
-        logger.info("Usando carpeta 'static' como fallback para archivos estáticos")
+        app.static_folder = static_dir_cap
+        logger.info("Usando carpeta 'Static' como fallback para archivos estáticos")
     except Exception as e:
-        logger.warning(f"No se pudo reasignar static_folder a 'static': {e}")
+        logger.warning(f"No se pudo reasignar static_folder a 'Static': {e}")
 
 # Debug: Log de la configuración de la base de datos
 logger.info(f"DATABASE_URL configurada: {'Sí' if os.environ.get('DATABASE_URL') else 'No'}")

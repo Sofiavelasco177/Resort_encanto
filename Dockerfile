@@ -25,6 +25,10 @@ RUN if [ -d "Templates" ] && [ ! -d "templates" ]; then \
             echo "Renombrando Templates -> templates"; \
             mv Templates templates; \
         fi
+RUN if [ -d "Static" ] && [ ! -d "static" ]; then \
+            echo "Renombrando Static -> static"; \
+            mv Static static; \
+        fi
 
 # Comprobación en tiempo de build para verificar que las carpetas existen en la imagen
 # (no falla la build si no existen, pero imprime el contenido para diagnóstico)
