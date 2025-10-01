@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from utils.extensions import db, bcrypt, serializer
+import os
 from models.baseDatos import Usuario
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -10,8 +11,15 @@ recuperar_bp = Blueprint('recuperar', __name__)
 # ------------------ Función para enviar correo ------------------
 def enviar_email(destinatario, asunto, cuerpo):
     try:
-        remitente = "jhdavidjuan@gmail.com"      # tu Gmail
-        password = "svohvdxhjowanqra"            # contraseña de aplicación
+        host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+        port = int(os.getenv("SMTP_PORT", "587"))
+        remitente = os.getenv("SMTP_USER")
+        password = os.getenv("SMTP_PASSWORD")
+        use_tls = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+        use_ssl = os.getenv("SMTP_USE_SSL", "false").lower() == "true"
+
+        if not remitente or not password:
+            raise RuntimeError("SMTP_USER o SMTP_PASSWORD no configurados")
 
         msg = MIMEMultipart()
         msg["From"] = remitente
@@ -19,8 +27,12 @@ def enviar_email(destinatario, asunto, cuerpo):
         msg["Subject"] = asunto
         msg.attach(MIMEText(cuerpo, "html"))
 
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
+        if use_ssl:
+            server = smtplib.SMTP_SSL(host, port)
+        else:
+            server = smtplib.SMTP(host, port)
+            if use_tls:
+                server.starttls()
         server.login(remitente, password)
         server.sendmail(remitente, destinatario, msg.as_string())
         server.quit()

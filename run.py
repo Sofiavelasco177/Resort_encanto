@@ -81,7 +81,8 @@ except Exception as e:
 
 try:
     app.config.from_object(Config)
-    app.secret_key = 'isla_encanto'
+    import os as _os
+    app.secret_key = _os.getenv('SECRET_KEY') or 'isla_encanto'
     
     # Log de la URI final que se está usando (sin mostrar credenciales completas)
     db_uri = app.config['SQLALCHEMY_DATABASE_URI']
@@ -182,16 +183,21 @@ app.config['OAUTH'] = oauth
 client_id = os.getenv("GOOGLE_CLIENT_ID")
 client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
 
+# Endpoints explícitos de Google para evitar fallos de descubrimiento
+GOOGLE_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+
 if client_id and client_secret:
     app.logger.info(f'Google OAuth configurado con Client ID: {client_id[:10]}...')
     try:
-        # Configurar OAuth con timeout más corto
+        # Registrar con endpoints explícitos (más robusto en entornos con red limitada)
         oauth.register(
             name='google',
             client_id=client_id,
             client_secret=client_secret,
-            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-            client_kwargs={"scope": "openid email profile", "timeout": 10}  # Timeout de 10 segundos
+            authorize_url=GOOGLE_AUTHORIZE_URL,
+            token_url=GOOGLE_TOKEN_URL,
+            client_kwargs={"scope": "openid email profile", "timeout": 10}
         )
         app.logger.info('Google OAuth registrado exitosamente')
     except Exception as e:
@@ -202,8 +208,8 @@ if client_id and client_secret:
             name='google',
             client_id='dummy',
             client_secret='dummy',
-            authorize_url='https://accounts.google.com/oauth2/auth',
-            token_url='https://oauth2.googleapis.com/token',
+            authorize_url=GOOGLE_AUTHORIZE_URL,
+            token_url=GOOGLE_TOKEN_URL,
             client_kwargs={"scope": "openid email profile"}
         )
 else:
@@ -214,8 +220,8 @@ else:
         name='google',
         client_id='dummy',
         client_secret='dummy',
-        authorize_url='https://accounts.google.com/oauth2/auth',
-        token_url='https://oauth2.googleapis.com/token',
+        authorize_url=GOOGLE_AUTHORIZE_URL,
+        token_url=GOOGLE_TOKEN_URL,
         client_kwargs={"scope": "openid email profile"}
     )
 
@@ -229,6 +235,7 @@ from routes.dashboard.admin import admin_bp
 from routes.recuperar_contraseña import recuperar_bp
 from routes.usuario.hospedaje_usuario_routes import hospedaje_usuario_bp
 from routes.usuario.perfil_usuario_routes import perfil_usuario_bp
+from routes.dashboard.perfil_admin_routes import perfil_admin_bp
 
 
 app.register_blueprint(registro_bp, url_prefix='/registro')
@@ -238,6 +245,7 @@ app.register_blueprint(admin_bp, url_prefix='/admin')  # ✅ Registrar blueprint
 app.register_blueprint(recuperar_bp, url_prefix='/recuperar')
 app.register_blueprint(hospedaje_usuario_bp, url_prefix='/hospedaje')
 app.register_blueprint(perfil_usuario_bp, url_prefix='/perfil')
+app.register_blueprint(perfil_admin_bp)
 
 
 
@@ -258,25 +266,70 @@ app.add_url_rule('/login', endpoint='login', view_func=_registro.login, methods=
 app.add_url_rule('/google-login', endpoint='google_login', view_func=_auth.google_login)
 
 
-# Health check endpoint para debug
+# Health check y verificación de entorno (sin filtrar secretos)
 @app.route('/health')
 def health_check():
+    import os as _os
+    def _bool_env(name, default=False):
+        val = _os.getenv(name)
+        if val is None:
+            return default
+        return str(val).lower() in ("1", "true", "yes", "on")
+
+    # Estado DB
+    db_status = 'unknown'
+    http_code = 200
     try:
-        # Probar conexión a la base de datos
         db.engine.execute(text('SELECT 1'))
-        return {
-            'status': 'healthy', 
-            'database': 'connected',
-            'timestamp': str(datetime.now())
-        }, 200
+        db_status = 'connected'
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return {
-            'status': 'unhealthy', 
-            'database': 'disconnected',
-            'error': str(e),
-            'timestamp': str(datetime.now())
-        }, 500
+        logger.error(f"Health check DB failed: {e}")
+        db_status = f'unavailable: {e}'
+        http_code = 500
+
+    # Entorno
+    uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    is_sqlite = 'sqlite' in (uri or '')
+    is_mysql = 'mysql' in (uri or '')
+
+    static_dir = app.static_folder
+    instance_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'instance')
+
+    def _is_writable(path):
+        try:
+            return _os.path.isdir(path) and _os.access(path, _os.W_OK)
+        except Exception:
+            return False
+
+    env_report = {
+        'flask_env': _os.getenv('FLASK_ENV', 'unset'),
+        'secret_key_from_env': bool(_os.getenv('SECRET_KEY')),
+        'database_url_set': bool(_os.getenv('DATABASE_URL')),
+        'db_uri_kind': 'sqlite' if is_sqlite else ('mysql' if is_mysql else 'other'),
+        'static_folder_exists': _os.path.isdir(static_dir),
+        'static_folder_writable': _is_writable(static_dir),
+        'instance_exists': _os.path.isdir(instance_dir),
+        'instance_writable': _is_writable(instance_dir),
+        'smtp': {
+            'host_set': bool(_os.getenv('SMTP_HOST')),
+            'user_set': bool(_os.getenv('SMTP_USER')),
+            'password_set': bool(_os.getenv('SMTP_PASSWORD')),
+            'use_tls': _bool_env('SMTP_USE_TLS', True),
+            'use_ssl': _bool_env('SMTP_USE_SSL', False),
+        },
+        'google_oauth': {
+            'client_id_set': bool(_os.getenv('GOOGLE_CLIENT_ID')),
+            'client_secret_set': bool(_os.getenv('GOOGLE_CLIENT_SECRET')),
+        },
+    }
+
+    return {
+        'status': 'healthy' if http_code == 200 else 'unhealthy',
+        'database': db_status,
+        'env': env_report,
+        'static_folder': static_dir,
+        'timestamp': str(datetime.now())
+    }, http_code
 
 # Aliases para el administrador (dashboard restaurante)
 #from routes import admin as _admin

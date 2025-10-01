@@ -17,7 +17,15 @@ class Usuario(db.Model):
     contrasena = db.Column(db.String(255), nullable=False)  
     direccion = db.Column(db.String(255), nullable=True)
     fechaNacimiento = db.Column(db.Date, nullable=True)
+    telefono = db.Column(db.String(20), nullable=True)
+    avatar = db.Column(db.String(255), nullable=True)
     rol = db.Column(db.String(20), nullable=True, default='usuario')
+    # Perfil de usuario extendido
+    plan_tipo = db.Column(db.String(50), nullable=True)  # Ej: Oro, Plata, Premium
+    membresia_activa = db.Column(db.Boolean, default=False)
+    membresia_expira = db.Column(db.Date, nullable=True)
+    notif_checkin = db.Column(db.Boolean, default=True)
+    notif_checkout = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f"<Usuario {self.usuario}>"
@@ -41,6 +49,50 @@ class nuevaHabitacion(db.Model):
         return f"<nuevaHabitacion {self.nombre} - {self.estado}>"
     
     
+# ------------------------------
+# Inventario por Habitación
+# ------------------------------
+class InventarioHabitacion(db.Model):
+    __tablename__ = 'inventario_habitacion'
+
+    id = db.Column(db.Integer, primary_key=True)
+    habitacion_id = db.Column(db.Integer, db.ForeignKey('nuevaHabitacion.id'), nullable=True)
+    hotel = db.Column(db.String(100), nullable=True)
+    room_number = db.Column(db.String(50), nullable=True)
+    room_type = db.Column(db.String(50), nullable=True)
+    inspection_date = db.Column(db.Date, nullable=True)
+    inspector = db.Column(db.String(100), nullable=True)
+    observations = db.Column(db.Text, nullable=True)
+    rating_cleaning = db.Column(db.Integer, nullable=True)
+    rating_furniture = db.Column(db.Integer, nullable=True)
+    rating_equipment = db.Column(db.Integer, nullable=True)
+    inspector_signature = db.Column(db.String(120), nullable=True)
+    inspector_date = db.Column(db.Date, nullable=True)
+    supervisor_signature = db.Column(db.String(120), nullable=True)
+    supervisor_date = db.Column(db.Date, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    items = db.relationship('InventarioItem', backref='record', cascade='all, delete-orphan', lazy=True)
+
+    def __repr__(self):
+        return f"<InventarioHabitacion {self.id} hab={self.habitacion_id} fecha={self.inspection_date}>"
+
+
+class InventarioItem(db.Model):
+    __tablename__ = 'inventario_item'
+
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('inventario_habitacion.id'), nullable=False)
+    category = db.Column(db.String(60), nullable=True)
+    key = db.Column(db.String(60), nullable=False)
+    label = db.Column(db.String(120), nullable=True)
+    checked = db.Column(db.Boolean, default=False)
+    quantity = db.Column(db.Integer, nullable=True)
+    value_text = db.Column(db.String(255), nullable=True)
+
+    def __repr__(self):
+        return f"<InventarioItem {self.key} checked={self.checked} qty={self.quantity}>"
+
 
 # ------------------------------
 # Tabla de habitacioneHuesped
@@ -100,6 +152,68 @@ class PerfilAdmin(db.Model):
 
     def __repr__(self):
         return f"<PerfilAdmin {self.usuario_id} - {self.cargo}>"
+
+# ------------------------------
+# Métodos de Pago
+# ------------------------------
+class MetodoPago(db.Model):
+    __tablename__ = 'metodo_pago'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=False)
+    marca = db.Column(db.String(50), nullable=True)     # Visa, MasterCard, etc.
+    ultimos4 = db.Column(db.String(4), nullable=True)
+    tipo = db.Column(db.String(20), nullable=True)      # tarjeta, paypal, etc.
+    exp_mes = db.Column(db.Integer, nullable=True)
+    exp_anio = db.Column(db.Integer, nullable=True)
+    provider_ref = db.Column(db.String(120), nullable=True)
+    predeterminado = db.Column(db.Boolean, default=False)
+
+# ------------------------------
+# Reservas de Usuario
+# ------------------------------
+class Reserva(db.Model):
+    __tablename__ = 'reserva'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=False)
+    habitacion_id = db.Column(db.Integer, db.ForeignKey('nuevaHabitacion.id'), nullable=False)
+    check_in = db.Column(db.Date, nullable=False)
+    check_out = db.Column(db.Date, nullable=True)
+    estado = db.Column(db.String(20), nullable=False, default='Activa')  # Activa, Completada, Cancelada
+    total = db.Column(db.Float, nullable=True)
+
+# ------------------------------
+# Facturas (archivos descargables)
+# ------------------------------
+class Factura(db.Model):
+    __tablename__ = 'factura'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=False)
+    reserva_id = db.Column(db.Integer, db.ForeignKey('reserva.id'), nullable=True)
+    file_path = db.Column(db.String(255), nullable=False)  # relativo a static o ruta absoluta
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+# ------------------------------
+# Notificaciones
+# ------------------------------
+class Notificacion(db.Model):
+    __tablename__ = 'notificacion'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=False)
+    tipo = db.Column(db.String(30), nullable=False)  # checkin, checkout, sistema, etc.
+    mensaje = db.Column(db.String(255), nullable=False)
+    leido = db.Column(db.Boolean, default=False)
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+# ------------------------------
+# Actividad de Usuario
+# ------------------------------
+class ActividadUsuario(db.Model):
+    __tablename__ = 'actividad_usuario'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=False)
+    accion = db.Column(db.String(100), nullable=False)
+    detalle = db.Column(db.String(255), nullable=True)
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
 
 """# ------------------------------
 # Tabla de Restaurantes

@@ -12,8 +12,10 @@ class Config:
     
     # Estrategia dual:
     # - Si existe DATABASE_URL -> usarla (MySQL en producción)
-    # - Si no existe -> usar SQLite local en 'instance/tu_base_de_datos.db'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///instance/tu_base_de_datos.db')
+    # - Si no existe -> usar SQLite local en 'instance/tu_base_de_datos.db' con ruta ABSOLUTA (evita errores en Windows)
+    _base_dir = os.path.dirname(os.path.abspath(__file__))
+    _sqlite_path = os.path.join(_base_dir, 'instance', 'tu_base_de_datos.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f'sqlite:///{_sqlite_path}'
     
     # Si necesitas MySQL, descomenta estas líneas y comenta la de arriba:
     # if os.environ.get('DATABASE_URL'):

@@ -18,9 +18,10 @@ def google_login():
 
     try:
         redirect_uri = url_for('auth.google_authorize', _external=True)
+        current_app.logger.info(f"Iniciando login con Google. redirect_uri={redirect_uri}")
         return oauth.google.authorize_redirect(redirect_uri)
     except Exception as e:
-        current_app.logger.error(f'Error en Google login: {e}')
+        current_app.logger.exception(f'Error en Google login: {e}')
         # Si falla, usar modo desarrollo
         if current_app.config.get('ENABLE_DEV_GOOGLE'):
             return redirect(url_for('auth.google_dev_login'))
@@ -36,8 +37,17 @@ def google_authorize():
         return redirect(url_for('registro.login'))
 
     # Obtener token y datos del usuario desde Google
-    token = oauth.google.authorize_access_token()
-    user_info = oauth.google.get('https://www.googleapis.com/oauth2/v3/userinfo').json()
+    try:
+        token = oauth.google.authorize_access_token()
+        current_app.logger.info('Token de Google recibido correctamente')
+        user_info = oauth.google.get('https://www.googleapis.com/oauth2/v3/userinfo').json()
+        current_app.logger.info(f"Usuario Google: email={user_info.get('email')}")
+    except Exception as e:
+        current_app.logger.exception(f'Error al autorizar con Google: {e}')
+        if current_app.config.get('ENABLE_DEV_GOOGLE'):
+            return redirect(url_for('auth.google_dev_login'))
+        flash('No se pudo completar el inicio de sesión con Google.')
+        return redirect(url_for('registro.login'))
 
     # Buscar usuario en BD por correo
     usuario = Usuario.query.filter_by(correo=user_info['email']).first()
