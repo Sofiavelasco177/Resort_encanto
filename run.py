@@ -9,6 +9,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from sqlalchemy import inspect, text
+from flask_migrate import Migrate
 from models.baseDatos import Usuario
 from routes.main import main_bp
 from routes.registro import registro_bp
@@ -105,6 +106,8 @@ try:
     logger.info("SQLAlchemy inicializado correctamente")
     bcrypt.init_app(app)
     logger.info("Bcrypt inicializado correctamente")
+    # Inicializar soporte de migraciones gestionadas (Alembic)
+    Migrate(app, db)
 except Exception as e:
     logger.error(f"Error al inicializar extensiones: {e}")
     raise
@@ -298,7 +301,8 @@ def health_check():
     db_status = 'unknown'
     http_code = 200
     try:
-        db.engine.execute(text('SELECT 1'))
+        # SQLAlchemy 2.x: usar session.execute en lugar de engine.execute
+        db.session.execute(text('SELECT 1'))
         db_status = 'connected'
     except Exception as e:
         logger.error(f"Health check DB failed: {e}")
