@@ -26,6 +26,8 @@ class Config:
     #     SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/tu_base_de_datos.db'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Esquema preferido para generar URLs externas (útil para OAuth tras proxy)
+    PREFERRED_URL_SCHEME = os.environ.get('PREFERRED_URL_SCHEME', 'http')
     
     # Configuración adaptable según el tipo de base de datos
     if 'sqlite' in SQLALCHEMY_DATABASE_URI:

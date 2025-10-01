@@ -17,7 +17,9 @@ def google_login():
         return redirect(url_for('registro.login'))
 
     try:
-        redirect_uri = url_for('auth.google_authorize', _external=True)
+        # Respetar esquema preferido (https en prod) si está configurado
+        scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
+        redirect_uri = url_for('auth.google_authorize', _external=True, _scheme=scheme)
         current_app.logger.info(f"Iniciando login con Google. redirect_uri={redirect_uri}")
         return oauth.google.authorize_redirect(redirect_uri)
     except Exception as e:

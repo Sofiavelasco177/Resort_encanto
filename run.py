@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 from config import Config
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Configurar logging temprano
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +25,8 @@ load_dotenv()
 # Preferir minúsculas por compatibilidad Linux; fallback a 'Static' si es lo que existe
 default_static = 'static' if os.path.isdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')) else 'Static'
 app = Flask(__name__, template_folder='templates', static_folder=default_static, static_url_path='/static')
+# Respetar cabeceras del proxy (X-Forwarded-Proto, Host, etc.) para generar URLs https correctas
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 
 # Soportar nombres de carpetas con mayúsculas (por compatibilidad)
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -153,12 +156,28 @@ def init_database():
                     stmts.append("ALTER TABLE usuario ADD COLUMN reset_code VARCHAR(6) NULL")
                 if cols and 'reset_expire' not in cols:
                     stmts.append("ALTER TABLE usuario ADD COLUMN reset_expire DATETIME NULL")
+                # Columnas nuevas del modelo Usuario para compatibilidad con esquemas antiguos
+                if cols and 'telefono' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN telefono VARCHAR(20) NULL")
+                if cols and 'avatar' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN avatar VARCHAR(255) NULL")
+                if cols and 'plan_tipo' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN plan_tipo VARCHAR(50) NULL")
+                if cols and 'membresia_activa' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN membresia_activa TINYINT(1) DEFAULT 0")
+                if cols and 'membresia_expira' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN membresia_expira DATE NULL")
+                if cols and 'notif_checkin' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN notif_checkin TINYINT(1) DEFAULT 1")
+                if cols and 'notif_checkout' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN notif_checkout TINYINT(1) DEFAULT 1")
                 for s in stmts:
                     try:
                         db.session.execute(text(s))
                         db.session.commit()
                         app.logger.info('Migración aplicada: %s', s)
                     except Exception as e:
+                        db.session.rollback()
                         app.logger.exception('No se pudo aplicar la migración %s: %s', s, e)
 
             except Exception as e:
@@ -167,13 +186,12 @@ def init_database():
     except Exception as e:
         app.logger.exception('Error inicializando la base de datos: %s', e)
 
-# Inicializar la base de datos (útil cuando se usa SQLite)
+# Inicializar/verificar esquema de base de datos en cualquier motor (SQLite o MySQL)
 try:
-    if 'sqlite' in app.config.get('SQLALCHEMY_DATABASE_URI', ''):
-        logger.info('Inicializando base de datos SQLite y verificando tablas...')
-        init_database()
+    logger.info('Verificando esquema de base de datos y aplicando migraciones seguras...')
+    init_database()
 except Exception as _e:
-    logger.warning(f"No se pudo inicializar automáticamente la base de datos: {_e}")
+    logger.warning(f"No se pudo inicializar/verificar automáticamente la base de datos: {_e}")
 
 # ---------------- GOOGLE OAUTH ---------------- #
 oauth = OAuth(app)
