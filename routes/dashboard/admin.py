@@ -64,16 +64,34 @@ def hospedaje_index():
 @admin_bp.route("/inventario")
 def inventario_view():
     room_id = request.args.get('room_id', type=int)
+    rec_id = request.args.get('rec_id', type=int)
     habitacion = None
+    record = None
+    items_map = {}
     if room_id:
         habitacion = nuevaHabitacion.query.get(room_id)
+    if rec_id:
+        record = InventarioHabitacion.query.get_or_404(rec_id)
+        # construir mapa de items por clave
+        for it in record.items:
+            items_map[it.key] = {
+                'checked': bool(it.checked),
+                'quantity': it.quantity,
+                'value_text': it.value_text,
+            }
     hotel_name = "Hotel Isla Encanto"
-    return render_template("dashboard/inventario.html", habitacion=habitacion, hotel_name=hotel_name)
+    return render_template(
+        "dashboard/inventario.html",
+        habitacion=habitacion,
+        hotel_name=hotel_name,
+        record=record,
+        items_map=items_map,
+    )
 
 @admin_bp.route("/inventario", methods=["POST"])
 def inventario_save():
     form = request.form
-    # Create record
+    rec_id = form.get('rec_id', type=int)
     # Helper to parse date 'YYYY-MM-DD' -> date
     def _pdate(val):
         try:
@@ -81,22 +99,43 @@ def inventario_save():
         except Exception:
             return None
 
-    rec = InventarioHabitacion(
-        habitacion_id = (int(form.get('habitacion_id')) if form.get('habitacion_id') else None),
-        hotel = form.get('hotel'),
-        room_number = form.get('room_number'),
-        room_type = form.get('room_type'),
-        inspection_date = _pdate(form.get('inspection_date')),
-        inspector = form.get('inspector'),
-        observations = form.get('observations'),
-        rating_cleaning = int(form.get('rating_cleaning', 0) or 0),
-        rating_furniture = int(form.get('rating_furniture', 0) or 0),
-        rating_equipment = int(form.get('rating_equipment', 0) or 0),
-        inspector_signature = form.get('inspector_signature'),
-        inspector_date = _pdate(form.get('inspector_date')),
-        supervisor_signature = form.get('supervisor_signature'),
-        supervisor_date = _pdate(form.get('supervisor_date')),
-    )
+    if rec_id:
+        rec = InventarioHabitacion.query.get_or_404(rec_id)
+        # actualizar campos del registro existente
+        rec.habitacion_id = (int(form.get('habitacion_id')) if form.get('habitacion_id') else None)
+        rec.hotel = form.get('hotel')
+        rec.room_number = form.get('room_number')
+        rec.room_type = form.get('room_type')
+        rec.inspection_date = _pdate(form.get('inspection_date'))
+        rec.inspector = form.get('inspector')
+        rec.observations = form.get('observations')
+        rec.rating_cleaning = int(form.get('rating_cleaning', 0) or 0)
+        rec.rating_furniture = int(form.get('rating_furniture', 0) or 0)
+        rec.rating_equipment = int(form.get('rating_equipment', 0) or 0)
+        rec.inspector_signature = form.get('inspector_signature')
+        rec.inspector_date = _pdate(form.get('inspector_date'))
+        rec.supervisor_signature = form.get('supervisor_signature')
+        rec.supervisor_date = _pdate(form.get('supervisor_date'))
+        # limpiar items previos
+        for it in list(rec.items):
+            db.session.delete(it)
+    else:
+        rec = InventarioHabitacion(
+            habitacion_id = (int(form.get('habitacion_id')) if form.get('habitacion_id') else None),
+            hotel = form.get('hotel'),
+            room_number = form.get('room_number'),
+            room_type = form.get('room_type'),
+            inspection_date = _pdate(form.get('inspection_date')),
+            inspector = form.get('inspector'),
+            observations = form.get('observations'),
+            rating_cleaning = int(form.get('rating_cleaning', 0) or 0),
+            rating_furniture = int(form.get('rating_furniture', 0) or 0),
+            rating_equipment = int(form.get('rating_equipment', 0) or 0),
+            inspector_signature = form.get('inspector_signature'),
+            inspector_date = _pdate(form.get('inspector_date')),
+            supervisor_signature = form.get('supervisor_signature'),
+            supervisor_date = _pdate(form.get('supervisor_date')),
+        )
 
     # Parse dynamic items: expect names like item__category__key fields: check, qty, text
     # For simplicity, define a fixed list mapping to our form elements
@@ -164,18 +203,19 @@ def inventario_save():
     ]
 
     try:
-        db.session.add(rec)
+        if not rec_id:
+            db.session.add(rec)
         for cat, key, qty_key, text_key, label in mappings:
             checked = form.get(key) == 'on'
             qty = form.get(qty_key) if qty_key else None
             text_val = form.get(text_key) if text_key else None
             add_item(cat, key, label, checked, qty, text_val)
         db.session.commit()
-        flash("✅ Inventario guardado", "success")
+        flash("✅ Inventario guardado" if not rec_id else "✅ Inventario actualizado", "success")
     except Exception as e:
         db.session.rollback()
         flash(f"❌ Error guardando inventario: {e}", "danger")
-    return redirect(url_for('admin.inventario_view'))
+    return redirect(url_for('admin.inventarios_list'))
 
 @admin_bp.route('/inventarios')
 def inventarios_list():
