@@ -57,15 +57,23 @@ habitaciones_fijas = [
 ]
 
 with app.app_context():
+    static_dir = app.static_folder
     for h in habitaciones_fijas:
         if not nuevaHabitacion.query.filter_by(nombre=h["nombre"]).first():
+            # Validar que la imagen exista; si no, usar default
+            img = h["imagen"]
+            import os
+            img_fs = os.path.join(static_dir, img)
+            if not os.path.isfile(img_fs):
+                img = 'img/default.jpg'
+
             nueva = nuevaHabitacion(
                 nombre=h["nombre"],
                 descripcion=h["descripcion"],
                 precio=h["precio"],
                 cupo_personas=h["cupo_personas"],
                 estado=h["estado"],
-                imagen=h["imagen"]
+                imagen=img
             )
             db.session.add(nueva)
     db.session.commit()
