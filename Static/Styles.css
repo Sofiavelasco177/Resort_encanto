@@ -183,30 +183,40 @@ body {
 }
 .btn-login {
     margin-left: auto;
-    background-color: #c6a76c; /* dorado */
-    border-radius: 8px;
-    padding: 6px 12px;
-    color: #fff;
+    background: linear-gradient(135deg, #d4af37, #b8860b); /* dorado intenso */
+    border-radius: 999px;
+    padding: 8px 12px;
+    color: #fff !important;
     font-size: 1rem;
-    font-weight: 600;
-    border: 1px solid #b18f56;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 6px 16px rgba(180, 130, 20, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 .btn-login:hover {
-    background-color: #b18f56; /* dorado más oscuro */
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(180, 130, 20, 0.5);
 }
 
 /* Botón de cerrar sesión (alto contraste) */
 .btn-logout {
-    background-color: #1f2937; /* gris carbón oscuro */
+    background: linear-gradient(135deg, #2563eb, #7c3aed); /* azul -> morado */
     color: #fff !important;
-    border: 1px solid #111827;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-weight: 600;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 .btn-logout:hover {
-    background-color: #111827; /* aún más oscuro */
-    color: #fff !important;
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.5);
 }
 
 /* =======================
