@@ -7,7 +7,8 @@
 		{% for h in habitaciones %}
 		<div class="col-md-4 mb-4">
 			<div class="card habitacion-card estado-{{ h.estado|lower }}" style="min-height: 420px; max-height: 420px; display: flex; flex-direction: column; justify-content: space-between;">
-				<img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" class="card-img-top" alt="{{ h.nombre }}" style="height: 200px; object-fit: cover;">
+				{% set imgpath = h.imagen if h.imagen else 'img/default.jpg' %}
+				<img src="{{ url_for('static', filename=imgpath) }}" class="card-img-top" alt="{{ h.nombre }}" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
 				<div class="card-body" style="flex: 1 1 auto;">
 					<h5 class="card-title">{{ h.nombre }}</h5>
  					<p class="card-text">Cupo: {{ h.cupo_personas }}<br>Precio: ${{ '{:,.0f}'.format(h.precio) }} COP</p>
@@ -40,7 +41,8 @@
 		 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 		 					</div>
 		 					<div class="modal-body">
-		 						<img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" class="img-fluid mb-3" alt="{{ h.nombre }}">
+								{% set imgpath2 = h.imagen if h.imagen else 'img/default.jpg' %}
+								<img src="{{ url_for('static', filename=imgpath2) }}" class="img-fluid mb-3" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
 		 						<p><strong>Cupo:</strong> {{ h.cupo_personas }}</p>
 		 						<p><strong>Precio:</strong> ${{ '{:,.0f}'.format(h.precio) }} COP</p>
 		 						<p><strong>Estado:</strong> {{ h.estado }}</p>

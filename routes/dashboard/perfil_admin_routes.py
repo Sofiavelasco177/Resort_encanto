@@ -50,13 +50,16 @@ def update():
     # Subir avatar si viene
     avatar_file = request.files.get('avatar')
     if avatar_file and avatar_file.filename:
+        from uuid import uuid4
+        import time
         filename = secure_filename(avatar_file.filename)
+        unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
         img_folder = os.path.join(current_app.static_folder, 'img', 'avatars')
         os.makedirs(img_folder, exist_ok=True)
-        save_path = os.path.join(img_folder, filename)
+        save_path = os.path.join(img_folder, unique)
         avatar_file.save(save_path)
         # Guardar ruta relativa para url_for('static', filename=...)
-        usuario.avatar = f"img/avatars/{filename}"
+        usuario.avatar = f"img/avatars/{unique}"
 
     # Actualizar perfil admin
     perfil.cargo = request.form.get('cargo') or perfil.cargo

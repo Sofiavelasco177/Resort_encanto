@@ -9,7 +9,6 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from sqlalchemy import inspect, text
-from flask_migrate import Migrate
 from models.baseDatos import Usuario
 from routes.main import main_bp
 from routes.registro import registro_bp
@@ -17,6 +16,7 @@ from routes.auth import auth_bp
 from authlib.integrations.flask_client import OAuth
 from utils.extensions import db, bcrypt, serializer
 from routes.usuario.perfil_usuario_routes import perfil_usuario_bp
+from routes.usuario.pagos_usuario import pagos_usuario_bp
 from flask import Blueprint
 
 # Cargar variables de entorno
@@ -106,8 +106,6 @@ try:
     logger.info("SQLAlchemy inicializado correctamente")
     bcrypt.init_app(app)
     logger.info("Bcrypt inicializado correctamente")
-    # Inicializar soporte de migraciones gestionadas (Alembic)
-    Migrate(app, db)
 except Exception as e:
     logger.error(f"Error al inicializar extensiones: {e}")
     raise
@@ -266,6 +264,7 @@ app.register_blueprint(admin_bp, url_prefix='/admin')  # ✅ Registrar blueprint
 app.register_blueprint(recuperar_bp, url_prefix='/recuperar')
 app.register_blueprint(hospedaje_usuario_bp, url_prefix='/hospedaje')
 app.register_blueprint(perfil_usuario_bp, url_prefix='/perfil')
+app.register_blueprint(pagos_usuario_bp, url_prefix='/usuario')
 app.register_blueprint(perfil_admin_bp)
 
 
@@ -301,8 +300,7 @@ def health_check():
     db_status = 'unknown'
     http_code = 200
     try:
-        # SQLAlchemy 2.x: usar session.execute en lugar de engine.execute
-        db.session.execute(text('SELECT 1'))
+        db.engine.execute(text('SELECT 1'))
         db_status = 'connected'
     except Exception as e:
         logger.error(f"Health check DB failed: {e}")

@@ -1,4 +1,4 @@
-{% extends 'home/base.html' %}
+{% extends 'dashboard/base.html' %}
 
 {% block title %}Restaurante - Admin{% endblock %}
 
@@ -30,8 +30,8 @@
                 <td>{{ p.categoria }}</td>
                 <td>${{ '%.2f'|format(p.precio) }}</td>
                 <td class="text-end">
-                    <a href="{{ url_for('admin_restaurante_editar', plato_id=p.id) }}" class="btn btn-sm btn-primary me-2">Editar</a>
-                    <form method="POST" action="{{ url_for('admin_restaurante_eliminar', plato_id=p.id) }}" style="display:inline-block;">
+                    <a href="{{ url_for('admin.admin_restaurante_editar', plato_id=p.id) }}" class="btn btn-sm btn-primary me-2">Editar</a>
+                    <form method="POST" action="{{ url_for('admin.admin_restaurante_eliminar', plato_id=p.id) }}" style="display:inline-block;">
                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este plato?');">Eliminar</button>
                     </form>
                 </td>
@@ -46,7 +46,7 @@
 
     <!-- Formulario Nuevo Plato -->
     <h4>➕ Crear nuevo plato</h4>
-    <form method="POST" action="{{ url_for('admin_restaurante_nuevo') }}" class="mt-3">
+    <form method="POST" action="{{ url_for('admin.admin_restaurante_nuevo') }}" class="mt-3">
         <div class="mb-3">
             <label class="form-label">Nombre</label>
             <input class="form-control" name="nombre" required>
@@ -67,7 +67,7 @@
     <!-- Formulario Editar Plato -->
     {% if plato %}
     <h4>✏️ Editar plato</h4>
-    <form method="POST" action="{{ url_for('admin_restaurante_editar', plato_id=plato.id) }}" class="mt-3">
+    <form method="POST" action="{{ url_for('admin.admin_restaurante_editar', plato_id=plato.id) }}" class="mt-3">
         <div class="mb-3">
             <label class="form-label">Nombre</label>
             <input class="form-control" name="nombre" value="{{ plato.nombre }}" required>

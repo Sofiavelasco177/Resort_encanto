@@ -7,8 +7,9 @@
         {% for h in habitaciones %}
         <div class="col-12 col-sm-6 col-lg-4">
             <div class="card habitacion-card h-100">
-                <img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" 
-                     class="card-img-top room-img" alt="{{ h.nombre }}">
+             {% set uimg = h.imagen if h.imagen else 'img/default.jpg' %}
+             <img src="{{ url_for('static', filename=uimg) }}" 
+                 class="card-img-top room-img" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                 <div class="card-body d-flex justify-content-center gap-2">
                     <!-- Botón Especificaciones (abre modal único por habitación) -->
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}">
@@ -30,15 +31,16 @@
                 <div class="modal-content">
                     <div class="modal-body row">
                         <div class="col-md-6">
-                            <img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" 
-                                 class="img-fluid rounded" alt="{{ h.nombre }}">
+                       {% set uimg2 = h.imagen if h.imagen else 'img/default.jpg' %}
+                       <img src="{{ url_for('static', filename=uimg2) }}" 
+                           class="img-fluid rounded" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                         </div>
                         <div class="col-md-6 d-flex flex-column justify-content-between">
                             <div>
                                 <h4>{{ h.nombre }}</h4>
                                 <p><strong>Precio:</strong> ${{ '{:,.0f}'.format(h.precio) }} COP</p>
                                 <p><strong>Estado:</strong> {{ h.estado }}</p>
-                                <p><strong>Capacidad:</strong> {{ h.cantidad_personas }} personas</p>
+                                <p><strong>Capacidad:</strong> {{ h.cupo_personas }} personas</p>
                                 <p><strong>Descripción:</strong> {{ h.descripcion if h.descripcion else "Sin descripción" }}</p>
                             </div>
 

@@ -5,11 +5,11 @@
     <h2>Reserva de Habitación</h2>
 
     <!-- Datos de la Habitación -->
-    <form method="POST" action="{{ url_for('habitacion.reservar_habitacion', habitacion_id=habitacion.id) }}">
+    <form method="POST" action="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=habitacion.id) }}">
 
         <div class="mb-3">
             <label>ID Habitación</label>
-            <input type="text" class="form-control" value="{{ habitacionHuesped.id }}" name="habitacionHuesped_id" readonly>
+            <input type="text" class="form-control" value="{{ habitacion.id }}" name="habitacion_id" readonly>
         </div>
         <div class="mb-3">
             <label>Nombre</label>
@@ -20,8 +20,8 @@
             <input type="text" class="form-control" value="{{ habitacion.precio }}" readonly>
         </div>
         <div class="mb-3">
-            <label>Cantidad de Personas</label>
-            <input type="number" class="form-control" name="cantidad_personas" min="1" required>
+            <label>Cupo de Personas</label>
+            <input type="number" class="form-control" name="cupo_personas" min="1" value="{{ habitacion.cupo_personas }}" readonly>
         </div>
         <div class="mb-3">
             <label>Check-in</label>
@@ -61,7 +61,7 @@
             <input type="text" class="form-control" name="procedencia" required>
         </div>
 
-        <button class="btn btn-primary" onclick="mostrarModal()">Confirmar Reserva</button>
+    <button class="btn btn-primary" type="submit">Confirmar Reserva</button>
     </form>
 
 </div>
@@ -73,8 +73,8 @@
       <h5 class="modal-title mb-3">Reserva Exitosa</h5>
       <p>Continuar con los metodos de pago</p>
       <div class="d-flex justify-content-center mt-3">
-        <button class="btn btn-secondary me-2" data-bs-dismiss="modal">Cerrar</button>
-        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Ir a Login</button>
+    <button class="btn btn-secondary me-2" data-bs-dismiss="modal">Cerrar</button>
+    <button class="btn btn-primary" onclick="window.location.href='{{ url_for('registro.login') }}'">Ir a Login</button>
       </div>
     </div>
   </div>

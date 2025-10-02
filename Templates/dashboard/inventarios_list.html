@@ -13,6 +13,7 @@
           <th>Fecha inspección</th>
           <th>Inspector</th>
           <th>Creado</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -24,11 +25,14 @@
           <td>{{ r.room_type or '-' }}</td>
           <td>{{ r.inspection_date or '-' }}</td>
           <td>{{ r.inspector or '-' }}</td>
-          <td>{{ r.created_at }}</td>
+              <td>{{ r.created_at }}</td>
+              <td class="text-end">
+                <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}">Editar</a>
+              </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="7" class="text-center text-muted">Sin registros</td>
+          <td colspan="8" class="text-center text-muted">Sin registros</td>
         </tr>
         {% endfor %}
       </tbody>

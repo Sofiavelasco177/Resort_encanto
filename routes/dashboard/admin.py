@@ -65,6 +65,7 @@ def hospedaje_index():
 def inventario_view():
     room_id = request.args.get('room_id', type=int)
     rec_id = request.args.get('rec_id', type=int)
+    auto_pdf = True if (request.args.get('auto_pdf') in ('1','true','yes','on')) else False
     habitacion = None
     record = None
     items_map = {}
@@ -86,6 +87,7 @@ def inventario_view():
         hotel_name=hotel_name,
         record=record,
         items_map=items_map,
+        auto_pdf=auto_pdf,
     )
 
 @admin_bp.route("/inventario", methods=["POST"])

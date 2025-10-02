@@ -10,7 +10,8 @@
 
 		<div class="content-card p-4 mt-3" id="inventoryCapture">
 					<form id="inventoryForm" method="POST" action="{{ url_for('admin.inventario_save') }}">
-						<input type="hidden" name="habitacion_id" value="{{ habitacion.id if habitacion else '' }}" />
+						<input type="hidden" name="habitacion_id" value="{{ (record.habitacion_id if record else (habitacion.id if habitacion else '')) }}" />
+						<input type="hidden" name="rec_id" value="{{ record.id if record else '' }}" />
 				<div class="info-section">
 					<div class="info-field d-flex flex-column">
 						<label class="fw-semibold">Hotel:</label>
@@ -18,19 +19,19 @@
 					</div>
 					<div class="info-field d-flex flex-column">
 						<label class="fw-semibold">Número de Habitación:</label>
-								<input class="form-control" type="text" name="room_number" placeholder="Ej: 205" value="{{ habitacion.id if habitacion else '' }}" />
+								<input class="form-control" type="text" name="room_number" placeholder="Ej: 205" value="{{ (record.room_number if record else (habitacion.id if habitacion else '')) }}" />
 					</div>
 					<div class="info-field d-flex flex-column">
 						<label class="fw-semibold">Tipo de Habitación:</label>
-								<input class="form-control" type="text" name="room_type" placeholder="Ej: Suite" value="{{ habitacion.nombre if habitacion else '' }}" />
+								<input class="form-control" type="text" name="room_type" placeholder="Ej: Suite" value="{{ (record.room_type if record else (habitacion.nombre if habitacion else '')) }}" />
 					</div>
 					<div class="info-field d-flex flex-column">
 						<label class="fw-semibold">Fecha de Inspección:</label>
-						<input class="form-control" type="date" name="inspection_date" />
+						<input class="form-control" type="date" name="inspection_date" value="{{ record.inspection_date if record else '' }}" />
 					</div>
 					<div class="info-field d-flex flex-column">
 						<label class="fw-semibold">Inspector:</label>
-						<input class="form-control" type="text" name="inspector" placeholder="Nombre del inspector" />
+						<input class="form-control" type="text" name="inspector" placeholder="Nombre del inspector" value="{{ record.inspector if record else '' }}" />
 					</div>
 				</div>
 
@@ -39,9 +40,9 @@
 					<h3 class="subsection-title">Mobiliario</h3>
 					<div class="items-grid">
 						<div class="item">
-							<input type="checkbox" id="bed" name="bed" />
+							<input type="checkbox" id="bed" name="bed" {% if items_map.get('bed') and items_map.get('bed').checked %}checked{% endif %} />
 							<label class="flex-grow-1" for="bed">Cama</label>
-							  <input class="form-control" name="bed_qty" type="number" placeholder="Cant." min="0" style="max-width:80px" />
+							  <input class="form-control" name="bed_qty" type="number" placeholder="Cant." min="0" style="max-width:80px" value="{{ items_map.get('bed').quantity if items_map.get('bed') else '' }}" />
 						</div>
 						<div class="item">
 							<input type="checkbox" id="nightstand" name="nightstand" />
@@ -209,22 +210,22 @@
 				<div class="signature-section row g-3 mt-3 p-3" style="background:#e8f4f8;border-radius:12px;">
 					<div class="col-md-6">
 						<label class="fw-semibold">✍️ Firma Inspector:</label>
-						<input class="form-control mb-2" type="text" name="inspector_signature" placeholder="Nombre y firma" />
-						<input class="form-control" type="date" name="inspector_date" />
+						<input class="form-control mb-2" type="text" name="inspector_signature" placeholder="Nombre y firma" value="{{ record.inspector_signature if record else '' }}" />
+						<input class="form-control" type="date" name="inspector_date" value="{{ record.inspector_date if record else '' }}" />
 					</div>
 					<div class="col-md-6">
 						<label class="fw-semibold">✍️ Firma Supervisor:</label>
-						<input class="form-control mb-2" type="text" name="supervisor_signature" placeholder="Nombre y firma" />
-						<input class="form-control" type="date" name="supervisor_date" />
+						<input class="form-control mb-2" type="text" name="supervisor_signature" placeholder="Nombre y firma" value="{{ record.supervisor_signature if record else '' }}" />
+						<input class="form-control" type="date" name="supervisor_date" value="{{ record.supervisor_date if record else '' }}" />
 					</div>
 				</div>
 			</form>
 		</div>
 
-			<div class="d-flex justify-content-center gap-2 mt-3 no-print">
-			<button type="button" class="btn btn-secondary" id="btn-reset">🔄 Limpiar</button>
-				<button type="button" class="btn btn-main" id="btn-pdf">📄 Exportar a PDF</button>
-				<button type="submit" class="btn btn-primary">💾 Guardar en BD</button>
+			<div class="d-flex justify-content-center gap-3 mt-4 no-print flex-wrap">
+				<button type="button" class="btn btn-secondary btn-lg px-4" id="btn-reset"><i class="bi bi-arrow-repeat me-1"></i> Limpiar</button>
+				<button type="button" class="btn btn-main btn-lg px-4" id="btn-pdf"><i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF</button>
+				<button type="submit" class="btn btn-primary btn-lg px-4" form="inventoryForm"><i class="bi bi-save me-1"></i> Guardar en BD</button>
 		</div>
 	</div>
 </div>
@@ -247,6 +248,13 @@
 					if (input) input.value = value;
 			});
 		});
+		// Inicializar desde valores guardados
+		const ratingName = starContainer.getAttribute('data-rating');
+		const input = document.getElementById('rating_' + ratingName);
+		const current = Number(input?.value || 0);
+		if (current > 0) {
+			stars.forEach(s => { if (Number(s.dataset.value) <= current) s.classList.add('active'); });
+		}
 	});
 
 	// Reset form
@@ -271,5 +279,38 @@
 		html2pdf().set(opt).from(element).save();
 	});
 </script>
+{% if items_map %}
+<script>
+	(function(){
+		const itemsMap = {{ items_map|tojson }};
+		Object.keys(itemsMap).forEach(k => {
+			const m = itemsMap[k] || {};
+			const chk = document.querySelector(`input[name="${k}"]`);
+			if (chk) chk.checked = !!m.checked;
+			const qty = document.querySelector(`input[name="${k}_qty"]`);
+			if (qty && m.quantity != null) qty.value = m.quantity;
+			// Campos de texto especiales
+			if (k === 'mattress') {
+				const t = document.querySelector('input[name="mattress_state"]');
+				if (t && m.value_text) t.value = m.value_text;
+			}
+			if (k === 'tv') {
+				const t = document.querySelector('input[name="tv_model"]');
+				if (t && m.value_text) t.value = m.value_text;
+			}
+		});
+	})();
+</script>
+{% endif %}
+{% if auto_pdf %}
+<script>
+	window.addEventListener('load', function(){
+		setTimeout(function(){
+			const btn = document.getElementById('btn-pdf');
+			if (btn) btn.click();
+		}, 300);
+	});
+</script>
+{% endif %}
 {% endblock %}
 
