@@ -116,6 +116,16 @@ def google_dev_login():
     flash('Inicio de sesión simulado en modo desarrollo', 'info')
     return redirect(url_for('main.home_usuario'))
 
+@auth_bp.route('/logout')
+def logout():
+    """Cerrar sesión del usuario actual"""
+    try:
+        session.pop('user', None)
+    except Exception:
+        pass
+    flash('Sesión cerrada', 'info')
+    return redirect(url_for('registro.login'))
+
 
 # ---------------- RECUPERAR CONTRASEÑA ---------------- #
 

@@ -11,7 +11,8 @@ body {
    ESTILOS HOME
    ======================= */
 .hero {
-    background-video: url('/static/img/video.mp4');
+    /* Nota: background-video no es una propiedad CSS válida.
+       Si necesitas video de fondo, usa un elemento <video> en HTML. */
     background-size: cover;
     background-position: center;
     height: 100vh;
@@ -181,15 +182,16 @@ body {
 }
 .btn-login {
     margin-left: auto;
-    background-color: rgb(11, 216, 202);
+    background-color: #c6a76c; /* dorado */
     border-radius: 8px;
     padding: 6px 12px;
-    color: white;
+    color: #fff;
     font-size: 1rem;
-    font-weight: bold;
+    font-weight: 600;
+    border: 1px solid #b18f56;
 }
 .btn-login:hover {
-    background-color: #13ea1dff;
+    background-color: #b18f56; /* dorado más oscuro */
 }
 
 /* =======================

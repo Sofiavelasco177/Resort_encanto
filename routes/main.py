@@ -64,7 +64,8 @@ def home_usuario():
 
 @main_bp.route('/hospedaje_usuario')
 def hospedaje_usuario():
-    return render_template('usuario/hospedaje_usuario.html')
+    # Redirigir a la ruta del blueprint que carga los datos de habitaciones para usuarios
+    return redirect(url_for('hospedaje_usuario.hospedaje_usuario'))
 
 @main_bp.route('/restaurante_usuario')
 def restaurante_usuario():

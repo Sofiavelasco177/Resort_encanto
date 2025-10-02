@@ -20,6 +20,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
+                    <!-- Botón de volver atras -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:history.back()">← Volver</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{ url_for('main.home_admin') }}">Inicio</a>
                     </li>
@@ -39,9 +43,18 @@
                         <a class="nav-link" href="{{ url_for('admin.inventarios_list') }}">Inventarios</a>
                     </li>
                 </ul>
-                <a href="{{ url_for('perfil_usuario.perfil') }}" class="btn btn-login">
-                <i class="bi bi-person-circle fs-4"></i>
-                </a>
+                <div class="d-flex align-items-center ms-auto gap-2">
+                    {% if session.get('user') %}
+                        <a href="{{ url_for('perfil_usuario.perfil') }}" class="btn btn-login" title="Perfil">
+                            <i class="bi bi-person-circle fs-4"></i>
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light">Cerrar sesión</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-login" title="Iniciar sesión">
+                            <i class="bi bi-box-arrow-right fs-4"></i>
+                        </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
