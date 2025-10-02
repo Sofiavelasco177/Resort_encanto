@@ -48,11 +48,7 @@ def hospedaje_actualizar(habitacion_id):
         db.session.rollback()
         flash(f"❌ Error al actualizar la habitación: {e}", "danger")
     return redirect(url_for("admin.hospedaje_index"))
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.baseDatos import db, nuevaHabitacion, Usuario
-from flask import session
-
-admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+# (Eliminar duplicado de admin_bp e imports redundantes) 
 
 # ==========================
 # 📌 SECCIÓN HOSPEDAJE
