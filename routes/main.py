@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
 from jinja2 import TemplateNotFound
 from datetime import datetime
-from models.baseDatos import nuevaHabitacion
+from models.baseDatos import nuevaHabitacion, Post
 
 main_bp = Blueprint('main', __name__)
 
@@ -31,7 +31,8 @@ def restaurantes():
 
 @main_bp.route('/nosotros')
 def nosotros():
-    return render_template('home/Nosotros.html')
+    posts = Post.query.filter_by(activo=True).order_by(Post.creado_en.desc()).limit(10).all()
+    return render_template('home/Nosotros.html', posts=posts)
 
 @main_bp.route('/Experiencias', methods=['GET', 'POST'])
 def experiencias():

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem
+from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post
 from datetime import datetime
 from flask import session
 
@@ -247,7 +247,7 @@ def hospedaje_editar(habitacion_id):
 def hospedaje_eliminar(habitacion_id):
     habitacion = nuevaHabitacion.query.get_or_404(habitacion_id)
     try:
-        db.session.delete(nuevaHabitacion)
+        db.session.delete(habitacion)
         db.session.commit()
         flash("🗑️ Habitación eliminada", "warning")
     except Exception as e:
@@ -302,3 +302,63 @@ def admin_restaurante_editar(plato_id):
 def admin_restaurante_eliminar(plato_id):
     global _platos_demo
     _platos_demo = [p for p in _platos_demo if p["id"] != plato_id]
+
+# ==========================
+# 📄 NOSOTROS (Contenido dinámico)
+# ==========================
+@admin_bp.route('/nosotros')
+def admin_nosotros():
+    posts = Post.query.order_by(Post.creado_en.desc()).all()
+    return render_template('dashboard/nosotros_admin.html', posts=posts)
+
+@admin_bp.route('/nosotros/nuevo', methods=['POST'])
+def admin_nosotros_nuevo():
+    titulo = request.form.get('titulo')
+    contenido = request.form.get('contenido')
+    categoria = request.form.get('categoria')
+    activo = True if request.form.get('activo') == 'on' else False
+    imagen = None
+    img = request.files.get('imagen')
+    if img and img.filename:
+        import os
+        from werkzeug.utils import secure_filename
+        filename = secure_filename(img.filename)
+        img_folder = os.path.join(current_app.static_folder, 'img')
+        os.makedirs(img_folder, exist_ok=True)
+        path = os.path.join(img_folder, filename)
+        img.save(path)
+        imagen = f"img/{filename}"
+    p = Post(titulo=titulo, contenido=contenido, categoria=categoria, activo=activo, imagen=imagen)
+    db.session.add(p)
+    db.session.commit()
+    flash('Contenido creado', 'success')
+    return redirect(url_for('admin.admin_nosotros'))
+
+@admin_bp.route('/nosotros/<int:pid>/editar', methods=['POST'])
+def admin_nosotros_editar(pid):
+    p = Post.query.get_or_404(pid)
+    p.titulo = request.form.get('titulo') or p.titulo
+    p.contenido = request.form.get('contenido') or p.contenido
+    p.categoria = request.form.get('categoria') or p.categoria
+    p.activo = True if request.form.get('activo') == 'on' else False
+    img = request.files.get('imagen')
+    if img and img.filename:
+        import os
+        from werkzeug.utils import secure_filename
+        filename = secure_filename(img.filename)
+        img_folder = os.path.join(current_app.static_folder, 'img')
+        os.makedirs(img_folder, exist_ok=True)
+        path = os.path.join(img_folder, filename)
+        img.save(path)
+        p.imagen = f"img/{filename}"
+    db.session.commit()
+    flash('Contenido actualizado', 'success')
+    return redirect(url_for('admin.admin_nosotros'))
+
+@admin_bp.route('/nosotros/<int:pid>/eliminar', methods=['POST'])
+def admin_nosotros_eliminar(pid):
+    p = Post.query.get_or_404(pid)
+    db.session.delete(p)
+    db.session.commit()
+    flash('Contenido eliminado', 'warning')
+    return redirect(url_for('admin.admin_nosotros'))

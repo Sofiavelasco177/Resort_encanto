@@ -229,3 +229,19 @@ class Restaurante(db.Model):
     def __repr__(self):
         return f"<Restaurante {self.nombre}>"
         """
+
+# ------------------------------
+# Contenido (Nosotros/Marketing/Descuentos)
+# ------------------------------
+class Post(db.Model):
+    __tablename__ = 'post'
+    id = db.Column(db.Integer, primary_key=True)
+    titulo = db.Column(db.String(200), nullable=False)
+    contenido = db.Column(db.Text, nullable=False)
+    categoria = db.Column(db.String(50), nullable=True)  # marketing, descuento, noticia
+    imagen = db.Column(db.String(255), nullable=True)
+    activo = db.Column(db.Boolean, default=True)
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Post {self.titulo} cat={self.categoria} activo={self.activo}>"
