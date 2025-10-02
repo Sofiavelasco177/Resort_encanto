@@ -195,6 +195,20 @@ body {
     background-color: #b18f56; /* dorado más oscuro */
 }
 
+/* Botón de cerrar sesión (alto contraste) */
+.btn-logout {
+    background-color: #1f2937; /* gris carbón oscuro */
+    color: #fff !important;
+    border: 1px solid #111827;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+.btn-logout:hover {
+    background-color: #111827; /* aún más oscuro */
+    color: #fff !important;
+}
+
 /* =======================
      PERFIL USUARIO (responsivo)
      ======================= */
