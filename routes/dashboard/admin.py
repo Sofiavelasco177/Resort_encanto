@@ -30,14 +30,16 @@ def hospedaje_actualizar(habitacion_id):
         habitacion.estado = request.form.get("estado", "Disponible")
         imagen_file = request.files.get("imagen")
         if imagen_file and imagen_file.filename:
-            import os
+            import os, time
+            from uuid import uuid4
             from werkzeug.utils import secure_filename
             filename = secure_filename(imagen_file.filename)
-            img_folder = os.path.join(current_app.static_folder, "img")
+            unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
+            img_folder = os.path.join(current_app.static_folder, "img", "uploads")
             os.makedirs(img_folder, exist_ok=True)
-            save_path = os.path.join(img_folder, filename)
+            save_path = os.path.join(img_folder, unique)
             imagen_file.save(save_path)
-            habitacion.imagen = f"img/{filename}"
+            habitacion.imagen = f"img/uploads/{unique}"
         db.session.commit()
     # flash("✅ Habitación actualizada correctamente", "success")
     except Exception as e:
@@ -196,14 +198,16 @@ def hospedaje_nueva():
         imagen_file = request.files.get("imagen")
         imagen_path = None
         if imagen_file and imagen_file.filename:
-            import os
+            import os, time
+            from uuid import uuid4
             from werkzeug.utils import secure_filename
             filename = secure_filename(imagen_file.filename)
-            img_folder = os.path.join(current_app.static_folder, "img")
+            unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
+            img_folder = os.path.join(current_app.static_folder, "img", "uploads")
             os.makedirs(img_folder, exist_ok=True)
-            save_path = os.path.join(img_folder, filename)
+            save_path = os.path.join(img_folder, unique)
             imagen_file.save(save_path)
-            imagen_path = f"img/{filename}"
+            imagen_path = f"img/uploads/{unique}"
 
         habitacion = nuevaHabitacion(
             nombre=nombre,
@@ -320,14 +324,16 @@ def admin_nosotros_nuevo():
     imagen = None
     img = request.files.get('imagen')
     if img and img.filename:
-        import os
+        import os, time
+        from uuid import uuid4
         from werkzeug.utils import secure_filename
         filename = secure_filename(img.filename)
-        img_folder = os.path.join(current_app.static_folder, 'img')
+        unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
+        img_folder = os.path.join(current_app.static_folder, 'img', 'uploads')
         os.makedirs(img_folder, exist_ok=True)
-        path = os.path.join(img_folder, filename)
+        path = os.path.join(img_folder, unique)
         img.save(path)
-        imagen = f"img/{filename}"
+        imagen = f"img/uploads/{unique}"
     p = Post(titulo=titulo, contenido=contenido, categoria=categoria, activo=activo, imagen=imagen)
     db.session.add(p)
     db.session.commit()
@@ -343,14 +349,16 @@ def admin_nosotros_editar(pid):
     p.activo = True if request.form.get('activo') == 'on' else False
     img = request.files.get('imagen')
     if img and img.filename:
-        import os
+        import os, time
+        from uuid import uuid4
         from werkzeug.utils import secure_filename
         filename = secure_filename(img.filename)
-        img_folder = os.path.join(current_app.static_folder, 'img')
+        unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
+        img_folder = os.path.join(current_app.static_folder, 'img', 'uploads')
         os.makedirs(img_folder, exist_ok=True)
-        path = os.path.join(img_folder, filename)
+        path = os.path.join(img_folder, unique)
         img.save(path)
-        p.imagen = f"img/{filename}"
+        p.imagen = f"img/uploads/{unique}"
     db.session.commit()
     flash('Contenido actualizado', 'success')
     return redirect(url_for('admin.admin_nosotros'))

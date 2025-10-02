@@ -61,11 +61,14 @@ def editar_perfil():
     # Avatar
     avatar_file = request.files.get('avatar')
     if avatar_file and avatar_file.filename:
+        from uuid import uuid4
+        import time
         filename = secure_filename(avatar_file.filename)
+        unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
         dest = os.path.join(current_app.static_folder, 'img', 'avatars')
         os.makedirs(dest, exist_ok=True)
-        avatar_file.save(os.path.join(dest, filename))
-        user.avatar = f"img/avatars/{filename}"
+        avatar_file.save(os.path.join(dest, unique))
+        user.avatar = f"img/avatars/{unique}"
 
     try:
         db.session.commit()
