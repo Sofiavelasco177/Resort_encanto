@@ -5,6 +5,7 @@ body {
     background-color: #f0f8ff; /* Fondo más claro */
     color: #ffffff; /* Gris claro */
     font-family: Arial, sans-serif;
+    padding-top: 64px; /* espacio para navbar fijo */
 }
 
 /* =======================
@@ -135,7 +136,7 @@ body {
    ESTILOS NAVBAR (base.html)
    ======================= */
 .navbar {
-    position: absolute;
+    position: fixed; /* fijar navbar para mejor UX */
     top: 0;
     width: 100%;
     background: #174c6f !important;
@@ -195,6 +196,25 @@ body {
 }
 
 /* =======================
+     PERFIL USUARIO (responsivo)
+     ======================= */
+.perfil-page .avatar-img {
+        width: 84px;
+        height: 84px;
+        object-fit: cover;
+}
+@media (min-width: 768px) {
+    .perfil-page .avatar-img { width: 100px; height: 100px; }
+}
+.perfil-page .list-group-item { border-radius: 8px; }
+.perfil-page .table { font-size: 0.95rem; }
+.perfil-page .table th { white-space: nowrap; }
+.perfil-page .table td { vertical-align: middle; }
+
+/* Asegurar padding de contenedores principal bajo navbar */
+.perfil-page .rounded-4 { border-radius: 16px !important; }
+
+/* =======================
    ESTILOS HOSPEDAJE
    ======================= */
 .pricing-card {
@@ -213,6 +233,14 @@ body {
     width: 100%;
     width: 300px;
     height: 450px;
+}
+.hospedaje-usuario .room-img {
+        height: 200px;
+        object-fit: cover;
+}
+.hospedaje-usuario .habitacion-card { border-radius: 12px; }
+@media (min-width: 768px) {
+    .hospedaje-usuario .room-img { height: 220px; }
 }
 .pricing-card:hover {
     transform: scale(1.05);

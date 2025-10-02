@@ -1,0 +1,23 @@
+{% extends 'usuario/base.html' %}
+
+{% block content %}
+<div class="container my-4">
+	<div class="p-3 p-md-4 bg-white rounded-4 shadow-sm">
+		<h3 class="mb-2">Restaurante</h3>
+		<p class="text-muted mb-0">Explora nuestro menú y reserva tu experiencia gastronómica. (Próximamente)</p>
+	</div>
+  
+	<div class="row g-3 g-md-4 mt-1">
+		<!-- cards placeholder -->
+		<div class="col-12 col-sm-6 col-lg-4">
+			<div class="card h-100">
+				<img class="card-img-top" src="{{ url_for('static', filename='img/r1.jpg') }}" alt="Plato 1">
+				<div class="card-body">
+					<h6 class="card-title">Plato destacado</h6>
+					<p class="card-text text-muted">Descripción breve del plato.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
