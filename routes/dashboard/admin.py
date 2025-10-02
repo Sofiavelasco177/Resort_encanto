@@ -25,6 +25,8 @@ def hospedaje_actualizar(habitacion_id):
     habitacion = nuevaHabitacion.query.get_or_404(habitacion_id)
     try:
         habitacion.nombre = request.form["nombre"]
+        # Asegurar que la descripción también se actualiza
+        habitacion.descripcion = request.form.get("descripcion", habitacion.descripcion)
         habitacion.precio = float(request.form["precio"])
         habitacion.cupo_personas = int(request.form.get("cupo_personas", 1))
         habitacion.estado = request.form.get("estado", "Disponible")
@@ -41,10 +43,10 @@ def hospedaje_actualizar(habitacion_id):
             imagen_file.save(save_path)
             habitacion.imagen = f"img/uploads/{unique}"
         db.session.commit()
-    # flash("✅ Habitación actualizada correctamente", "success")
+        flash("✅ Habitación actualizada correctamente", "success")
     except Exception as e:
         db.session.rollback()
-    # flash(f"❌ Error al actualizar la habitación: {e}", "danger")
+        flash(f"❌ Error al actualizar la habitación: {e}", "danger")
     return redirect(url_for("admin.hospedaje_index"))
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from models.baseDatos import db, nuevaHabitacion, Usuario
@@ -229,21 +231,7 @@ def hospedaje_nueva():
 
 #editar habitacion ----------------------------------------------------------
 
-@admin_bp.route("/hospedaje/editar/<int:habitacion_id>", methods=["POST"])
-def hospedaje_editar(habitacion_id):
-    habitacion = nuevaHabitacion.query.get_or_404(habitacion_id)
-    try:
-        habitacion.nombre = request.form["nombre"]
-        habitacion.descripcion = request.form["descripcion"]
-        habitacion.precio = float(request.form["precio"])
-        habitacion.estado = request.form["estado"]
-        habitacion.cupo_personas = int(request.form["cupo_personas"])
-        db.session.commit()
-        flash("✅ Habitación actualizada correctamente", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"❌ Error al editar la habitación: {e}", "danger")
-    return redirect(url_for("admin.hospedaje_index"))
+# (El endpoint POST de edición se maneja en 'hospedaje_actualizar')
 
 #eliminar habitacion ----------------------------------------------------------
 

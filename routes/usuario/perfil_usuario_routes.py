@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, send_from_directory, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, send_from_directory, current_app, jsonify
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime
 from utils.extensions import db
 from models.baseDatos import Usuario, MetodoPago, Reserva, Notificacion, ActividadUsuario, Factura, nuevaHabitacion
+from werkzeug.security import generate_password_hash, check_password_hash
 
 perfil_usuario_bp = Blueprint('perfil_usuario', __name__, template_folder='../templates')
 
@@ -131,3 +132,83 @@ def descargar_factura(fid):
     base = os.path.dirname(fac.file_path)
     fname = os.path.basename(fac.file_path)
     return send_from_directory(base, fname, as_attachment=True)
+
+# =====================
+# Configuración rápida (AJAX): notificaciones
+# =====================
+@perfil_usuario_bp.route('/perfil_usuario/notif', methods=['POST'])
+def update_notif():
+    user = _current_user()
+    if not user:
+        return jsonify({'ok': False, 'error': 'not_authenticated'}), 401
+
+    # Aceptar JSON o form-data
+    data = {}
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+    else:
+        data = request.form.to_dict()
+
+    field = (data.get('field') or '').strip()
+    value_raw = data.get('value')
+    value = True if str(value_raw).lower() in ('1', 'true', 'on', 'yes') else False
+
+    if field not in ('notif_checkin', 'notif_checkout'):
+        return jsonify({'ok': False, 'error': 'invalid_field'}), 400
+
+    try:
+        setattr(user, field, value)
+        db.session.commit()
+        return jsonify({'ok': True, 'field': field, 'value': value})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+# =====================
+# Cambio de contraseña
+# =====================
+@perfil_usuario_bp.route('/perfil_usuario/cambiar_password', methods=['POST'])
+def cambiar_password():
+    user = _current_user()
+    if not user:
+        flash('Inicia sesión para continuar', 'warning')
+        return redirect(url_for('registro.login'))
+
+    actual = request.form.get('password_actual') or ''
+    nueva = request.form.get('password_nueva') or ''
+    confirm = request.form.get('password_confirmar') or ''
+
+    if not actual or not nueva or not confirm:
+        flash('Completa todos los campos de contraseña', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    if nueva != confirm:
+        flash('La nueva contraseña y su confirmación no coinciden', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    if len(nueva) < 6:
+        flash('La nueva contraseña debe tener al menos 6 caracteres', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    # Validar contraseña actual (soporta casos legacy sin hash)
+    valid_actual = False
+    try:
+        valid_actual = check_password_hash(user.contrasena, actual)
+    except Exception:
+        # Si no es un hash válido, comparar en claro
+        valid_actual = (user.contrasena == actual)
+
+    if not valid_actual:
+        flash('La contraseña actual no es correcta', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    try:
+        user.contrasena = generate_password_hash(nueva, method='pbkdf2:sha256')
+        db.session.commit()
+        flash('Contraseña actualizada correctamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error actualizando contraseña: {e}', 'danger')
+
+    return redirect(url_for('perfil_usuario.perfil'))
