@@ -65,7 +65,13 @@ def hospedaje_index():
 def inventario_view():
     room_id = request.args.get('room_id', type=int)
     rec_id = request.args.get('rec_id', type=int)
-    auto_pdf = True if (request.args.get('auto_pdf') in ('1','true','yes','on')) else False
+    # Permitir activar auto-PDF con ?pdf=1 o ?auto_pdf=1
+    auto_pdf = False
+    for key in ('pdf', 'auto_pdf'):
+        val = request.args.get(key)
+        if val and str(val).lower() in ('1','true','yes','on'):
+            auto_pdf = True
+            break
     habitacion = None
     record = None
     items_map = {}
