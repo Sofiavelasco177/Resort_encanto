@@ -36,7 +36,7 @@
 				</div>
 
 				<div class="section">
-					<h2 class="section-title">🛏️ Dormitorio</h2>
+					<h2 class="section-title"> Dormitorio</h2>
 					<h3 class="subsection-title">Mobiliario</h3>
 					<div class="items-grid">
 						<div class="item">
@@ -106,7 +106,7 @@
 				</div>
 
 				<div class="section">
-					<h2 class="section-title">🛁 Baño</h2>
+					<h2 class="section-title">Baño</h2>
 					<h3 class="subsection-title">Mobiliario y Accesorios</h3>
 					<div class="items-grid">
 						<div class="item"><input type="checkbox" id="bath_mirror" name="bath_mirror" /><label class="flex-grow-1" for="bath_mirror">Espejo</label></div>
@@ -129,7 +129,7 @@
 				</div>
 
 				<div class="section">
-					<h2 class="section-title">📺 Electrónica y entretenimiento</h2>
+					<h2 class="section-title">Electrónica y entretenimiento</h2>
 					<div class="items-grid">
 						<div class="item"><input type="checkbox" id="tv" name="tv" /><label class="flex-grow-1" for="tv">Televisor</label><input class="form-control" name="tv_model" type="text" placeholder="Modelo" style="max-width:120px" /></div>
 						<div class="item"><input type="checkbox" id="remote" name="remote" /><label class="flex-grow-1" for="remote">Control remoto TV</label></div>
@@ -142,7 +142,7 @@
 				</div>
 
 				<div class="section">
-					<h2 class="section-title">☕ Menaje y suministros</h2>
+					<h2 class="section-title"> Menaje y suministros</h2>
 					<div class="items-grid">
 						<div class="item"><input type="checkbox" id="glasses" name="glasses" /><label class="flex-grow-1" for="glasses">Vasos de vidrio</label><input class="form-control" name="glasses_qty" type="number" placeholder="Cant." min="0" style="max-width:80px" /></div>
 						<div class="item"><input type="checkbox" id="cups" name="cups" /><label class="flex-grow-1" for="cups">Tazas/Mugs</label><input class="form-control" name="cups_qty" type="number" placeholder="Cant." min="0" style="max-width:80px" /></div>
@@ -154,7 +154,7 @@
 				</div>
 
 				<div class="section">
-					<h2 class="section-title">🚪 Otros elementos</h2>
+					<h2 class="section-title"> Otros elementos</h2>
 					<div class="items-grid">
 						<div class="item"><input type="checkbox" id="curtains" name="curtains" /><label class="flex-grow-1" for="curtains">Cortinas decorativas</label></div>
 						<div class="item"><input type="checkbox" id="blackout" name="blackout" /><label class="flex-grow-1" for="blackout">Cortinas blackout</label></div>
@@ -168,7 +168,7 @@
 				</div>
 
 				<div class="observations">
-					<h3 class="mb-2">📝 Observaciones y estado general</h3>
+					<h3 class="mb-2">Observaciones y estado general</h3>
 					<textarea class="form-control" name="observations" placeholder="Elementos dañados, faltantes o comentarios adicionales..." rows="4"></textarea>
 								<div class="rating d-flex gap-4 flex-wrap mt-3">
 									<input type="hidden" name="rating_cleaning" id="rating_cleaning" value="0" />
@@ -209,12 +209,12 @@
 
 				<div class="signature-section row g-3 mt-3 p-3" style="background:#e8f4f8;border-radius:12px;">
 					<div class="col-md-6">
-						<label class="fw-semibold">✍️ Firma Inspector:</label>
+						<label class="fw-semibold"> Firma Inspector:</label>
 						<input class="form-control mb-2" type="text" name="inspector_signature" placeholder="Nombre y firma" value="{{ record.inspector_signature if record else '' }}" />
 						<input class="form-control" type="date" name="inspector_date" value="{{ record.inspector_date if record else '' }}" />
 					</div>
 					<div class="col-md-6">
-						<label class="fw-semibold">✍️ Firma Supervisor:</label>
+						<label class="fw-semibold"> Firma Supervisor:</label>
 						<input class="form-control mb-2" type="text" name="supervisor_signature" placeholder="Nombre y firma" value="{{ record.supervisor_signature if record else '' }}" />
 						<input class="form-control" type="date" name="supervisor_date" value="{{ record.supervisor_date if record else '' }}" />
 					</div>
