@@ -126,21 +126,51 @@
 
 <!-- Three.js para el modelado 3D (versión del ejemplo) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+{# Configuración 3D por habitación inyectada desde el servidor #}
+{% set _name = (habitacion.nombre or '').lower() %}
+{% set _suite = 'suite' in _name %}
+{% set _deluxe = 'deluxe' in _name or 'premium' in _name %}
+{% set _cap = habitacion.cupo_personas or 1 %}
+{% set _beds = 2 if _cap >= 3 else 1 %}
+{% set _bedsize = 'king' if _suite else ('queen' if _deluxe or _cap >= 3 else 'double') %}
+{% set _hasDesk = True if _suite or _deluxe else False %}
+{% set _hasWardrobe = True %}
+{% set _hasCurtains = True %}
+{% set _hasAC = True if _suite or _deluxe else False %}
+{% set _hasCeilingLights = True %}
+<script id="room3d-config" type="application/json">
+{
+    "beds": {{ _beds }},
+    "bedSize": "{{ _bedsize }}",
+    "hasDesk": {{ 'true' if _hasDesk else 'false' }},
+    "hasWardrobe": {{ 'true' if _hasWardrobe else 'false' }},
+    "hasCurtains": {{ 'true' if _hasCurtains else 'false' }},
+    "hasAC": {{ 'true' if _hasAC else 'false' }},
+    "hasCeilingLights": {{ 'true' if _hasCeilingLights else 'false' }},
+    "palette": "{{ 'warm' if _suite or _deluxe else 'neutral' }}",
+    "dims": {"w": 10, "d": 10, "h": 6}
+}
+</script>
 <script>
     (function() {
-        const container = document.getElementById('room3d');
+                const container = document.getElementById('room3d');
         if (!container || !window.THREE) return;
 
         let scene, camera, renderer;
         let targetRotationY = 0, targetRotationX = 0; let isDragging=false, mouseX=0, mouseY=0;
+                let conf = { beds:1, bedSize:'double', hasDesk:false, hasWardrobe:true, hasCurtains:true, hasAC:false, hasCeilingLights:true, palette:'neutral', dims:{w:10,d:10,h:6} };
+                try {
+                    const el = document.getElementById('room3d-config');
+                    if (el) conf = JSON.parse(el.textContent);
+                } catch(e) {}
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xf6f9fc);
+                        scene.background = new THREE.Color(conf.palette === 'warm' ? 0xf8f5f0 : 0xf6f9fc);
 
-            const { width, height } = container.getBoundingClientRect();
-            camera = new THREE.PerspectiveCamera(70, width/height, 0.1, 1000);
-            camera.position.set(0, 5, 12);
+                        const { width, height } = container.getBoundingClientRect();
+                        camera = new THREE.PerspectiveCamera(70, width/height, 0.1, 1000);
+                        camera.position.set(0, 5, 12);
             camera.lookAt(0,2,0);
 
             renderer = new THREE.WebGLRenderer({ antialias:true });
@@ -151,11 +181,21 @@
             container.appendChild(renderer.domElement);
 
             // Luces
-            scene.add(new THREE.AmbientLight(0xffffff, .6));
-            const dir = new THREE.DirectionalLight(0xffffff, .8); dir.position.set(5,10,5); dir.castShadow=true; scene.add(dir);
-            const warm = new THREE.PointLight(0xffd700, .4); warm.position.set(-3,3,-3); scene.add(warm);
+                        scene.add(new THREE.AmbientLight(0xffffff, .7));
+                        const dir = new THREE.DirectionalLight(0xffffff, .8); dir.position.set(5,10,5); dir.castShadow=true; scene.add(dir);
+                        const warm = new THREE.PointLight(conf.palette==='warm'?0xffe2a8:0xffffff, .35); warm.position.set(-3,3,-3); scene.add(warm);
 
-            createRoom(); createBed(); createNightstand(); createLamp(); createWindow(); createDoor(); createPainting(); createRug(); createChair();
+                        createRoom();
+                        createBeds(conf.beds, conf.bedSize);
+                        createNightstands(conf.beds);
+                        if (conf.hasWardrobe) createWardrobeWall();
+                        if (conf.hasDesk) createDeskArea();
+                        createWindow();
+                        if (conf.hasCurtains) createCurtains();
+                        createDoor();
+                        if (conf.hasCeilingLights) createCeilingLights();
+                        if (conf.hasAC) createACUnit();
+                        createRug();
 
             container.addEventListener('mousedown', onDown); container.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
             container.addEventListener('touchstart', onTouchStart, {passive:true}); container.addEventListener('touchmove', onTouchMove, {passive:true}); container.addEventListener('touchend', onUp);
@@ -171,30 +211,44 @@
         function onTouchStart(e){ if(e.touches.length===1){ isDragging=true; mouseX=e.touches[0].clientX; mouseY=e.touches[0].clientY; } }
         function onTouchMove(e){ if(e.touches.length===1 && isDragging){ const dx=e.touches[0].clientX-mouseX, dy=e.touches[0].clientY-mouseY; targetRotationY+=dx*0.005; targetRotationX+=dy*0.005; mouseX=e.touches[0].clientX; mouseY=e.touches[0].clientY; } }
 
-        function createRoom(){
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(10,10), new THREE.MeshStandardMaterial({color:0x8b7355, roughness:.85}));
+                function createRoom(){
+                        const floor = new THREE.Mesh(new THREE.PlaneGeometry(conf.dims.w,conf.dims.d), new THREE.MeshStandardMaterial({color:0x8b7355, roughness:.85}));
             floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
-            const wallMat = new THREE.MeshStandardMaterial({color:0xf5f5dc, side:THREE.DoubleSide});
-            const back = new THREE.Mesh(new THREE.PlaneGeometry(10,6), wallMat); back.position.set(0,3,-5); scene.add(back);
-            const left = new THREE.Mesh(new THREE.PlaneGeometry(10,6), wallMat); left.rotation.y=Math.PI/2; left.position.set(-5,3,0); scene.add(left);
-            const right = new THREE.Mesh(new THREE.PlaneGeometry(10,6), wallMat); right.rotation.y=-Math.PI/2; right.position.set(5,3,0); scene.add(right);
-            const roof = new THREE.Mesh(new THREE.PlaneGeometry(10,10), new THREE.MeshStandardMaterial({color:0xffffff})); roof.rotation.x=Math.PI/2; roof.position.y=6; scene.add(roof);
+                        const wallMat = new THREE.MeshStandardMaterial({color:0xf0efe8, side:THREE.DoubleSide});
+                        const back = new THREE.Mesh(new THREE.PlaneGeometry(conf.dims.w,conf.dims.h), wallMat); back.position.set(0,conf.dims.h/2,-conf.dims.d/2); scene.add(back);
+                        const left = new THREE.Mesh(new THREE.PlaneGeometry(conf.dims.d,conf.dims.h), wallMat); left.rotation.y=Math.PI/2; left.position.set(-conf.dims.w/2,conf.dims.h/2,0); scene.add(left);
+                        const right = new THREE.Mesh(new THREE.PlaneGeometry(conf.dims.d,conf.dims.h), wallMat); right.rotation.y=-Math.PI/2; right.position.set(conf.dims.w/2,conf.dims.h/2,0); scene.add(right);
+                        const roof = new THREE.Mesh(new THREE.PlaneGeometry(conf.dims.w,conf.dims.d), new THREE.MeshStandardMaterial({color:0xffffff})); roof.rotation.x=Math.PI/2; roof.position.y=conf.dims.h; scene.add(roof);
         }
-        function createBed(){
-            const g=new THREE.Group();
-            const base=new THREE.Mesh(new THREE.BoxGeometry(4,.5,3), new THREE.MeshStandardMaterial({color:0x8b4513})); base.position.y=.25; base.castShadow=true; g.add(base);
-            const mat=new THREE.Mesh(new THREE.BoxGeometry(3.8,.4,2.8), new THREE.MeshStandardMaterial({color:0xffffff})); mat.position.y=.7; mat.castShadow=true; g.add(mat);
-            for(let i=0;i<2;i++){ const p=new THREE.Mesh(new THREE.BoxGeometry(.8,.2,.6), new THREE.MeshStandardMaterial({color:0xe6e6fa})); p.position.set(-1+i*2,1,-.8); p.castShadow=true; g.add(p); }
-            const head=new THREE.Mesh(new THREE.BoxGeometry(4,1.5,.2), new THREE.MeshStandardMaterial({color:0x654321})); head.position.set(0,1.25,-1.5); head.castShadow=true; g.add(head);
-            g.position.set(0,0,-2); scene.add(g);
-        }
-        function createNightstand(){ const g=new THREE.Group(); const body=new THREE.Mesh(new THREE.BoxGeometry(.8,1,.6), new THREE.MeshStandardMaterial({color:0x8b4513})); body.position.y=.5; body.castShadow=true; g.add(body); const dr=new THREE.Mesh(new THREE.BoxGeometry(.7,.3,.05), new THREE.MeshStandardMaterial({color:0x654321})); dr.position.set(0,.6,.3); dr.castShadow=true; g.add(dr); g.position.set(-3,0,-2); scene.add(g); }
+                function createBeds(count, size){
+                        const spacing = 4.5;
+                        for(let b=0;b<count;b++){
+                            const g=new THREE.Group();
+                            const dims = size==='king'?{w:4.2,l:3.2}:{w:(size==='queen'?3.8:3.2), l:(size==='queen'?2.9:2.6)};
+                            const base=new THREE.Mesh(new THREE.BoxGeometry(dims.w,.5,dims.l), new THREE.MeshStandardMaterial({color:0x8b4513})); base.position.y=.25; base.castShadow=true; g.add(base);
+                            const mat=new THREE.Mesh(new THREE.BoxGeometry(dims.w-0.2,.4,dims.l-0.2), new THREE.MeshStandardMaterial({color:0xffffff})); mat.position.y=.7; mat.castShadow=true; g.add(mat);
+                            const pillows = size==='king'?3:2;
+                            for(let i=0;i<pillows;i++){ const p=new THREE.Mesh(new THREE.BoxGeometry(.8,.2,.6), new THREE.MeshStandardMaterial({color:0xe6e6fa})); p.position.set(-dims.w/2+0.8+i*(dims.w/(pillows)),1,-dims.l/2+0.7); p.castShadow=true; g.add(p); }
+                            const head=new THREE.Mesh(new THREE.BoxGeometry(dims.w,1.5,.2), new THREE.MeshStandardMaterial({color:0x4f3828})); head.position.set(0,1.25,-dims.l/2); head.castShadow=true; g.add(head);
+                            g.position.set((b-(count-1)/2)*spacing,0,-2);
+                            scene.add(g);
+                        }
+                }
+                function createNightstands(count){
+                    for(let b=0;b<count;b++){
+                        const x=(b-(count-1)/2)*4.5 - 2.6; // al lado izquierdo de cada cama
+                        const g=new THREE.Group(); const body=new THREE.Mesh(new THREE.BoxGeometry(.9,1,.7), new THREE.MeshStandardMaterial({color:0x8b4513})); body.position.y=.5; body.castShadow=true; g.add(body); const dr=new THREE.Mesh(new THREE.BoxGeometry(.8,.3,.05), new THREE.MeshStandardMaterial({color:0x654321})); dr.position.set(0,.6,.35); dr.castShadow=true; g.add(dr); g.position.set(x,0,-2); scene.add(g);
+                    }
+                }
         function createLamp(){ const g=new THREE.Group(); const base=new THREE.Mesh(new THREE.CylinderGeometry(.1,.15,.05,16), new THREE.MeshStandardMaterial({color:0x333})); g.add(base); const pole=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.8,8), new THREE.MeshStandardMaterial({color:0x333})); pole.position.y=.4; g.add(pole); const shade=new THREE.Mesh(new THREE.CylinderGeometry(.2,.25,.3,16), new THREE.MeshStandardMaterial({color:0xffffcc, emissive:0xffff88, emissiveIntensity:.3})); shade.position.y=.95; g.add(shade); g.position.set(-3,1,-2); scene.add(g); }
-        function createWindow(){ const g=new THREE.Group(); const frame=new THREE.Mesh(new THREE.BoxGeometry(2,2.5,.1), new THREE.MeshStandardMaterial({color:0x8b4513})); g.add(frame); const glass=new THREE.Mesh(new THREE.PlaneGeometry(1.8,2.3), new THREE.MeshStandardMaterial({color:0x87ceeb, transparent:true, opacity:.3})); glass.position.z=.06; g.add(glass); g.position.set(3,3,-4.95); scene.add(g); }
+                function createWindow(){ const g=new THREE.Group(); const frame=new THREE.Mesh(new THREE.BoxGeometry(2.6,2.8,.1), new THREE.MeshStandardMaterial({color:0x8b4513})); g.add(frame); const glass=new THREE.Mesh(new THREE.PlaneGeometry(2.4,2.6), new THREE.MeshStandardMaterial({color:0x87ceeb, transparent:true, opacity:.28})); glass.position.z=.06; g.add(glass); g.position.set(3.2,3,-(conf.dims.d/2-0.05)); scene.add(g); }
+                function createCurtains(){ const g=new THREE.Group(); const cloth=new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.9,20,2), new THREE.MeshStandardMaterial({color:0x444444, side:THREE.DoubleSide})); cloth.position.set(3.2,2.4,-(conf.dims.d/2-0.02)); cloth.castShadow=true; g.add(cloth); const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,3,8), new THREE.MeshStandardMaterial({color:0x222})); rod.rotation.z=Math.PI/2; rod.position.set(3.2,3.0,-(conf.dims.d/2-0.0)); g.add(rod); scene.add(g); }
+                function createWardrobeWall(){ const g=new THREE.Group(); const totalW=conf.dims.w-1.2; const startX=-totalW/2; for(let i=0;i<5;i++){ const panel=new THREE.Mesh(new THREE.BoxGeometry(totalW/5 - .05,2.3,.1), new THREE.MeshStandardMaterial({color:0xf5f1e8})); panel.position.set(startX + (i+0.5)* (totalW/5), 2.0, -(conf.dims.d/2-0.05)); g.add(panel);} const shelf=new THREE.Mesh(new THREE.BoxGeometry(totalW, .1, .2), new THREE.MeshStandardMaterial({color:0x6b4f3a})); shelf.position.set(0,1.4,-(conf.dims.d/2-0.06)); g.add(shelf); scene.add(g); }
+                function createDeskArea(){ const g=new THREE.Group(); const top=new THREE.Mesh(new THREE.BoxGeometry(3.5,.1,.6), new THREE.MeshStandardMaterial({color:0x3b3b3b})); top.position.set(-(conf.dims.w/2)+2.2,1.0,-1.5); g.add(top); const leg=new THREE.Mesh(new THREE.BoxGeometry(.1,0.9,.6), new THREE.MeshStandardMaterial({color:0x3b3b3b})); leg.position.set(-(conf.dims.w/2)+0.5,0.55,-1.5); g.add(leg); const mon=new THREE.Mesh(new THREE.BoxGeometry(.9,.55,.05), new THREE.MeshStandardMaterial({color:0x222})); mon.position.set(-(conf.dims.w/2)+1.2,1.5,-1.5); g.add(mon); scene.add(g); }
+                function createCeilingLights(){ for(let i=0;i<3;i++){ const lamp=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.25,12), new THREE.MeshStandardMaterial({color:0xdddddd})); lamp.position.set(-2+i*2.2, conf.dims.h-0.2, -1.0); scene.add(lamp);} }
+                function createACUnit(){ const ac=new THREE.Mesh(new THREE.BoxGeometry(1.2,.4,.4), new THREE.MeshStandardMaterial({color:0xeeeeee})); ac.position.set(conf.dims.w/2 - 0.6, conf.dims.h-0.7, 2.8); scene.add(ac); }
         function createDoor(){ const g=new THREE.Group(); const frame=new THREE.Mesh(new THREE.BoxGeometry(1.2,2.5,.1), new THREE.MeshStandardMaterial({color:0x654321})); g.add(frame); const handle=new THREE.Mesh(new THREE.SphereGeometry(.05,16,16), new THREE.MeshStandardMaterial({color:0xffd700})); handle.position.set(.4,0,.1); g.add(handle); g.position.set(-3.5,1.25,4.95); g.rotation.y=Math.PI; scene.add(g); }
-        function createPainting(){ const g=new THREE.Group(); const frame=new THREE.Mesh(new THREE.BoxGeometry(1.5,1,.05), new THREE.MeshStandardMaterial({color:0x8b7355})); g.add(frame); const canvas=new THREE.Mesh(new THREE.PlaneGeometry(1.3,.8), new THREE.MeshStandardMaterial({color:0x4169e1})); canvas.position.z=.03; g.add(canvas); g.position.set(0,3.5,-4.95); scene.add(g); }
-        function createRug(){ const rug=new THREE.Mesh(new THREE.PlaneGeometry(3,2), new THREE.MeshStandardMaterial({color:0xdc143c, roughness:1})); rug.rotation.x=-Math.PI/2; rug.position.set(0,.01,1); scene.add(rug); }
-        function createChair(){ const g=new THREE.Group(); const seat=new THREE.Mesh(new THREE.BoxGeometry(.6,.1,.6), new THREE.MeshStandardMaterial({color:0x8b4513})); seat.position.y=.5; seat.castShadow=true; g.add(seat); const back=new THREE.Mesh(new THREE.BoxGeometry(.6,.8,.1), new THREE.MeshStandardMaterial({color:0x8b4513})); back.position.set(0,.95,-.25); back.castShadow=true; g.add(back); for(let i=0;i<4;i++){ const leg=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.5,8), new THREE.MeshStandardMaterial({color:0x8b4513})); const x=i%2===0?-0.25:0.25; const z=i<2?-0.25:0.25; leg.position.set(x,.25,z); leg.castShadow=true; g.add(leg);} g.position.set(3,0,2); scene.add(g); }
+                function createRug(){ const rug=new THREE.Mesh(new THREE.PlaneGeometry(3.4,2.2), new THREE.MeshStandardMaterial({color:0xb89b88, roughness:1})); rug.rotation.x=-Math.PI/2; rug.position.set(0,.01,1); scene.add(rug); }
 
         function animate(){ requestAnimationFrame(animate); camera.position.x += (Math.sin(targetRotationY)*12 - camera.position.x)*.1; camera.position.z += (Math.cos(targetRotationY)*12 - camera.position.z)*.1; camera.position.y += (5 - targetRotationX*5 - camera.position.y)*.1; camera.lookAt(0,2,0); renderer.render(scene,camera); }
 
