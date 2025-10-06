@@ -4,6 +4,8 @@ from datetime import datetime
 from flask import session
 from flask import send_file, make_response
 import io, csv
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -277,6 +279,67 @@ def inventario_export_csv():
     mem = io.BytesIO(csv_bytes)
     filename = f"Inventario_{(rec.room_number or 'Habitacion')}.csv"
     return send_file(mem, mimetype='text/csv', as_attachment=True, download_name=filename)
+
+@admin_bp.route('/inventario/export/xlsx')
+def inventario_export_xlsx():
+    rec_id = request.args.get('rec_id', type=int)
+    if not rec_id:
+        flash('Falta rec_id', 'warning')
+        return redirect(url_for('admin.inventarios_list'))
+    rec = InventarioHabitacion.query.get_or_404(rec_id)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Inventario'
+
+    # Encabezado general
+    rows = [
+        ['Inventario ID', rec.id],
+        ['Hotel', rec.hotel or ''],
+        ['Habitación', rec.room_number or ''],
+        ['Tipo', rec.room_type or ''],
+        ['Fecha inspección', str(rec.inspection_date or '')],
+        ['Inspector', rec.inspector or ''],
+        ['Observaciones', rec.observations or ''],
+        ['Limpieza (1-5)', rec.rating_cleaning or 0],
+        ['Mobiliario (1-5)', rec.rating_furniture or 0],
+        ['Equipos (1-5)', rec.rating_equipment or 0],
+        ['Firma Inspector', rec.inspector_signature or ''],
+        ['Fecha Inspector', str(rec.inspector_date or '')],
+        ['Firma Supervisor', rec.supervisor_signature or ''],
+        ['Fecha Supervisor', str(rec.supervisor_date or '')],
+        []
+    ]
+    for r in rows:
+        ws.append(r)
+
+    ws.append(['Categoria', 'Clave', 'Etiqueta', 'Marcado', 'Cantidad', 'Texto'])
+    for it in (rec.items or []):
+        ws.append([
+            it.category or '',
+            it.key or '',
+            it.label or '',
+            'Sí' if it.checked else 'No',
+            it.quantity if it.quantity is not None else '',
+            it.value_text or ''
+        ])
+
+    # Auto ancho de columnas básico
+    for col in ws.columns:
+        max_len = 10
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            try:
+                max_len = max(max_len, len(str(cell.value)))
+            except Exception:
+                pass
+        ws.column_dimensions[col_letter].width = min(60, max_len + 2)
+
+    bio = io.BytesIO()
+    wb.save(bio)
+    bio.seek(0)
+    filename = f"Inventario_{(rec.room_number or 'Habitacion')}.xlsx"
+    return send_file(bio, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 #añadir nueva habitacion ---------------------------------------------------------
 
