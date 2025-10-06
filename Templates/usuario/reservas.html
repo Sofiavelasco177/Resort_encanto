@@ -112,11 +112,11 @@
                             </div>
                         </div>
 
-                                    <div class="d-grid mt-4">
-                                        <button id="btn-reservar" class="btn btn-reservar" type="submit">
-                                <i class="bi bi-calendar2-check me-2"></i>Confirmar reserva y continuar al pago
-                            </button>
-                        </div>
+                                                <div class="d-grid mt-4">
+                                                    <button id="btn-reservar" class="btn btn-reservar" type="submit">
+                                                        <i class="bi bi-calendar2-check me-2"></i><span id="btn-reservar-text">Confirmar reserva y continuar al pago</span>
+                                                    </button>
+                                                </div>
                     </form>
                 </div>
             </div>
@@ -209,6 +209,7 @@
             const checkout = document.getElementById('resv-checkout');
             const summary = document.getElementById('resv-summary');
             const submitBtn = document.getElementById('btn-reservar');
+            const submitText = document.getElementById('btn-reservar-text');
             const precioNoche = {{ (habitacion.precio or 0)|int }};
 
             function formatCOP(val){
@@ -230,23 +231,26 @@
 
             function update(){
                 setMins();
-                if (!checkin.value || !checkout.value){
+                        if (!checkin.value || !checkout.value){
                     summary.textContent = '';
                     submitBtn.disabled = false; // permitimos y el backend aplica mínimo 1 noche
+                            if (submitText) submitText.textContent = 'Confirmar reserva y continuar al pago';
                     return;
                 }
                 const inD = new Date(checkin.value);
                 const outD = new Date(checkout.value);
                 const ms = outD - inD;
                 const nights = Math.round(ms / (1000*60*60*24));
-                if (isNaN(nights) || nights <= 0){
+                        if (isNaN(nights) || nights <= 0){
                     summary.innerHTML = '<span class="text-danger">Selecciona una fecha de salida posterior al check-in.</span>';
                     submitBtn.disabled = true;
+                            if (submitText) submitText.textContent = 'Confirmar reserva y continuar al pago';
                     return;
                 }
                 const total = Math.max(1, nights) * precioNoche;
                 summary.innerHTML = `Noches: <strong>${nights}</strong> · Total estimado: <strong>$${formatCOP(total)} COP</strong>`;
                 submitBtn.disabled = false;
+                        if (submitText) submitText.textContent = `Confirmar reserva — $${formatCOP(total)} COP`;
             }
 
             if (checkin && checkout){
