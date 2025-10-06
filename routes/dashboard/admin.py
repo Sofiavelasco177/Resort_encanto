@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post
 from datetime import datetime
 from flask import session
+from flask import send_file, make_response
+import io, csv
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -229,6 +231,52 @@ def inventario_save():
 def inventarios_list():
     registros = InventarioHabitacion.query.order_by(InventarioHabitacion.created_at.desc()).limit(50).all()
     return render_template('dashboard/inventarios_list.html', registros=registros)
+
+@admin_bp.route('/inventario/export/csv')
+def inventario_export_csv():
+    """Exporta un registro de inventario a CSV (compatible con Excel)."""
+    rec_id = request.args.get('rec_id', type=int)
+    if not rec_id:
+        flash('Falta rec_id', 'warning')
+        return redirect(url_for('admin.inventarios_list'))
+    rec = InventarioHabitacion.query.get_or_404(rec_id)
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Encabezado de registro
+    writer.writerow(['Inventario ID', rec.id])
+    writer.writerow(['Hotel', rec.hotel or ''])
+    writer.writerow(['Habitación', rec.room_number or ''])
+    writer.writerow(['Tipo', rec.room_type or ''])
+    writer.writerow(['Fecha inspección', rec.inspection_date or ''])
+    writer.writerow(['Inspector', rec.inspector or ''])
+    writer.writerow(['Observaciones', (rec.observations or '').replace('\n', ' ')])
+    writer.writerow(['Limpieza (1-5)', rec.rating_cleaning or 0])
+    writer.writerow(['Mobiliario (1-5)', rec.rating_furniture or 0])
+    writer.writerow(['Equipos (1-5)', rec.rating_equipment or 0])
+    writer.writerow(['Firma Inspector', rec.inspector_signature or ''])
+    writer.writerow(['Fecha Inspector', rec.inspector_date or ''])
+    writer.writerow(['Firma Supervisor', rec.supervisor_signature or ''])
+    writer.writerow(['Fecha Supervisor', rec.supervisor_date or ''])
+    writer.writerow([])
+
+    # Items
+    writer.writerow(['Categoria', 'Clave', 'Etiqueta', 'Marcado', 'Cantidad', 'Texto'])
+    for it in (rec.items or []):
+        writer.writerow([
+            it.category or '',
+            it.key or '',
+            it.label or '',
+            'Sí' if it.checked else 'No',
+            it.quantity if it.quantity is not None else '',
+            (it.value_text or ''),
+        ])
+
+    csv_bytes = output.getvalue().encode('utf-8-sig')  # BOM para Excel
+    mem = io.BytesIO(csv_bytes)
+    filename = f"Inventario_{(rec.room_number or 'Habitacion')}.csv"
+    return send_file(mem, mimetype='text/csv', as_attachment=True, download_name=filename)
 
 #añadir nueva habitacion ---------------------------------------------------------
 
