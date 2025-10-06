@@ -265,6 +265,7 @@
             const submitBtn = document.getElementById('btn-reservar');
             const submitText = document.getElementById('btn-reservar-text');
             const precioNoche = {{ (habitacion.precio or 0)|int }};
+            const habitacionId = {{ habitacion.id }};
 
             function formatCOP(val){
                 try { return new Intl.NumberFormat('es-CO').format(val); } catch(e){ return val; }
@@ -283,7 +284,7 @@
                 }
             }
 
-            function update(){
+            async function update(){
                 setMins();
                         if (!checkin.value || !checkout.value){
                     summary.textContent = '';
@@ -302,9 +303,27 @@
                     return;
                 }
                 const total = Math.max(1, nights) * precioNoche;
-                summary.innerHTML = `Noches: <strong>${nights}</strong> · Total estimado: <strong>$${formatCOP(total)} COP</strong>`;
-                submitBtn.disabled = false;
+                // Consultar disponibilidad al backend
+                try {
+                    const params = new URLSearchParams({ check_in: checkin.value, check_out: checkout.value });
+                    const resp = await fetch(`/hospedaje/disponibilidad/${habitacionId}?${params.toString()}`, { headers: { 'Accept': 'application/json' } });
+                    const data = await resp.json();
+                    if (data && data.ok && data.available){
+                        summary.innerHTML = `Noches: <strong>${nights}</strong> · Total estimado: <strong>$${formatCOP(total)} COP</strong> <span class="badge text-bg-success ms-2">Disponible</span>`;
+                        submitBtn.disabled = false;
                         if (submitText) submitText.textContent = `Confirmar reserva — $${formatCOP(total)} COP`;
+                    } else {
+                        const reason = (data && data.error) ? ` (${data.error})` : '';
+                        summary.innerHTML = `<span class="text-danger">No disponible para estas fechas${reason}. Prueba con otro rango.</span>`;
+                        submitBtn.disabled = true;
+                        if (submitText) submitText.textContent = 'Confirmar reserva y continuar al pago';
+                    }
+                } catch (e) {
+                    // Si falla la consulta, no bloquear, pero avisar
+                    summary.innerHTML = `Noches: <strong>${nights}</strong> · Total estimado: <strong>$${formatCOP(total)} COP</strong> <span class="text-muted ms-2">(No se pudo verificar disponibilidad)</span>`;
+                    submitBtn.disabled = false;
+                    if (submitText) submitText.textContent = `Confirmar reserva — $${formatCOP(total)} COP`;
+                }
             }
 
             if (checkin && checkout){

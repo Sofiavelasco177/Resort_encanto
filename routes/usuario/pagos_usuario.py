@@ -154,8 +154,10 @@ def _wompi_base_url():
 def _apply_status_to_reserva(reserva: Reserva, wompi_status: str):
     st = (wompi_status or '').upper()
     if st == 'APPROVED':
+        # Mantener bloqueadas las fechas: 'Completada' confirma ocupación
         reserva.estado = 'Completada'
     elif st in ('DECLINED', 'ERROR', 'VOIDED'):  # cancelada/declinada
+        # Liberar fechas: 'Cancelada' libera disponibilidad para ese rango
         reserva.estado = 'Cancelada'
     else:
         reserva.estado = 'Activa'
