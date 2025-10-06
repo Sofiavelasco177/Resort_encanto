@@ -63,16 +63,19 @@
 
                         <input type="hidden" name="habitacion_id" value="{{ habitacion.id }}">
 
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <label class="form-label required">Check-in</label>
-                                <input type="date" class="form-control" name="check_in" required>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label required">Check-out</label>
-                                <input type="date" class="form-control" name="check_out" required>
-                            </div>
-                        </div>
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label required">Check-in</label>
+                                            <input id="resv-checkin" type="date" class="form-control" name="check_in" required>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label required">Check-out</label>
+                                            <input id="resv-checkout" type="date" class="form-control" name="check_out" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <div id="resv-summary" class="mini-muted"></div>
+                                        </div>
+                                    </div>
 
                         <hr class="my-4">
 
@@ -109,8 +112,8 @@
                             </div>
                         </div>
 
-                        <div class="d-grid mt-4">
-                            <button class="btn btn-reservar" type="submit">
+                                    <div class="d-grid mt-4">
+                                        <button id="btn-reservar" class="btn btn-reservar" type="submit">
                                 <i class="bi bi-calendar2-check me-2"></i>Confirmar reserva y continuar al pago
                             </button>
                         </div>
@@ -198,6 +201,64 @@
         init();
     })();
 </script>
+
+    <script>
+        // Cálculo dinámico de noches y total estimado
+        (function(){
+            const checkin = document.getElementById('resv-checkin');
+            const checkout = document.getElementById('resv-checkout');
+            const summary = document.getElementById('resv-summary');
+            const submitBtn = document.getElementById('btn-reservar');
+            const precioNoche = {{ (habitacion.precio or 0)|int }};
+
+            function formatCOP(val){
+                try { return new Intl.NumberFormat('es-CO').format(val); } catch(e){ return val; }
+            }
+
+            function setMins(){
+                const today = new Date(); today.setHours(0,0,0,0);
+                const isoToday = today.toISOString().slice(0,10);
+                if (checkin && !checkin.value) checkin.min = isoToday;
+                if (checkout){
+                    const base = checkin.value ? new Date(checkin.value) : today;
+                    base.setDate(base.getDate()+1);
+                    const isoMinOut = base.toISOString().slice(0,10);
+                    checkout.min = isoMinOut;
+                    if (checkout.value && checkout.value < isoMinOut) checkout.value = '';
+                }
+            }
+
+            function update(){
+                setMins();
+                if (!checkin.value || !checkout.value){
+                    summary.textContent = '';
+                    submitBtn.disabled = false; // permitimos y el backend aplica mínimo 1 noche
+                    return;
+                }
+                const inD = new Date(checkin.value);
+                const outD = new Date(checkout.value);
+                const ms = outD - inD;
+                const nights = Math.round(ms / (1000*60*60*24));
+                if (isNaN(nights) || nights <= 0){
+                    summary.innerHTML = '<span class="text-danger">Selecciona una fecha de salida posterior al check-in.</span>';
+                    submitBtn.disabled = true;
+                    return;
+                }
+                const total = Math.max(1, nights) * precioNoche;
+                summary.innerHTML = `Noches: <strong>${nights}</strong> · Total estimado: <strong>$${formatCOP(total)} COP</strong>`;
+                submitBtn.disabled = false;
+            }
+
+            if (checkin && checkout){
+                setMins();
+                ['change','input'].forEach(evt => {
+                    checkin.addEventListener(evt, update);
+                    checkout.addEventListener(evt, update);
+                });
+                update();
+            }
+        })();
+    </script>
 
 {% endblock %}
 
