@@ -13,6 +13,7 @@
 
     <!-- Tabla de platos -->
     <h4>📋 Platos registrados</h4>
+    <div class="inv-accent mb-2"></div>
     <table class="table mt-3">
         <thead>
             <tr>
@@ -47,6 +48,7 @@
 
     <!-- Formulario Nuevo Plato -->
     <h4>➕ Crear nuevo plato</h4>
+    <div class="inv-accent mb-2"></div>
     <form method="POST" action="{{ url_for('admin.admin_restaurante_nuevo') }}" class="mt-3">
         <div class="mb-3">
             <label class="form-label">Nombre</label>
@@ -68,6 +70,7 @@
     <!-- Formulario Editar Plato -->
     {% if plato %}
     <h4>✏️ Editar plato</h4>
+    <div class="inv-accent mb-2"></div>
     <form method="POST" action="{{ url_for('admin.admin_restaurante_editar', plato_id=plato.id) }}" class="mt-3">
         <div class="mb-3">
             <label class="form-label">Nombre</label>
