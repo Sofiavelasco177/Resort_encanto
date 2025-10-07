@@ -44,22 +44,11 @@
     </table>
   </div>
   <div class="mt-3">
-    <a href="{{ url_for('admin.inventario_view') }}" class="btn btn-main">Nuevo inventario</a>
-    <button type="submit" class="btn btn-success ms-2" id="btn-export-selected" disabled>Exportar selección a Excel (.xlsx)</button>
+    <a href="{{ url_for('admin.inventario_view') }}" class="btn btn-main btn-lg px-4 py-3">Nuevo inventario</a>
   </div>
   <!-- Tip eliminado -->
   <br>
   </form>
 </div>
-<script>
-  (function(){
-    const all = document.getElementById('chk-all');
-    const rows = Array.from(document.querySelectorAll('.chk-row'));
-    const btn = document.getElementById('btn-export-selected');
-    function refresh(){ btn.disabled = !rows.some(ch => ch.checked); }
-    if (all){ all.addEventListener('change', function(){ rows.forEach(ch => ch.checked = all.checked); refresh(); }); }
-    rows.forEach(ch => ch.addEventListener('change', refresh));
-    refresh();
-  })();
-</script>
+<!-- Script de selección masiva eliminado junto con el botón de exportación -->
 {% endblock %}
