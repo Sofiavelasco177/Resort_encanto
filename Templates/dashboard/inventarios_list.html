@@ -1,9 +1,47 @@
 {% extends 'dashboard/base.html' %}
 {% block content %}
 <div class="container my-4">
-  <h2 class="mb-3">Inventarios recientes</h2>
+
   <div class="table-responsive">
-    <table class="table table-striped">
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+      <h2 class="mb-0">Inventarios recientes</h2>
+      <div class="d-flex align-items-center gap-4 small text-muted">
+        <div><span class="fw-bold">{{ total_count or registros|length }}</span> total</div>
+        <div><span class="fw-bold">{{ activos_count or 0 }}</span> activos</div>
+      </div>
+      <a href="{{ url_for('admin.inventario_view') }}" class="btn btn-main btn-lg px-4 py-3">Nuevo inventario</a>
+    </div>
+
+    <form class="card p-3 mb-3" method="get" action="{{ url_for('admin.inventarios_list') }}">
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label">Habitación</label>
+          <input type="text" class="form-control" name="room" placeholder="Ej: 106" value="{{ room or '' }}">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Tipo</label>
+          <input type="text" class="form-control" name="type" placeholder="Ej: Deluxe" value="{{ rtype or '' }}">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Inspector</label>
+          <input type="text" class="form-control" name="inspector" placeholder="Nombre" value="{{ inspector or '' }}">
+        </div>
+        <div class="col-6 col-md-1">
+          <label class="form-label">Desde</label>
+          <input type="date" class="form-control" name="date_from" value="{{ date_from or '' }}">
+        </div>
+        <div class="col-6 col-md-1">
+          <label class="form-label">Hasta</label>
+          <input type="date" class="form-control" name="date_to" value="{{ date_to or '' }}">
+        </div>
+        <div class="col-12 col-md-1 d-grid">
+          <button class="btn btn-primary">Filtrar</button>
+        </div>
+        <div class="col-12 col-md-1 d-grid">
+          <a class="btn btn-outline-secondary" href="{{ url_for('admin.inventarios_list') }}">Limpiar</a>
+        </div>
+      </div>
+    </form>
       <thead>
         <tr>
           <th>ID</th>
@@ -28,11 +66,11 @@
           <td>{{ r.created_at }}</td>
           <td class="text-end d-flex gap-2 justify-content-end">
             <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}">Editar</a>
-            <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}&pdf=1" title="Exportar a PDF">PDF</a>
-            <a class="btn btn-outline-success btn-sm" href="{{ url_for('admin.inventario_export_xlsx') }}?rec_id={{ r.id }}" title="Exportar a Excel (.xlsx)">Excel</a>
-          </td>
-        </tr>
-        {% else %}
+                    <td class="text-end d-flex gap-2 justify-content-end">
+                      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}">Editar</a>
+                      <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.inventario_export_pdf') }}?rec_id={{ r.id }}" title="Exportar a PDF">PDF</a>
+                      <a class="btn btn-outline-success btn-sm" href="{{ url_for('admin.inventario_export_xlsx') }}?rec_id={{ r.id }}" title="Exportar a Excel (.xlsx)">Excel</a>
+                    </td>
         <tr>
           <td colspan="8" class="text-center text-muted">Sin registros</td>
         </tr>

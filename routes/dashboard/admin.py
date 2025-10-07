@@ -6,6 +6,15 @@ from flask import send_file, make_response
 import io, csv
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
+from datetime import date
+try:
+    # ReportLab para exportar PDF del inventario
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.units import inch
+except Exception:
+    # Si no está instalado en dev, la ruta seguirá fallando hasta instalar requirements
+    letter = None
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -231,8 +240,49 @@ def inventario_save():
 
 @admin_bp.route('/inventarios')
 def inventarios_list():
-    registros = InventarioHabitacion.query.order_by(InventarioHabitacion.created_at.desc()).limit(50).all()
-    return render_template('dashboard/inventarios_list.html', registros=registros)
+    # Filtros por parámetros GET
+    room = (request.args.get('room') or '').strip()
+    rtype = (request.args.get('type') or '').strip()
+    inspector = (request.args.get('inspector') or '').strip()
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+
+    q = InventarioHabitacion.query
+    if room:
+        q = q.filter(InventarioHabitacion.room_number.ilike(f"%{room}%"))
+    if rtype:
+        q = q.filter(InventarioHabitacion.room_type.ilike(f"%{rtype}%"))
+    if inspector:
+        q = q.filter(InventarioHabitacion.inspector.ilike(f"%{inspector}%"))
+    # Rango de fechas de inspección
+    def _pdate(s):
+        try:
+            return datetime.strptime(s, '%Y-%m-%d').date() if s else None
+        except Exception:
+            return None
+    d_from = _pdate(date_from)
+    d_to = _pdate(date_to)
+    if d_from:
+        q = q.filter(InventarioHabitacion.inspection_date >= d_from)
+    if d_to:
+        q = q.filter(InventarioHabitacion.inspection_date <= d_to)
+
+    q = q.order_by(InventarioHabitacion.created_at.desc())
+    registros = q.limit(200).all()
+    total_count = q.count()
+    activos_count = q.filter(InventarioHabitacion.inspection_date.isnot(None)).count()
+
+    return render_template(
+        'dashboard/inventarios_list.html',
+        registros=registros,
+        total_count=total_count,
+        activos_count=activos_count,
+        room=room,
+        rtype=rtype,
+        inspector=inspector,
+        date_from=date_from or '',
+        date_to=date_to or '',
+    )
 
 @admin_bp.route('/inventario/export/csv')
 def inventario_export_csv():
@@ -340,6 +390,77 @@ def inventario_export_xlsx():
     bio.seek(0)
     filename = f"Inventario_{(rec.room_number or 'Habitacion')}.xlsx"
     return send_file(bio, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+@admin_bp.route('/inventario/export/pdf')
+def inventario_export_pdf():
+    """Genera un PDF del inventario (servidor) similar al Excel."""
+    rec_id = request.args.get('rec_id', type=int)
+    if not rec_id:
+        flash('Falta rec_id', 'warning')
+        return redirect(url_for('admin.inventarios_list'))
+    rec = InventarioHabitacion.query.get_or_404(rec_id)
+
+    if letter is None:
+        flash('Exportación a PDF no disponible. Instala dependencias.', 'danger')
+        return redirect(url_for('admin.inventarios_list'))
+
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    left = 50
+    top = height - 50
+    line_height = 14
+
+    def writeln(text, bold=False):
+        nonlocal top
+        if top < 60:
+            c.showPage()
+            top = height - 50
+        if bold:
+            c.setFont('Helvetica-Bold', 11)
+        else:
+            c.setFont('Helvetica', 10)
+        c.drawString(left, top, str(text))
+        top -= line_height
+
+    # Encabezado
+    c.setTitle(f"Inventario {rec.room_number or ''}")
+    c.setFont('Helvetica-Bold', 14)
+    c.drawString(left, top, 'Inventario de Habitación')
+    top -= 24
+
+    writeln(f"Hotel: {rec.hotel or ''}")
+    writeln(f"Habitación: {rec.room_number or ''}")
+    writeln(f"Tipo: {rec.room_type or ''}")
+    writeln(f"Fecha inspección: {rec.inspection_date or ''}")
+    writeln(f"Inspector: {rec.inspector or ''}")
+    writeln(f"Observaciones: {(rec.observations or '').replace('\n',' ')}")
+    writeln(f"Limpieza (1-5): {rec.rating_cleaning or 0}")
+    writeln(f"Mobiliario (1-5): {rec.rating_furniture or 0}")
+    writeln(f"Equipos (1-5): {rec.rating_equipment or 0}")
+    writeln("", False)
+    writeln("Items:", True)
+    writeln("Categoria | Clave | Etiqueta | Marcado | Cantidad | Texto", True)
+
+    for it in (rec.items or []):
+        row = f"{it.category or ''} | {it.key or ''} | {it.label or ''} | {'Sí' if it.checked else 'No'} | {it.quantity if it.quantity is not None else ''} | {it.value_text or ''}"
+        # dividir si es muy largo
+        max_chars = 110
+        if len(row) <= max_chars:
+            writeln(row)
+        else:
+            # wrap manual simple
+            part = row
+            while len(part) > 0:
+                writeln(part[:max_chars])
+                part = part[max_chars:]
+
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+    filename = f"Inventario_{(rec.room_number or 'Habitacion')}.pdf"
+    return send_file(buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
 
 @admin_bp.route('/inventarios/export/xlsx', methods=['POST'])
 def inventarios_export_xlsx():
