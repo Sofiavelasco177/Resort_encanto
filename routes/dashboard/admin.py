@@ -341,6 +341,86 @@ def inventario_export_xlsx():
     filename = f"Inventario_{(rec.room_number or 'Habitacion')}.xlsx"
     return send_file(bio, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
+@admin_bp.route('/inventarios/export/xlsx', methods=['POST'])
+def inventarios_export_xlsx():
+    # Obtener múltiples IDs desde el formulario (name=ids)
+    ids = request.form.getlist('ids')
+    if not ids:
+        flash('Selecciona al menos un inventario', 'warning')
+        return redirect(url_for('admin.inventarios_list'))
+
+    # Convertir a int y cargar registros
+    try:
+        int_ids = [int(x) for x in ids]
+    except Exception:
+        flash('IDs inválidos', 'danger')
+        return redirect(url_for('admin.inventarios_list'))
+
+    recs = InventarioHabitacion.query.filter(InventarioHabitacion.id.in_(int_ids)).order_by(InventarioHabitacion.id.asc()).all()
+    if not recs:
+        flash('No se encontraron registros', 'warning')
+        return redirect(url_for('admin.inventarios_list'))
+
+    wb = Workbook()
+    # Eliminar hoja por defecto si vamos a crear varias
+    ws0 = wb.active
+    ws0.title = 'Resumen'
+    ws0.append(['ID', 'Hotel', 'Habitación', 'Tipo', 'Fecha', 'Inspector', 'Creado'])
+    for rec in recs:
+        ws0.append([
+            rec.id,
+            rec.hotel or '',
+            rec.room_number or '',
+            rec.room_type or '',
+            str(rec.inspection_date or ''),
+            rec.inspector or '',
+            str(rec.created_at)
+        ])
+
+    def fill_sheet(ws, rec):
+        rows = [
+            ['Inventario ID', rec.id],
+            ['Hotel', rec.hotel or ''],
+            ['Habitación', rec.room_number or ''],
+            ['Tipo', rec.room_type or ''],
+            ['Fecha inspección', str(rec.inspection_date or '')],
+            ['Inspector', rec.inspector or ''],
+            ['Observaciones', rec.observations or ''],
+            ['Limpieza (1-5)', rec.rating_cleaning or 0],
+            ['Mobiliario (1-5)', rec.rating_furniture or 0],
+            ['Equipos (1-5)', rec.rating_equipment or 0],
+            ['Firma Inspector', rec.inspector_signature or ''],
+            ['Fecha Inspector', str(rec.inspector_date or '')],
+            ['Firma Supervisor', rec.supervisor_signature or ''],
+            ['Fecha Supervisor', str(rec.supervisor_date or '')],
+            []
+        ]
+        for r in rows: ws.append(r)
+        ws.append(['Categoria', 'Clave', 'Etiqueta', 'Marcado', 'Cantidad', 'Texto'])
+        for it in (rec.items or []):
+            ws.append([
+                it.category or '', it.key or '', it.label or '', 'Sí' if it.checked else 'No', it.quantity if it.quantity is not None else '', it.value_text or ''
+            ])
+        for col in ws.columns:
+            max_len = 10
+            col_letter = get_column_letter(col[0].column)
+            for cell in col:
+                try: max_len = max(max_len, len(str(cell.value)))
+                except Exception: pass
+            ws.column_dimensions[col_letter].width = min(60, max_len + 2)
+
+    # Crear una hoja por registro
+    for rec in recs:
+        title = f"Inv_{rec.id}"
+        ws = wb.create_sheet(title[:31])
+        fill_sheet(ws, rec)
+
+    bio = io.BytesIO()
+    wb.save(bio)
+    bio.seek(0)
+    filename = f"Inventarios_{len(recs)}_registros.xlsx"
+    return send_file(bio, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
 #añadir nueva habitacion ---------------------------------------------------------
 
 @admin_bp.route("/hospedaje/nueva", methods=["POST"])

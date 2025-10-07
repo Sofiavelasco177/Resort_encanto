@@ -6,10 +6,18 @@
     <div class="row g-3 g-md-4" id="habitaciones-usuario">
         {% for h in habitaciones %}
         <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card habitacion-card h-100">
-             {% set uimg = h.imagen if h.imagen else 'img/default.jpg' %}
-             <img src="{{ url_for('static', filename=uimg) }}" 
-                 class="card-img-top room-img" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+                        <div class="card habitacion-card h-100">
+                         {% set raw = h.imagen or '' %}
+                         {% if raw and (raw[:4]|lower == 'http') %}
+                             {% set img_url = raw %}
+                         {% else %}
+                             {% set fn = (raw|replace('\\\\','/')|replace('\\','/') ) %}
+                             {% if fn.startswith('/static/') %}{% set fn = fn[8:] %}{% endif %}
+                             {% if fn.startswith('static/') %}{% set fn = fn[7:] %}{% endif %}
+                             {% set img_url = url_for('static', filename=fn if fn else 'img/default.jpg') %}
+                         {% endif %}
+                         <img src="{{ img_url }}" 
+                                 class="card-img-top room-img" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                 <div class="card-body d-flex justify-content-center gap-2">
                     <!-- Botón Especificaciones (abre modal único por habitación) -->
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}">
@@ -31,9 +39,17 @@
                 <div class="modal-content">
                     <div class="modal-body row">
                         <div class="col-md-6">
-                       {% set uimg2 = h.imagen if h.imagen else 'img/default.jpg' %}
-                       <img src="{{ url_for('static', filename=uimg2) }}" 
-                           class="img-fluid rounded" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+                                             {% set raw2 = h.imagen or '' %}
+                                             {% if raw2 and (raw2[:4]|lower == 'http') %}
+                                                 {% set img_url2 = raw2 %}
+                                             {% else %}
+                                                 {% set fn2 = (raw2|replace('\\\\','/')|replace('\\','/')) %}
+                                                 {% if fn2.startswith('/static/') %}{% set fn2 = fn2[8:] %}{% endif %}
+                                                 {% if fn2.startswith('static/') %}{% set fn2 = fn2[7:] %}{% endif %}
+                                                 {% set img_url2 = url_for('static', filename=fn2 if fn2 else 'img/default.jpg') %}
+                                             {% endif %}
+                                             <img src="{{ img_url2 }}" 
+                                                     class="img-fluid rounded" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                         </div>
                         <div class="col-md-6 d-flex flex-column justify-content-between">
                             <div>

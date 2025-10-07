@@ -2,10 +2,12 @@
 {% block content %}
 <div class="container my-4">
   <h2 class="mb-3">Inventarios recientes</h2>
+  <form id="bulkExportForm" method="POST" action="{{ url_for('admin.inventarios_export_xlsx') }}">
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
         <tr>
+          <th style="width:32px;"><input type="checkbox" id="chk-all"></th>
           <th>ID</th>
           <th>Hotel</th>
           <th>Habitación</th>
@@ -19,6 +21,7 @@
       <tbody>
         {% for r in registros %}
         <tr>
+          <td><input type="checkbox" name="ids" value="{{ r.id }}" class="chk-row"></td>
           <td>{{ r.id }}</td>
           <td>{{ r.hotel or '-' }}</td>
           <td>{{ r.room_number or '-' }}</td>
@@ -26,13 +29,15 @@
           <td>{{ r.inspection_date or '-' }}</td>
           <td>{{ r.inspector or '-' }}</td>
               <td>{{ r.created_at }}</td>
-              <td class="text-end">
+              <td class="text-end d-flex gap-2 justify-content-end">
                 <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}">Editar</a>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}&pdf=1" title="Exportar a PDF">PDF</a>
+                <a class="btn btn-outline-success btn-sm" href="{{ url_for('admin.inventario_export_xlsx') }}?rec_id={{ r.id }}" title="Exportar a Excel (.xlsx)">Excel</a>
               </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="8" class="text-center text-muted">Sin registros</td>
+          <td colspan="9" class="text-center text-muted">Sin registros</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -40,10 +45,21 @@
   </div>
   <div class="mt-3">
     <a href="{{ url_for('admin.inventario_view') }}" class="btn btn-main">Nuevo inventario</a>
+    <button type="submit" class="btn btn-success ms-2" id="btn-export-selected" disabled>Exportar selección a Excel (.xlsx)</button>
   </div>
-  <div class="mt-5">
-    <p class="text-muted">Tip: Exporta a PDF desde la vista del inventario para compartir o archivar.</p>
-  </div>
+  <!-- Tip eliminado -->
   <br>
+  </form>
 </div>
+<script>
+  (function(){
+    const all = document.getElementById('chk-all');
+    const rows = Array.from(document.querySelectorAll('.chk-row'));
+    const btn = document.getElementById('btn-export-selected');
+    function refresh(){ btn.disabled = !rows.some(ch => ch.checked); }
+    if (all){ all.addEventListener('change', function(){ rows.forEach(ch => ch.checked = all.checked); refresh(); }); }
+    rows.forEach(ch => ch.addEventListener('change', refresh));
+    refresh();
+  })();
+</script>
 {% endblock %}

@@ -224,7 +224,6 @@
 
 			<div class="d-flex justify-content-center gap-3 mt-4 no-print flex-wrap">
 				<button type="button" class="btn btn-secondary btn-lg px-4" id="btn-reset"><i class="bi bi-arrow-repeat me-1"></i> Limpiar</button>
-				<button type="button" class="btn btn-main btn-lg px-4" id="btn-pdf"><i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF</button>
 				<button type="submit" class="btn btn-primary btn-lg px-4" form="inventoryForm"><i class="bi bi-save me-1"></i> Guardar en BD</button>
 		</div>
 	</div>
@@ -265,19 +264,7 @@
 		}
 	});
 
-	// Export to PDF
-	document.getElementById('btn-pdf').addEventListener('click', function () {
-		const element = document.getElementById('inventoryCapture');
-		const room = (document.querySelector('input[name="room_number"]').value || 'Habitacion').replace(/[^\w\-]+/g,'_');
-		const opt = {
-			margin:       10,
-			filename:     `Inventario_${room}.pdf`,
-			image:        { type: 'jpeg', quality: 0.98 },
-			html2canvas:  { scale: 2, useCORS: true },
-			jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-		};
-		html2pdf().set(opt).from(element).save();
-	});
+	// Botón PDF eliminado; exporta desde la lista con acción dedicada
 </script>
 {% if items_map %}
 <script>
@@ -306,8 +293,18 @@
 <script>
 	window.addEventListener('load', function(){
 		setTimeout(function(){
-			const btn = document.getElementById('btn-pdf');
-			if (btn) btn.click();
+			try{
+				const element = document.getElementById('inventoryCapture');
+				const room = (document.querySelector('input[name="room_number"]').value || 'Habitacion').replace(/[^\w\-]+/g,'_');
+				const opt = {
+					margin:       10,
+					filename:     `Inventario_${room}.pdf`,
+					image:        { type: 'jpeg', quality: 0.98 },
+					html2canvas:  { scale: 2, useCORS: true },
+					jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+				};
+				html2pdf().set(opt).from(element).save();
+			}catch(e){ console.error(e); }
 		}, 300);
 	});
 </script>
