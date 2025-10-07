@@ -1,8 +1,11 @@
 {% extends 'dashboard/base.html' %}
 
 {% block content %}
-<br>
 <div class="container mt-5">
+	<div class="d-flex justify-content-between align-items-center mb-2">
+		<h2>Hospedaje — Administración</h2>
+	</div>
+	<div class="inv-accent mb-4"></div>
 	<div class="row" id="habitaciones-admin">
 		{% for h in habitaciones %}
 		<div class="col-md-4 mb-4">
