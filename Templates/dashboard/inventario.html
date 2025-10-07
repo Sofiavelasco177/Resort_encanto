@@ -9,7 +9,7 @@
 		</div>
         <div class="inv-accent my-3"></div>
 
-		<div class="content-card p-4 mt-3" id="inventoryCapture">
+	<div class="content-card p-4 mt-3 form-dark-box form-dark" id="inventoryCapture">
 					<form id="inventoryForm" method="POST" action="{{ url_for('admin.inventario_save') }}" class="form-dark">
 						<input type="hidden" name="habitacion_id" value="{{ (record.habitacion_id if record else (habitacion.id if habitacion else '')) }}" />
 						<input type="hidden" name="rec_id" value="{{ record.id if record else '' }}" />
