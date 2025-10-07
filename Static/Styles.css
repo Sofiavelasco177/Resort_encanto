@@ -411,6 +411,87 @@ body {
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
 }
 
+/* Header card estilo dashboard (gradiente oscuro) */
+.inv-header-card{
+    background: radial-gradient(1200px 300px at 20% -10%, rgba(99,102,241,0.15), transparent 60%),
+                linear-gradient(180deg, #0b1322, #0f172a);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.02);
+    color: #e5e7eb;
+}
+.inv-header-card h2{ color:#c7d2fe; font-weight: 800; letter-spacing: .2px; }
+.inv-stats{ color:#a1a1aa; gap: 28px; }
+.inv-stats .stat-num{ color:#c7d2fe; font-weight:800; font-size: 1.6rem; margin-right: 6px; }
+
+/* Botón CTA gradiente */
+.btn-cta-gradient{
+    background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: 700;
+    box-shadow: 0 10px 25px rgba(79,70,229,0.35);
+}
+.btn-cta-gradient:hover{ filter: brightness(1.06); box-shadow: 0 12px 30px rgba(79,70,229,0.45); }
+
+/* Tema oscuro para formularios */
+.form-dark-box{
+    background: #0f172a !important;
+    color: #e5e7eb !important;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+}
+.form-dark .form-label{ color:#cbd5e1; }
+.form-dark .form-control,
+.form-dark .form-select,
+.form-dark textarea{
+    background: #111827;
+    color: #e5e7eb;
+    border: 1px solid #1f2937;
+}
+.form-dark .form-control:focus,
+.form-dark .form-select:focus,
+.form-dark textarea:focus{
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 .2rem rgba(79,70,229,0.25);
+}
+.form-dark .btn-primary{ background:#4f46e5; border-color:#4f46e5; }
+.form-dark .btn-secondary{ background:#334155; border-color:#334155; color:#e5e7eb; }
+
+/* Tema oscuro para formularios (coherente con tabla de inventarios) */
+.form-dark{
+    background: #0f172a; /* slate-900 */
+    color: #e5e7eb;      /* zinc-200 */
+    border-radius: 12px;
+    border: 1px solid #1f2937;
+}
+.form-dark .form-label{ color: #cbd5e1; }
+.form-dark .text-muted{ color: #9ca3af !important; }
+.form-dark .form-control,
+.form-dark .form-select,
+.form-dark textarea{ 
+    background: #111827; /* gray-900 */
+    border: 1px solid #374151;
+    color: #e5e7eb;
+}
+.form-dark .form-control::placeholder,
+.form-dark textarea::placeholder{ color: #9ca3af; }
+.form-dark .form-control:focus,
+.form-dark .form-select:focus,
+.form-dark textarea:focus{
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37,99,235,0.25);
+    background: #0b1220;
+}
+.form-dark .form-check-input{
+    background-color: #111827;
+    border-color: #374151;
+}
+.form-dark .form-check-input:checked{ background-color: #2563eb; border-color: #2563eb; }
+
 /* Botón link */
 .btn-link {
     color: #c6a76c;

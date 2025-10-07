@@ -3,13 +3,13 @@
 <div class="container my-4">
 
   <div class="table-responsive">
-    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
-    
-      <div class="d-flex align-items-center gap-4 small text-muted">
-        <div><span class="fw-bold">{{ total_count or registros|length }}</span> total</div>
-        <div><span class="fw-bold">{{ activos_count or 0 }}</span> activos</div>
+    <div class="inv-header-card p-3 p-md-4 mb-2 d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <h2 class="mb-0">Inventarios recientes</h2>
+      <div class="inv-stats d-flex align-items-center">
+        <div><span class="stat-num">{{ total_count or registros|length }}</span> <span class="text-uppercase small">Total</span></div>
+        <div><span class="stat-num">{{ activos_count or 0 }}</span> <span class="text-uppercase small">Activos</span></div>
       </div>
-    
+      <a href="{{ url_for('admin.inventario_view') }}" class="btn btn-cta-gradient">Nuevo inventario</a>
     </div>
 
     <div class="d-flex justify-content-end mb-2">
