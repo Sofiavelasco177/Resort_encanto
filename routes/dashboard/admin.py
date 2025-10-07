@@ -272,6 +272,11 @@ def inventarios_list():
     total_count = q.count()
     activos_count = q.filter(InventarioHabitacion.inspection_date.isnot(None)).count()
 
+    # Listas distintas para selects
+    # Nota: usamos todo el conjunto (sin aplicar filtros) para opciones completas
+    all_types = [row[0] for row in db.session.query(InventarioHabitacion.room_type).filter(InventarioHabitacion.room_type.isnot(None)).distinct().order_by(InventarioHabitacion.room_type.asc()).all()]
+    all_inspectors = [row[0] for row in db.session.query(InventarioHabitacion.inspector).filter(InventarioHabitacion.inspector.isnot(None)).distinct().order_by(InventarioHabitacion.inspector.asc()).all()]
+
     return render_template(
         'dashboard/inventarios_list.html',
         registros=registros,
@@ -282,6 +287,8 @@ def inventarios_list():
         inspector=inspector,
         date_from=date_from or '',
         date_to=date_to or '',
+        types_list=all_types,
+        inspectors_list=all_inspectors,
     )
 
 @admin_bp.route('/inventario/export/csv')

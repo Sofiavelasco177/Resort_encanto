@@ -402,6 +402,15 @@ body {
 .btn-filter:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.1); background: #fafafa; }
 .rotate-180 { transform: rotate(180deg); transition: transform 0.15s ease; }
 
+/* Barra de acento azul bajo el título en Inventarios */
+.inv-accent{
+    height: 6px;
+    width: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #1e3a8a, #2563eb, #7c3aed);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
 /* Botón link */
 .btn-link {
     color: #c6a76c;
