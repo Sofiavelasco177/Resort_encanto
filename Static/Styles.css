@@ -386,6 +386,22 @@ body {
     transform: translateY(-2px);
 }
 
+/* Botón de filtro tipo píldora (inventarios) */
+.btn-filter {
+    background: #fff;
+    color: #111;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 8px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.btn-filter .bi-funnel { color: #2563eb; font-weight: 700; }
+.btn-filter:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.1); background: #fafafa; }
+.rotate-180 { transform: rotate(180deg); transition: transform 0.15s ease; }
+
 /* Botón link */
 .btn-link {
     color: #c6a76c;

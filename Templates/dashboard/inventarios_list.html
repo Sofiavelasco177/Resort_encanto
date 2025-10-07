@@ -13,8 +13,10 @@
     </div>
 
     <div class="d-flex justify-content-end mb-2">
-      <button class="btn btn-light border rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse">
-        <i class="bi bi-funnel me-1 text-primary"></i> Filtrar <span class="ms-1 bi bi-caret-down-fill"></span>
+      <button id="btnFilters" class="btn btn-filter" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse">
+        <i class="bi bi-funnel"></i>
+        <span>Filtrar</span>
+        <i id="caretFilters" class="bi bi-caret-down-fill ms-1"></i>
       </button>
     </div>
     <div class="collapse {% if room or rtype or inspector or date_from or date_to %}show{% endif %}" id="filtersCollapse">
@@ -97,4 +99,17 @@
   </div>
   <br>
 </div>
+<script>
+  // Rotar caret cuando el panel colapsable abre/cierra
+  (function(){
+    var el = document.getElementById('filtersCollapse');
+    var caret = document.getElementById('caretFilters');
+    if (el && caret){
+      el.addEventListener('show.bs.collapse', function(){ caret.classList.add('rotate-180'); });
+      el.addEventListener('hide.bs.collapse', function(){ caret.classList.remove('rotate-180'); });
+      // Estado inicial si viene abierto
+      if (el.classList.contains('show')){ caret.classList.add('rotate-180'); }
+    }
+  })();
+</script>
 {% endblock %}
