@@ -241,6 +241,7 @@ class Post(db.Model):
     categoria = db.Column(db.String(50), nullable=True)  # marketing, descuento, noticia
     imagen = db.Column(db.String(255), nullable=True)
     activo = db.Column(db.Boolean, default=True)
+    orden = db.Column(db.Integer, nullable=False, default=0)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):

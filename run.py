@@ -181,6 +181,35 @@ def init_database():
                         db.session.rollback()
                         app.logger.exception('No se pudo aplicar la migración %s: %s', s, e)
 
+                # Migraciones para tabla post (agregar columna 'orden')
+                try:
+                    post_cols = [c['name'] for c in inspector.get_columns('post')] if 'post' in inspector.get_table_names() else []
+                except Exception:
+                    post_cols = []
+                if 'post' in inspector.get_table_names() and 'orden' not in post_cols:
+                    try:
+                        db.session.execute(text("ALTER TABLE post ADD COLUMN orden INTEGER NOT NULL DEFAULT 0"))
+                        db.session.commit()
+                        app.logger.info('Columna orden agregada a post')
+                    except Exception as e:
+                        db.session.rollback()
+                        app.logger.exception('No se pudo agregar columna orden a post: %s', e)
+
+                # Backfill orden para posts de categoría 'home'
+                try:
+                    from models.baseDatos import Post
+                    home_posts = db.session.query(Post).filter(Post.categoria == 'home').order_by(Post.creado_en.asc()).all()
+                    changed = False
+                    for idx, p in enumerate(home_posts, start=1):
+                        if getattr(p, 'orden', 0) in (None, 0):
+                            p.orden = idx
+                            changed = True
+                    if changed:
+                        db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    app.logger.warning('No se pudo hacer backfill de orden en posts home: %s', e)
+
             except Exception as e:
                 app.logger.exception('Error revisando/alterando la tabla usuario al iniciar: %s', e)
 

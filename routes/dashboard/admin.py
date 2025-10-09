@@ -72,6 +72,96 @@ def hospedaje_index():
     return render_template("dashboard/hospedaje_admin.html", habitaciones=habitaciones)
 
 # ==========================
+# SECCIÓN INICIO (Home) - CRUD de contenido usando Post
+# ==========================
+def _save_uploaded_image(file_field_name: str):
+    """Guarda una imagen subida en static/img/uploads y devuelve la ruta relativa o None."""
+    img = request.files.get(file_field_name)
+    if img and getattr(img, 'filename', ''):
+        from werkzeug.utils import secure_filename
+        import os, time
+        from uuid import uuid4
+        filename = secure_filename(img.filename)
+        unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
+        img_folder = os.path.join(current_app.static_folder, "img", "uploads")
+        os.makedirs(img_folder, exist_ok=True)
+        save_path = os.path.join(img_folder, unique)
+        img.save(save_path)
+        return f"img/uploads/{unique}"
+    return None
+
+@admin_bp.route('/home/post/create', methods=['POST'])
+def home_post_create():
+    try:
+        titulo = request.form.get('titulo') or 'Sin título'
+        contenido = request.form.get('contenido') or ''
+        imagen_path = _save_uploaded_image('imagen')
+        # Calcular siguiente orden dentro de 'home'
+        last = Post.query.filter_by(categoria='home').order_by(Post.orden.desc()).first()
+        next_order = (last.orden + 1) if last else 1
+        post = Post(titulo=titulo, contenido=contenido, categoria='home', orden=next_order)
+        if imagen_path:
+            post.imagen = imagen_path
+        db.session.add(post)
+        db.session.commit()
+        flash('Sección creada correctamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo crear la sección: {e}', 'danger')
+    return redirect(url_for('main.home_admin'))
+
+@admin_bp.route('/home/post/<int:post_id>/update', methods=['POST'])
+def home_post_update(post_id):
+    post = Post.query.get_or_404(post_id)
+    try:
+        post.titulo = request.form.get('titulo') or post.titulo
+        post.contenido = request.form.get('contenido') or post.contenido
+        new_img = _save_uploaded_image('imagen')
+        if new_img:
+            post.imagen = new_img
+        db.session.commit()
+        flash('Sección actualizada', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al actualizar: {e}', 'danger')
+    return redirect(url_for('main.home_admin'))
+
+@admin_bp.route('/home/post/<int:post_id>/delete', methods=['POST'])
+def home_post_delete(post_id):
+    post = Post.query.get_or_404(post_id)
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        flash('Sección eliminada', 'warning')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo eliminar: {e}', 'danger')
+    return redirect(url_for('main.home_admin'))
+
+@admin_bp.route('/home/post/<int:post_id>/orden', methods=['POST'])
+def home_post_orden(post_id):
+    """Mueve un post arriba o abajo intercambiando su 'orden' con el vecino."""
+    direction = request.form.get('dir')  # 'up' or 'down'
+    post = Post.query.get_or_404(post_id)
+    if post.categoria != 'home':
+        flash('Operación inválida', 'danger')
+        return redirect(url_for('main.home_admin'))
+    try:
+        if direction == 'up':
+            neighbor = Post.query.filter_by(categoria='home').filter(Post.orden < post.orden).order_by(Post.orden.desc()).first()
+        else:
+            neighbor = Post.query.filter_by(categoria='home').filter(Post.orden > post.orden).order_by(Post.orden.asc()).first()
+        if neighbor:
+            post.orden, neighbor.orden = neighbor.orden, post.orden
+            db.session.commit()
+        else:
+            flash('No hay más elementos para reordenar', 'info')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo reordenar: {e}', 'danger')
+    return redirect(url_for('main.home_admin'))
+
+# ==========================
 # 📄 INVENTARIO DE HABITACIÓN (vista)
 # ==========================
 @admin_bp.route("/inventario")

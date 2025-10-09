@@ -9,8 +9,10 @@ main_bp = Blueprint('main', __name__)
  
 @main_bp.route('/')
 def home():
+    # Contenido dinámico del home (ordenado por 'orden')
+    posts = Post.query.filter_by(categoria='home').order_by(Post.orden.asc(), Post.creado_en.desc()).all()
     try:
-        return render_template('home/Home.html')
+        return render_template('home/Home.html', posts=posts)
     except TemplateNotFound as e:
         # Evitar 500 y dar pistas claras en logs
         current_app.logger.error(f"Plantilla no encontrada: {e}. Se esperaba 'home/Home.html'")
@@ -61,7 +63,8 @@ def experiencias():
 
 @main_bp.route('/home_usuario')
 def home_usuario():
-    return render_template('usuario/home_usuario.html')
+    posts = Post.query.filter_by(categoria='home').order_by(Post.orden.asc(), Post.creado_en.desc()).all()
+    return render_template('usuario/home_usuario.html', posts=posts)
 
 @main_bp.route('/hospedaje_usuario')
 def hospedaje_usuario():
@@ -85,7 +88,9 @@ def experiencias_usuario():
 
 @main_bp.route('/home_admin')
 def home_admin():
-    return render_template('dashboard/home_admin.html')
+    # Traer posts de la categoría 'home' ordenados por 'orden' (asc)
+    posts = Post.query.filter_by(categoria='home').order_by(Post.orden.asc(), Post.creado_en.desc()).all()
+    return render_template('dashboard/home_admin.html', posts=posts)
 
 @main_bp.route('/hospedaje_admin')
 def hospedaje_admin():
