@@ -996,6 +996,36 @@ body {
     padding: 0.6rem 1rem !important;
     border-radius: 8px !important;
 }
+
+/* =======================
+   HOME POSTS: HORIZONTAL CARDS (text left, image right)
+   Keep consistent height and responsive behavior
+   ======================= */
+.home-post-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.home-post-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+/* Set a consistent visual height on md+; let it flow on small */
+@media (min-width: 768px) {
+    .home-post-card .home-post-img { min-height: 280px; }
+}
+@media (max-width: 767.98px) {
+    .home-post-card .home-post-img { height: 220px; }
+}
+/* Clamp long text for uniform card heights */
+.home-post-text {
+    display: -webkit-box;
+    line-clamp: 6;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 .btn-highlight:hover,
 .btn-highlight:focus {
     background-color: #0b5ed7 !important;

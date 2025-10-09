@@ -52,7 +52,7 @@
         <div class="container mt-5">
         <div class="row align-items-stretch">
             <div class="col-md-6">
-                <img src="{{ url_for('static', filename='img/playa(1).jpg') }}" class="img-fluid rounded proportional-img" alt="Ecolodge">
+                <img src="{{ url_for('static', filename='img/hotel(1).jpg') }}" class="img-fluid rounded proportional-img" alt="Ecolodge">
             </div>
             <div class="col-md-6">
                 <h1 class="display-4">Vive el encanto de Barú Cartagena</h1>
@@ -67,14 +67,18 @@
                 <hr class="my-5">
                 <div class="row g-4">
                     {% for p in posts %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm">
-                            {% if p.imagen %}
-                            <img src="{{ url_for('static', filename=p.imagen) if not p.imagen.startswith('http') else p.imagen }}" class="card-img-top" alt="imagen">
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title">{{ p.titulo }}</h5>
-                                <p class="card-text" style="white-space:pre-wrap;">{{ p.contenido }}</p>
+                    <div class="col-12">
+                        <div class="card home-post-card shadow-sm">
+                            <div class="row g-0 align-items-stretch">
+                                <div class="col-md-7 p-3 p-md-4 d-flex flex-column">
+                                    <h5 class="card-title mb-2">{{ p.titulo }}</h5>
+                                    <p class="card-text home-post-text lh-base" style="white-space:pre-wrap;">{{ p.contenido }}</p>
+                                </div>
+                                <div class="col-md-5">
+                                    {% if p.imagen %}
+                                    <img src="{{ url_for('static', filename=p.imagen) if not p.imagen.startswith('http') else p.imagen }}" class="home-post-img" alt="imagen">
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>

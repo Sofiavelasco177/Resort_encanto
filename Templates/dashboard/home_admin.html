@@ -34,64 +34,109 @@
         <h4 class="mb-3">Secciones existentes</h4>
         <div class="row g-3 g-md-4">
         {% for p in posts %}
-        <div class="col-12 col-md-6">
-            <div class="card h-100 shadow-sm">
-                {% if p.imagen %}
-                <img class="card-img-top" src="{{ url_for('static', filename=p.imagen) if not p.imagen.startswith('http') else p.imagen }}" alt="{{ p.titulo }}">
-                {% endif %}
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">{{ p.titulo }}</h5>
+        <div class="col-12">
+            <div class="card home-post-card shadow-sm">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-7 p-3 p-md-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ p.titulo }}</h5>
+                            {% if session.get('user') and session.get('user').get('rol') == 'admin' %}
+                            <div class="d-flex gap-1">
+                                <form action="{{ url_for('admin.home_post_orden', post_id=p.id) }}" method="post">
+                                    <input type="hidden" name="dir" value="up">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Subir"><i class="bi bi-arrow-up"></i></button>
+                                </form>
+                                <form action="{{ url_for('admin.home_post_orden', post_id=p.id) }}" method="post">
+                                    <input type="hidden" name="dir" value="down">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Bajar"><i class="bi bi-arrow-down"></i></button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text home-post-text lh-base" style="white-space:pre-wrap;">{{ p.contenido }}</p>
                         {% if session.get('user') and session.get('user').get('rol') == 'admin' %}
-                        <div class="d-flex gap-1">
-                            <form action="{{ url_for('admin.home_post_orden', post_id=p.id) }}" method="post">
-                                <input type="hidden" name="dir" value="up">
-                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Subir"><i class="bi bi-arrow-up"></i></button>
+                        <div class="d-flex gap-2 mt-2">
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#edit{{ p.id }}">Editar</button>
+                            <form action="{{ url_for('admin.home_post_delete', post_id=p.id) }}" method="post" onsubmit="return confirm('¿Eliminar esta sección?');">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
                             </form>
-                            <form action="{{ url_for('admin.home_post_orden', post_id=p.id) }}" method="post">
-                                <input type="hidden" name="dir" value="down">
-                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Bajar"><i class="bi bi-arrow-down"></i></button>
+                        </div>
+                        <div class="collapse mt-3" id="edit{{ p.id }}">
+                            <form class="row g-2" method="POST" action="{{ url_for('admin.home_post_update', post_id=p.id) }}" enctype="multipart/form-data">
+                                <div class="col-12">
+                                    <label class="form-label">Título</label>
+                                    <input class="form-control" name="titulo" value="{{ p.titulo }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Contenido</label>
+                                    <textarea class="form-control" rows="4" name="contenido">{{ p.contenido }}</textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Imagen (opcional)</label>
+                                    <input class="form-control" type="file" name="imagen" accept="image/*">
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-primary btn-sm" type="submit">Guardar</button>
+                                </div>
                             </form>
                         </div>
                         {% endif %}
                     </div>
-                    <p class="card-text lh-base" style="white-space:pre-wrap;">{{ p.contenido }}</p>
-                    {% if session.get('user') and session.get('user').get('rol') == 'admin' %}
-                    <div class="d-flex gap-2 mt-2">
-                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#edit{{ p.id }}">Editar</button>
-                        <form action="{{ url_for('admin.home_post_delete', post_id=p.id) }}" method="post" onsubmit="return confirm('¿Eliminar esta sección?');">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
-                        </form>
+                    <div class="row g-3 g-md-4">
+                    {% for p in posts %}
+                    <div class="col-12">
+                        <div class="card home-post-card shadow-sm">
+                            <div class="row g-0 align-items-stretch">
+                                <div class="col-md-7 p-3 p-md-4 d-flex flex-column">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title mb-0">{{ p.titulo }}</h5>
+                                        {% if session.get('user') and session.get('user').get('rol') == 'admin' %}
+                                        <div class="d-flex gap-1">
+                                            <form action="{{ url_for('admin.home_post_orden', post_id=p.id) }}" method="post">
+                                                <input type="hidden" name="dir" value="up">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Subir"><i class="bi bi-arrow-up"></i></button>
+                                            </form>
+                                            <form action="{{ url_for('admin.home_post_orden', post_id=p.id) }}" method="post">
+                                                <input type="hidden" name="dir" value="down">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Bajar"><i class="bi bi-arrow-down"></i></button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <p class="card-text home-post-text lh-base" style="white-space:pre-wrap;">{{ p.contenido }}</p>
+                                    {% if session.get('user') and session.get('user').get('rol') == 'admin' %}
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#edit{{ p.id }}">Editar</button>
+                                        <form action="{{ url_for('admin.home_post_delete', post_id=p.id) }}" method="post" onsubmit="return confirm('¿Eliminar esta sección?');">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </div>
+                                    <div class="collapse mt-3" id="edit{{ p.id }}">
+                                        <form class="row g-2" method="POST" action="{{ url_for('admin.home_post_update', post_id=p.id) }}" enctype="multipart/form-data">
+                                            <div class="col-12">
+                                                <label class="form-label">Título</label>
+                                                <input class="form-control" name="titulo" value="{{ p.titulo }}">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Contenido</label>
+                                                <textarea class="form-control" rows="4" name="contenido">{{ p.contenido }}</textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Imagen (opcional)</label>
+                                                <input class="form-control" type="file" name="imagen" accept="image/*">
+                                            </div>
+                                            <div class="col-12">
+                                                <button class="btn btn-primary btn-sm" type="submit">Guardar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-5">
+                                    {% if p.imagen %}
+                                    <img class="home-post-img" src="{{ url_for('static', filename=p.imagen) if not p.imagen.startswith('http') else p.imagen }}" alt="{{ p.titulo }}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="collapse mt-3" id="edit{{ p.id }}">
-                        <form class="row g-2" method="POST" action="{{ url_for('admin.home_post_update', post_id=p.id) }}" enctype="multipart/form-data">
-                            <div class="col-12">
-                                <label class="form-label">Título</label>
-                                <input class="form-control" name="titulo" value="{{ p.titulo }}">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Contenido</label>
-                                <textarea class="form-control" rows="4" name="contenido">{{ p.contenido }}</textarea>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Imagen (opcional)</label>
-                                <input class="form-control" type="file" name="imagen" accept="image/*">
-                            </div>
-                            <div class="col-12">
-                                <button class="btn btn-primary btn-sm" type="submit">Guardar</button>
-                            </div>
-                        </form>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% else %}
-            <div class="col-12">
-                <div class="text-muted">Sin secciones aún. ¡Crea la primera!</div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-
-{% endblock %}
