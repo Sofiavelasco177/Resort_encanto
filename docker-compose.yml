@@ -27,7 +27,8 @@ services:
       - FLASK_ENV=production
       - FLASK_APP=run.py
     volumes:
-      - db-data:/app/instance  # Volumen nombrado para producción
+      - db-data:/app/instance  # Volumen nombrado para producción (SQLite)
+      - uploads-data:/app/static/img/uploads  # Persistir imágenes subidas
     restart: unless-stopped
     networks:
       - resort-network
@@ -48,6 +49,7 @@ services:
       - db
     volumes:
       - ./instance:/app/instance
+      - uploads-data:/app/static/img/uploads  # Persistir imágenes subidas
     restart: unless-stopped
     networks:
       - resort-network
@@ -77,3 +79,4 @@ networks:
 volumes:
   db-data:    # Para SQLite en producción
   mysql-data: # Para MySQL
+  uploads-data: # Para imágenes subidas
