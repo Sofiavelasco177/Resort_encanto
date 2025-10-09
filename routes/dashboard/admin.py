@@ -75,7 +75,7 @@ def hospedaje_index():
 # SECCIÓN INICIO (Home) - CRUD de contenido usando Post
 # ==========================
 def _save_uploaded_image(file_field_name: str):
-    """Guarda una imagen subida en static/img/uploads y devuelve la ruta relativa o None."""
+    """Guarda una imagen subida en instance/uploads y devuelve la ruta relativa 'uploads/<file>' o None."""
     img = request.files.get(file_field_name)
     if img and getattr(img, 'filename', ''):
         from werkzeug.utils import secure_filename
@@ -83,11 +83,12 @@ def _save_uploaded_image(file_field_name: str):
         from uuid import uuid4
         filename = secure_filename(img.filename)
         unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
-        img_folder = os.path.join(current_app.static_folder, "img", "uploads")
-        os.makedirs(img_folder, exist_ok=True)
-        save_path = os.path.join(img_folder, unique)
+        # Guardar siempre en instance/uploads (persistente y servido por /media)
+        inst_uploads = os.path.join(current_app.instance_path, 'uploads')
+        os.makedirs(inst_uploads, exist_ok=True)
+        save_path = os.path.join(inst_uploads, unique)
         img.save(save_path)
-        return f"img/uploads/{unique}"
+        return f"uploads/{unique}"
     return None
 
 @admin_bp.route('/home/post/create', methods=['POST'])

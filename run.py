@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 import logging
 import os
 from datetime import datetime
@@ -216,6 +216,42 @@ def init_database():
                     db.session.rollback()
                     app.logger.warning('No se pudo hacer backfill de orden en posts home: %s', e)
 
+                # Migrar imágenes legacy de static/img/uploads -> instance/uploads
+                try:
+                    from models.baseDatos import Post
+                    import shutil
+                    legacy_prefix = os.path.join(app.static_folder, 'img', 'uploads')
+                    inst_uploads = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads')
+                    os.makedirs(inst_uploads, exist_ok=True)
+                    posts = db.session.query(Post).filter(Post.imagen.isnot(None)).all()
+                    migrated = False
+                    for p in posts:
+                        path = (p.imagen or '').strip()
+                        if not path:
+                            continue
+                        # Si ya está en 'uploads/', no migrar
+                        if path.startswith('uploads/'):
+                            continue
+                        # Si es 'img/uploads/...' intentar mover
+                        if path.startswith('img/uploads/'):
+                            fname = path.split('img/uploads/', 1)[1]
+                            src = os.path.join(legacy_prefix, fname)
+                            dst = os.path.join(inst_uploads, fname)
+                            try:
+                                if os.path.isfile(src):
+                                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                                    shutil.move(src, dst)
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated = True
+                            except Exception as em:
+                                app.logger.warning(f'No se pudo migrar imagen {src} -> {dst}: {em}')
+                    if migrated:
+                        db.session.commit()
+                        app.logger.info('Migración de imágenes a instance/uploads completada')
+                except Exception as e:
+                    db.session.rollback()
+                    app.logger.warning('No se pudo migrar imágenes legacy: %s', e)
+
             except Exception as e:
                 app.logger.exception('Error revisando/alterando la tabla usuario al iniciar: %s', e)
 
@@ -398,6 +434,13 @@ def health_check():
 logging.basicConfig(level=logging.DEBUG)
 
 # ------------------- Ejecución de la aplicación -------------------
+
+# Servir archivos de medios dinámicos desde instance/uploads
+@app.route('/media/<path:filename>')
+def media_file(filename):
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads')
+    # Seguridad básica: normalizar y restringir a carpeta
+    return send_from_directory(base, filename, conditional=True)
 if __name__ == '__main__':
     import os
     
