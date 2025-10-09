@@ -36,16 +36,22 @@ templates_dir_cap = os.path.join(base_dir, 'Templates')
 static_dir = os.path.join(base_dir, 'static')
 static_dir_cap = os.path.join(base_dir, 'Static')
 
-if not os.path.isdir(templates_dir) and os.path.isdir(templates_dir_cap):
-    # Añadir Templates a las rutas de búsqueda de Jinja si templates/ no existe
-    try:
-        search_paths = getattr(app.jinja_loader, 'searchpath', [])
-        if templates_dir_cap not in search_paths:
-            search_paths.insert(0, templates_dir_cap)
-            app.jinja_loader.searchpath = search_paths
-        logger.info("Usando carpeta 'Templates' como fallback para plantillas")
-    except Exception as e:
-        logger.warning(f"No se pudo agregar 'Templates' a rutas Jinja: {e}")
+try:
+    # Siempre incluir ambas rutas si existen, primero 'templates', luego 'Templates'
+    search_paths = list(getattr(app.jinja_loader, 'searchpath', []))
+    to_add = []
+    if os.path.isdir(templates_dir) and templates_dir not in search_paths:
+        to_add.append(templates_dir)
+    if os.path.isdir(templates_dir_cap) and templates_dir_cap not in search_paths:
+        to_add.append(templates_dir_cap)
+    if to_add:
+        # Insertar al inicio manteniendo el orden preferido
+        for p in reversed(to_add):
+            search_paths.insert(0, p)
+        app.jinja_loader.searchpath = search_paths
+        logger.info(f"Plantillas: rutas de búsqueda actualizadas: {app.jinja_loader.searchpath}")
+except Exception as e:
+    logger.warning(f"No se pudo ajustar rutas de plantillas: {e}")
 
 if not os.path.isdir(static_dir) and os.path.isdir(static_dir_cap):
     # Reasignar static_folder si solo existe 'Static'
