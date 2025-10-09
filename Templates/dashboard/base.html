@@ -63,18 +63,21 @@
     </nav>
     <!-- Contenido principal -->
     <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        <!-- Toasts (top-right) -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1060">
+            {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="container mt-3">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'warning' if category == 'warn' else category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
+              {% for category, message in messages %}
+              <div class="toast align-items-center text-bg-{{ 'warning' if category in ['warn','warning'] else ('danger' if category=='danger' else ('success' if category=='success' else 'primary')) }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                  <div class="toast-body">{{ message }}</div>
+                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
+              </div>
+              {% endfor %}
             {% endif %}
-        {% endwith %}
+            {% endwith %}
+        </div>
         {% block content %}{% endblock %}
     </main>
     <!-- Footer -->
@@ -105,7 +108,13 @@
 </footer>
 
     <!-- Bootstrap JS (para colapsables, dropdowns, etc.) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                const toasts = document.querySelectorAll('.toast');
+                toasts.forEach(t => new bootstrap.Toast(t, { delay: 4000 }).show());
+            });
+        </script>
 
 </body>
 </html>
