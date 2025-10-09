@@ -79,17 +79,7 @@
                         </div>
                     </div>
                     <div class="col-md-5">
-                        {% if p.imagen %}
-                            {% if p.imagen.startswith('http') %}
-                                {% set _img_url = p.imagen %}
-                            {% elif p.imagen.startswith('uploads/') %}
-                                {% set _img_url = url_for('media_file', filename=p.imagen[8:]) ~ '?v=' ~ p.id %}
-                            {% else %}
-                                {% set _fname = p.imagen[7:] if p.imagen.startswith('static/') else p.imagen %}
-                                {% set _img_url = url_for('static', filename=_fname) ~ '?v=' ~ p.id %}
-                            {% endif %}
-                            <img class="home-post-img" src="{{ _img_url }}" alt="{{ p.titulo }}">
-                        {% endif %}
+                        <img class="home-post-img" src="{{ media_url(p.imagen, p.id) }}" alt="{{ p.titulo }}">
                     </div>
                 </div>
             </div>

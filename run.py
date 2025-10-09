@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, url_for
 import logging
 import os
 from datetime import datetime
@@ -135,6 +135,62 @@ def inject_current_user():
             is_authenticated = False
         return {'current_user': _Anonymous()}
 
+# Utilidades para plantillas: resolver URL de imágenes con fallback seguro
+@app.context_processor
+def media_utilities():
+    import os as _os
+    base = _os.path.dirname(_os.path.abspath(__file__))
+    def media_url(image_path, version=None):
+        try:
+            placeholder = url_for('static', filename='img/OIP.webp')
+            if not image_path:
+                return placeholder
+            s = str(image_path).strip()
+            if s.startswith('http://') or s.startswith('https://'):
+                return s
+            # uploads/<file>
+            if s.startswith('uploads/'):
+                rel = s[8:]
+                inst = _os.path.join(base, 'instance', 'uploads', rel)
+                if _os.path.isfile(inst):
+                    u = url_for('media_file', filename=rel)
+                    if version is not None:
+                        u += f'?v={version}'
+                    return u
+                # ¿sigue en static por volumen legacy?
+                legacy = _os.path.join(app.static_folder, 'img', 'uploads', rel)
+                if _os.path.isfile(legacy):
+                    return url_for('static', filename=f'img/uploads/{rel}')
+                return placeholder
+            # img/uploads/<file>
+            if s.startswith('img/uploads/'):
+                rel = s.split('img/uploads/', 1)[1]
+                legacy = _os.path.join(app.static_folder, 'img', 'uploads', rel)
+                if _os.path.isfile(legacy):
+                    return url_for('static', filename=f'img/uploads/{rel}')
+                inst = _os.path.join(base, 'instance', 'uploads', rel)
+                if _os.path.isfile(inst):
+                    return url_for('media_file', filename=rel)
+                return placeholder
+            # static/<...>
+            if s.startswith('static/'):
+                rel = s[7:]
+                cand = _os.path.join(app.static_folder, rel)
+                if _os.path.isfile(cand):
+                    return url_for('static', filename=rel)
+                return placeholder
+            # tratar como ruta relativa bajo static/
+            cand = _os.path.join(app.static_folder, s)
+            if _os.path.isfile(cand):
+                return url_for('static', filename=s)
+            return placeholder
+        except Exception:
+            try:
+                return url_for('static', filename='img/OIP.webp')
+            except Exception:
+                return '/static/img/OIP.webp'
+    return dict(media_url=media_url)
+
 
 # Verificar y crear columnas necesarias en la tabla usuario
 def init_database():
@@ -231,8 +287,21 @@ def init_database():
                             continue
                         # Si ya está en 'uploads/', no migrar
                         if path.startswith('uploads/'):
+                            # asegurarnos que exista en instance o en legacy
+                            fname = path[8:]
+                            dst = os.path.join(inst_uploads, fname)
+                            if os.path.isfile(dst):
+                                continue
+                            src = os.path.join(legacy_prefix, fname)
+                            try:
+                                if os.path.isfile(src):
+                                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                                    shutil.move(src, dst)
+                                    migrated = True
+                            except Exception as em:
+                                app.logger.warning(f'No se pudo mover legacy uploads a instance: {src} -> {dst}: {em}')
                             continue
-                        # Si es 'img/uploads/...' intentar mover
+                        # Si es 'img/uploads/...'
                         if path.startswith('img/uploads/'):
                             fname = path.split('img/uploads/', 1)[1]
                             src = os.path.join(legacy_prefix, fname)
@@ -243,6 +312,30 @@ def init_database():
                                     shutil.move(src, dst)
                                     p.imagen = f'uploads/{fname}'
                                     migrated = True
+                                elif os.path.isfile(dst):
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated = True
+                                else:
+                                    app.logger.warning(f'Archivo no encontrado en legacy ni instance: {fname}')
+                            except Exception as em:
+                                app.logger.warning(f'No se pudo migrar imagen {src} -> {dst}: {em}')
+                            continue
+                        # Si es 'static/img/uploads/...'
+                        if path.startswith('static/img/uploads/'):
+                            fname = path.split('static/img/uploads/', 1)[1]
+                            src = os.path.join(legacy_prefix, fname)
+                            dst = os.path.join(inst_uploads, fname)
+                            try:
+                                if os.path.isfile(src):
+                                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                                    shutil.move(src, dst)
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated = True
+                                elif os.path.isfile(dst):
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated = True
+                                else:
+                                    app.logger.warning(f'Archivo no encontrado en legacy ni instance: {fname}')
                             except Exception as em:
                                 app.logger.warning(f'No se pudo migrar imagen {src} -> {dst}: {em}')
                     if migrated:

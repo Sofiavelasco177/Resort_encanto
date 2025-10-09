@@ -69,17 +69,7 @@
                                     <p class="card-text home-post-text lh-base" style="white-space:pre-wrap;">{{ p.contenido }}</p>
                                 </div>
                                 <div class="col-md-5">
-                                    {% if p.imagen %}
-                                        {% if p.imagen.startswith('http') %}
-                                            {% set _img_url = p.imagen %}
-                                        {% elif p.imagen.startswith('uploads/') %}
-                                            {% set _img_url = url_for('media_file', filename=p.imagen[8:]) ~ '?v=' ~ p.id %}
-                                        {% else %}
-                                            {% set _fname = p.imagen[7:] if p.imagen.startswith('static/') else p.imagen %}
-                                            {% set _img_url = url_for('static', filename=_fname) ~ '?v=' ~ p.id %}
-                                        {% endif %}
-                                        <img src="{{ _img_url }}" class="home-post-img" alt="{{ p.titulo }}">
-                                    {% endif %}
+                                    <img src="{{ media_url(p.imagen, p.id) }}" class="home-post-img" alt="{{ p.titulo }}">
                                 </div>
                             </div>
                         </div>
