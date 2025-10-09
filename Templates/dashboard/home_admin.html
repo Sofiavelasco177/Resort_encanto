@@ -6,22 +6,22 @@
 
 <div class="container my-4">
     {% if session.get('user') and session.get('user').get('rol') == 'admin' %}
-    <div class="p-3 p-md-4 rounded-4 shadow-sm form-dark-box form-dark mb-4">
+        <div class="p-3 p-md-4 rounded-4 shadow-sm bg-white text-dark mb-4">
         <h3 class="mb-2">Inicio — Crear nueva sección</h3>
         <div class="inv-accent mb-3"></div>
-        <form class="row g-3" action="{{ url_for('admin.home_post_create') }}" method="POST" enctype="multipart/form-data">
-            <div class="col-md-6">
-                <label class="form-label">Título</label>
-                <input class="form-control" name="titulo" required>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Imagen (opcional)</label>
-                <input class="form-control" type="file" name="imagen" accept="image/*">
-            </div>
-            <div class="col-12">
-                <label class="form-label">Contenido</label>
-                <textarea class="form-control" name="contenido" rows="4" required></textarea>
-            </div>
+            <form class="row g-3" action="{{ url_for('admin.home_post_create') }}" method="POST" enctype="multipart/form-data">
+                <div class="col-md-6">
+                    <label class="form-label">Título</label>
+                    <input class="form-control bg-white text-dark" name="titulo" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Imagen (opcional)</label>
+                    <input class="form-control bg-white text-dark" type="file" name="imagen" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Contenido</label>
+                    <textarea class="form-control bg-white text-dark" name="contenido" rows="4" required></textarea>
+                </div>
             <div class="col-12">
                 <button class="btn btn-main" type="submit">
                     <i class="bi bi-plus-lg me-1"></i> Publicar
@@ -31,7 +31,8 @@
     </div>
     {% endif %}
 
-    <div class="row g-3 g-md-4">
+        <h4 class="mb-3">Secciones existentes</h4>
+        <div class="row g-3 g-md-4">
         {% for p in posts %}
         <div class="col-12 col-md-6">
             <div class="card h-100 shadow-sm">
