@@ -10,11 +10,17 @@
         <h3 class="mb-2">Inicio — Crear nueva sección</h3>
         <div class="inv-accent mb-3"></div>
             <form class="row g-3" action="{{ url_for('admin.home_post_create') }}" method="POST" enctype="multipart/form-data">
-                <div class="col-md-6">
-                    <label class="form-label">Título</label>
-                    <input class="form-control bg-white text-dark" name="titulo" required>
-                </div>
-                <div class="col-md-6">
+                    <div class="col-md-5">
+                        {% if p.imagen %}
+                            {% if p.imagen.startswith('http') %}
+                                {% set _img_url = p.imagen %}
+                            {% else %}
+                                {% set _fname = p.imagen[7:] if p.imagen.startswith('static/') else p.imagen %}
+                                {% set _img_url = url_for('static', filename=_fname) ~ '?v=' ~ p.id %}
+                            {% endif %}
+                            <img class="home-post-img" src="{{ _img_url }}" alt="{{ p.titulo }}">
+                        {% endif %}
+                    </div>
                     <label class="form-label">Imagen (opcional)</label>
                     <input class="form-control bg-white text-dark" type="file" name="imagen" accept="image/*">
                 </div>
@@ -134,7 +140,13 @@
                                 </div>
                                 <div class="col-md-5">
                                     {% if p.imagen %}
-                                    <img class="home-post-img" src="{{ url_for('static', filename=p.imagen) if not p.imagen.startswith('http') else p.imagen }}" alt="{{ p.titulo }}">
+                                        {% if p.imagen.startswith('http') %}
+                                            {% set _img_url = p.imagen %}
+                                        {% else %}
+                                            {% set _fname = p.imagen[7:] if p.imagen.startswith('static/') else p.imagen %}
+                                            {% set _img_url = url_for('static', filename=_fname) ~ '?v=' ~ p.id %}
+                                        {% endif %}
+                                        <img class="home-post-img" src="{{ _img_url }}" alt="{{ p.titulo }}">
                                     {% endif %}
                                 </div>
                             </div>

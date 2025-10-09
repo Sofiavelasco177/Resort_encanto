@@ -51,11 +51,17 @@
 
         <div class="container mt-5">
         <div class="row align-items-stretch">
-            <div class="col-md-6">
-                <img src="{{ url_for('static', filename='img/hotel(1).jpg') }}" class="img-fluid rounded proportional-img" alt="Ecolodge">
-            </div>
-            <div class="col-md-6">
-                <h1 class="display-4">Vive el encanto de Barú Cartagena</h1>
+                                <div class="col-md-5">
+                                    {% if p.imagen %}
+                                        {% if p.imagen.startswith('http') %}
+                                            {% set _img_url = p.imagen %}
+                                        {% else %}
+                                            {% set _fname = p.imagen[7:] if p.imagen.startswith('static/') else p.imagen %}
+                                            {% set _img_url = url_for('static', filename=_fname) ~ '?v=' ~ p.id %}
+                                        {% endif %}
+                                        <img src="{{ _img_url }}" class="home-post-img" alt="{{ p.titulo }}">
+                                    {% endif %}
+                                </div>
                 <p class="lead">Bienvenidos a nuestro Ecolodge Superior.</p>
                 <p>Descubre un escape soñado a solo una hora de la ciudad amurallada en Cartagena, Colombia. El Hotel Isla del Encanto Barú ofrece un destino con total relajación acompañado de mágicos y asombrosos paisajes en el Parque Natural Corales del Rosario. Su acceso es por vía marítima o terrestre, nuestro complejo ofrece 10 hectáreas de tierra virgen acompañada de árboles frutales, arbustos, palmeras y manglares.</p>
                 <h2 class="mt-4">Un paraíso terrenal.</h2>
@@ -76,7 +82,13 @@
                                 </div>
                                 <div class="col-md-5">
                                     {% if p.imagen %}
-                                    <img src="{{ url_for('static', filename=p.imagen) if not p.imagen.startswith('http') else p.imagen }}" class="home-post-img" alt="imagen">
+                                        {% if p.imagen.startswith('http') %}
+                                            {% set _img_url = p.imagen %}
+                                        {% else %}
+                                            {% set _fname = p.imagen[7:] if p.imagen.startswith('static/') else p.imagen %}
+                                            {% set _img_url = url_for('static', filename=_fname) ~ '?v=' ~ p.id %}
+                                        {% endif %}
+                                        <img src="{{ _img_url }}" class="home-post-img" alt="{{ p.titulo }}">
                                     {% endif %}
                                 </div>
                             </div>
