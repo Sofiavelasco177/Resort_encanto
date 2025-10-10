@@ -39,7 +39,7 @@
 		{% for p in posts %}
 		<div class="col-12 col-md-6">
 			<div class="card h-100">
-				{% if p.imagen %}<img class="card-img-top" src="{{ url_for('static', filename=p.imagen) }}" alt="{{ p.titulo }}">{% endif %}
+				{% if p.imagen %}<img class="card-img-top" src="{{ media_url(p.imagen, p.id) }}" alt="{{ p.titulo }}">{% endif %}
 				<div class="card-body nosotros-content">
 					<div class="d-flex justify-content-between align-items-start mb-2">
 						<h5 class="mb-0">{{ p.titulo }}</h5>

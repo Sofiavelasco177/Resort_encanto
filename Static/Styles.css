@@ -1005,9 +1005,11 @@ body {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    padding: 12px 12px;
+    padding: 8px 10px;
     background: linear-gradient(90deg, #fbf7f1 0%, #fff 55%);
     box-shadow: 0 8px 18px rgba(13, 33, 48, 0.10);
+    max-width: 1100px;
+    margin: 0 auto;
 }
 /* sutil divisor vertical como en el diseño */
 @media (min-width: 992px) {
@@ -1019,12 +1021,12 @@ body {
       left: 50%;
       width: 1px;
       transform: translateX(-50%);
-      background: linear-gradient(
+            background: linear-gradient(
         to bottom,
-        rgba(0,0,0,0) 0%,
-        rgba(13,33,48,0.08) 45%,
-        rgba(13,33,48,0.08) 55%,
-        rgba(0,0,0,0) 100%
+                rgba(0,0,0,0) 0%,
+                rgba(13,33,48,0.05) 45%,
+                rgba(13,33,48,0.05) 55%,
+                rgba(0,0,0,0) 100%
       );
       pointer-events: none;
   }
@@ -1052,7 +1054,7 @@ body {
 }
 /* Set a consistent visual height on md+; let it flow on small */
 @media (min-width: 768px) {
-    .home-post-card .home-post-visual { min-height: 260px; }
+    .home-post-card .home-post-visual { min-height: 220px; }
 }
 @media (max-width: 767.98px) {
     .home-post-card .home-post-visual { height: 220px; }
@@ -1060,11 +1062,12 @@ body {
 /* Clamp long text for uniform card heights */
 .home-post-text {
     display: -webkit-box;
-    line-clamp: 6;
-    -webkit-line-clamp: 6;
+    line-clamp: 5;
+    -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+.home-post-card h5.card-title { font-size: 1.2rem; }
 .btn-highlight:hover,
 .btn-highlight:focus {
     background-color: #0b5ed7 !important;

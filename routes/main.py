@@ -33,7 +33,8 @@ def restaurantes():
 
 @main_bp.route('/nosotros')
 def nosotros():
-    posts = Post.query.filter_by(activo=True).order_by(Post.creado_en.desc()).limit(10).all()
+    # Mostrar solo contenido categorizado como 'nosotros'
+    posts = Post.query.filter_by(categoria='nosotros', activo=True).order_by(Post.creado_en.desc()).limit(10).all()
     return render_template('home/Nosotros.html', posts=posts)
 
 @main_bp.route('/Experiencias', methods=['GET', 'POST'])
