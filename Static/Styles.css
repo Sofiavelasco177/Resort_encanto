@@ -1002,8 +1002,47 @@ body {
    Keep consistent height and responsive behavior
    ======================= */
 .home-post-card {
-    border-radius: 12px;
+    position: relative;
+    border-radius: 24px;
     overflow: hidden;
+    padding: 18px 18px;
+    background: linear-gradient(90deg, #fbf7f1 0%, #fff 55%);
+    box-shadow: 0 12px 28px rgba(13, 33, 48, 0.12);
+}
+/* sutil divisor vertical como en el diseño */
+@media (min-width: 992px) {
+  .home-post-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0) 0%,
+        rgba(13,33,48,0.08) 45%,
+        rgba(13,33,48,0.08) 55%,
+        rgba(0,0,0,0) 100%
+      );
+      pointer-events: none;
+  }
+}
+
+.home-post-visual {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow:
+        0 18px 40px rgba(13, 33, 48, 0.18),
+        0 6px 18px rgba(14, 72, 90, 0.12);
+    border: 1px solid rgba(0,0,0,0.03);
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .home-post-img {
     width: 100%;
@@ -1013,10 +1052,10 @@ body {
 }
 /* Set a consistent visual height on md+; let it flow on small */
 @media (min-width: 768px) {
-    .home-post-card .home-post-img { min-height: 280px; }
+    .home-post-card .home-post-visual { min-height: 320px; }
 }
 @media (max-width: 767.98px) {
-    .home-post-card .home-post-img { height: 220px; }
+    .home-post-card .home-post-visual { height: 220px; }
 }
 /* Clamp long text for uniform card heights */
 .home-post-text {
