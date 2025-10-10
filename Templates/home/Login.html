@@ -13,7 +13,8 @@
                     <div class="wave"></div>
                     <div class="wave"></div>
                 </div>
-                <div class="auth-left-content">
+                <div class="auth-left-content text-center">
+                    <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Hotel Isla Encanto" class="login-logo mb-3">
                     <h2 class="brand-title">Isla Encanto</h2>
                     <p class="brand-sub">Tu escapada perfecta te espera. Descubre experiencias únicas y momentos inolvidables en el paraíso.</p>
                 </div>
@@ -98,7 +99,8 @@
         /* Slide-in animation (left panel) */
     animation: slideInLeft 1.6s cubic-bezier(.2,.8,.2,1) both;
     }
-    .auth-left-content{ position: relative; z-index: 5; }
+    .auth-left-content{ position: relative; z-index: 5; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; }
+    .login-logo{ width:80px; height:80px; border-radius:12px; object-fit:cover; box-shadow:0 6px 16px rgba(0,0,0,.18); background:#fff; padding:4px; }
     .waves-container{
         position:absolute; inset:0; overflow:hidden; z-index:1; pointer-events:none;
     }
@@ -115,8 +117,8 @@
         background: radial-gradient(circle at center, rgba(255,255,255,.18), transparent 60%);
         filter: blur(1px);
     }
-        .brand-title{ font-family:'Poppins', serif; font-weight:800; font-size:1.8rem; margin-bottom: 6px; }
-        .brand-sub{ opacity:.95; max-width: 420px; }
+    .brand-title{ font-family:'Playfair Display', serif; font-weight:800; font-size:1.9rem; margin-bottom: 6px; }
+    .brand-sub{ opacity:.95; max-width: 420px; margin-left:auto; margin-right:auto; font-family:'Playfair Display', serif; }
 
     .auth-right{ flex: 1 1 54%; background:#fff; padding: 32px 28px; 
     /* Slide-in animation (right panel) */
