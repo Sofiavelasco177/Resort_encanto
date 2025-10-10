@@ -1001,6 +1001,39 @@ body {
    HOME POSTS: HORIZONTAL CARDS (text left, image right)
    Keep consistent height and responsive behavior
    ======================= */
+.form-card{
+    background:#fff;
+    border-radius: 20px;
+    box-shadow: 0 18px 40px rgba(17,24,39,0.12);
+    border: 1px solid rgba(0,0,0,0.04);
+    overflow: hidden;
+}
+.form-card .form-header{
+    background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+    color:#fff;
+    padding: 18px 20px;
+}
+.form-card .form-header h3{ font-weight:800; margin:0; font-size: 1.5rem; }
+.form-card .form-header .sub{ opacity:.95; font-weight:500; margin-top: 4px; }
+.form-card .form-body{ padding: 22px 20px; }
+.upload-dropzone{
+    border: 2px dashed #d1d5db;
+    border-radius: 14px;
+    padding: 22px;
+    text-align: center;
+    background: #fafafa;
+    color:#6b7280;
+}
+.upload-dropzone:hover{ background:#f5f7ff; border-color:#c7d2fe; }
+.btn-cancel{
+    background:#eef2ff; color:#334155; border:1px solid #e5e7eb; font-weight:700;
+}
+.btn-cancel:hover{ background:#e0e7ff; }
+.btn-form-primary{
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color:#fff; font-weight:800; border:none; box-shadow: 0 10px 26px rgba(37,99,235,0.28);
+}
+.btn-form-primary:hover{ filter: brightness(1.05); box-shadow:0 12px 30px rgba(29,78,216,0.35); }
 .home-post-card {
     position: relative;
     border-radius: 20px;
