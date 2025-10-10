@@ -183,25 +183,25 @@ body {
 }
 .btn-login {
     margin-left: auto;
-    background: linear-gradient(135deg, #d4af37, #b8860b); /* dorado intenso */
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* azul */
     border-radius: 999px;
     padding: 8px 12px;
     color: #fff !important;
     font-size: 1rem;
     font-weight: 700;
     border: none;
-    box-shadow: 0 6px 16px rgba(180, 130, 20, 0.35);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
     transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 .btn-login:hover {
-    filter: brightness(1.05);
+    filter: brightness(1.06);
     transform: translateY(-1px);
-    box-shadow: 0 8px 22px rgba(180, 130, 20, 0.5);
+    box-shadow: 0 8px 22px rgba(29, 78, 216, 0.5);
 }
 
 /* Botón de cerrar sesión (alto contraste) */
 .btn-logout {
-    background: linear-gradient(135deg, #2563eb, #7c3aed); /* azul -> morado */
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* azul */
     color: #fff !important;
     border: none;
     border-radius: 999px;
@@ -216,7 +216,7 @@ body {
 .btn-logout:hover {
     filter: brightness(1.06);
     transform: translateY(-1px);
-    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.5);
+    box-shadow: 0 8px 22px rgba(29, 78, 216, 0.5);
 }
 
 /* =======================
@@ -364,14 +364,14 @@ body {
     transition: all 0.3s;
 }
 .form-control:focus {
-    border-color: #c6a76c;
-    box-shadow: 0 0 6px rgba(198,167,108,0.3);
+    border-color: #2563eb;
+    box-shadow: 0 0 6px rgba(37,99,235,0.3);
     background: #fff;
 }
 
 /* Botón principal */
 .btn-main {
-    background: #c6a76c;  /* dorado */
+    background: #2563eb;  /* azul */
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -382,7 +382,7 @@ body {
     transition: all 0.3s;
 }
 .btn-main:hover {
-    background: #b18f56;
+    background: #1d4ed8;
     transform: translateY(-2px);
 }
 
@@ -426,15 +426,15 @@ body {
 
 /* Botón CTA gradiente */
 .btn-cta-gradient{
-    background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: #fff;
     border: none;
     border-radius: 12px;
     padding: 10px 18px;
     font-weight: 700;
-    box-shadow: 0 10px 25px rgba(79,70,229,0.35);
+    box-shadow: 0 10px 25px rgba(59,130,246,0.35);
 }
-.btn-cta-gradient:hover{ filter: brightness(1.06); box-shadow: 0 12px 30px rgba(79,70,229,0.45); }
+.btn-cta-gradient:hover{ filter: brightness(1.06); box-shadow: 0 12px 30px rgba(29,78,216,0.45); }
 
 /* Tema oscuro para formularios */
 .form-dark-box{
@@ -458,7 +458,7 @@ body {
     border-color: #4f46e5;
     box-shadow: 0 0 0 .2rem rgba(79,70,229,0.25);
 }
-.form-dark .btn-primary{ background:#4f46e5; border-color:#4f46e5; }
+.form-dark .btn-primary{ background:#2563eb; border-color:#2563eb; }
 .form-dark .btn-secondary{ background:#334155; border-color:#334155; color:#e5e7eb; }
 
 /* Tema oscuro para formularios (coherente con tabla de inventarios) */
@@ -494,7 +494,7 @@ body {
 
 /* Botón link */
 .btn-link {
-    color: #c6a76c;
+    color: #2563eb;
     font-size: 0.95rem;
     background: none;
     border: none;
@@ -504,7 +504,7 @@ body {
     transition: color 0.2s;
 }
 .btn-link:hover {
-    color: #9a7b4f;
+    color: #1d4ed8;
     text-decoration: underline;
 }
 
@@ -970,20 +970,20 @@ body {
    RECOLOR .btn-warning TO BRAND GOLD (from provided image)
    ======================= */
 .btn-warning {
-    background-color: #c6a76c !important; /* dorado pedido */
-    border-color: #b89a57 !important;
+    background-color: #3b82f6 !important; /* azul principal */
+    border-color: #2563eb !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 10px rgba(198,167,108,0.12);
+    box-shadow: 0 4px 10px rgba(37,99,235,0.15);
 }
 .btn-warning:hover,
 .btn-warning:focus {
-    background-color: #b18f56 !important;
-    border-color: #a07b45 !important;
+    background-color: #2563eb !important;
+    border-color: #1d4ed8 !important;
     color: #ffffff !important;
 }
 .btn-warning:active {
-    background-color: #9f7b45 !important;
-    border-color: #8d6f3b !important;
+    background-color: #1d4ed8 !important;
+    border-color: #1e40af !important;
     transform: translateY(1px);
 }
 
@@ -1055,10 +1055,10 @@ body {
 }
 /* Set a consistent visual height on md+; let it flow on small */
 @media (min-width: 768px) {
-    .home-post-card .home-post-visual { min-height: 190px; }
+    .home-post-card .home-post-visual { min-height: 230px; }
 }
 @media (max-width: 767.98px) {
-    .home-post-card .home-post-visual { height: 220px; }
+    .home-post-card .home-post-visual { height: 260px; }
 }
 /* Clamp long text for uniform card heights */
 .home-post-text {
@@ -1176,6 +1176,40 @@ body {
 .inventory-page .star { font-size: 1.5rem; cursor: pointer; color: #ddd; transition: transform 0.15s, color 0.15s; }
 .inventory-page .star.active, .inventory-page .star:hover { color: #ffc107; transform: scale(1.05); }
 @media print { .no-print { display: none !important; } }
+
+/* Inventory form: lighter blue theme inside inventory page */
+.inventory-page .form-dark-box,
+.inventory-page .form-dark{
+    background: #eaf2ff !important; /* light blue */
+    color: #0f172a; /* dark text for readability */
+    border: 1px solid #c7d2fe;
+}
+.inventory-page .form-dark .form-label{ color:#1f2937; }
+.inventory-page .form-dark .text-muted{ color:#6b7280 !important; }
+.inventory-page .form-dark .form-control,
+.inventory-page .form-dark .form-select,
+.inventory-page .form-dark textarea{
+    background: #ffffff; /* light field */
+    color: #111827;
+    border: 1px solid #c7d2fe;
+}
+.inventory-page .form-dark .form-control::placeholder,
+.inventory-page .form-dark textarea::placeholder{ color:#9aa6c7; }
+.inventory-page .form-dark .form-control:focus,
+.inventory-page .form-dark .form-select:focus,
+.inventory-page .form-dark textarea:focus{
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37,99,235,0.18);
+    background: #f8fbff;
+}
+.inventory-page .form-dark .form-check-input{
+    background-color: #ffffff;
+    border-color: #c7d2fe;
+}
+.inventory-page .form-dark .form-check-input:checked{
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
 
 /* Admin Profile page */
 .profile-card, .settings-card { background: #ffffff; border-radius: 24px; box-shadow: 0 14px 40px rgba(0,0,0,0.08); }
