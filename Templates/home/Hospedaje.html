@@ -91,7 +91,11 @@
                             <h3>{{ h.nombre }}</h3>
                             <p>Cupo: {{ h.cupo_personas }}<br>Precio: ${{ '{:,.0f}'.format(h.precio) }} COP</p>
                             <div class="price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
+                            {% if session.get('user') %}
+                            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
+                            {% else %}
                             <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -115,7 +119,11 @@
               <span class="star" style="color: blue;">☆</span>
             </div>
             <button class="btn btn-link" onclick="toggleDescription('standard-room')">Leer más</button>
+            {% if session.get('user') %}
+            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
+            {% else %}
             <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            {% endif %}
             <div id="standard-room" class="room-description" style="display: none;">
                 
                 <h4>Comodidades En La Habitación</h4>
@@ -150,7 +158,11 @@
               <span class="star" style="color: blue;">★</span>
             </div>
             <button class="btn btn-link" onclick="toggleDescription('premium-room')">Leer más</button>
+            {% if session.get('user') %}
+            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
+            {% else %}
             <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            {% endif %}
             <div id="premium-room" class="room-description" style="display: none;">
                 
                 <h4>Comodidades En La Habitación</h4>
@@ -184,7 +196,11 @@
               <span class="star" style="color: blue;">☆</span>
             </div>
             <button class="btn btn-link" onclick="toggleDescription('family-suite')">Leer más</button>
+            {% if session.get('user') %}
+            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
+            {% else %}
             <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            {% endif %}
             <div id="family-suite" class="room-description" style="display: none;">
                 <h4>Comodidades En La Habitación</h4>
                 <ul>
@@ -214,7 +230,11 @@
               <span class="star" style="color: blue;">★</span>
             </div>
             <button class="btn btn-link" onclick="toggleDescription('deluxe-suite')">Leer más</button>
+            {% if session.get('user') %}
+            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
+            {% else %}
             <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            {% endif %}
             <div id="deluxe-suite" class="room-description" style="display: none;">
                 <h4>Comodidades En La Habitación</h4>
                 <ul>
@@ -244,7 +264,11 @@
               <span class="star" style="color: blue;">★</span>
             </div>
             <button class="btn btn-link" onclick="toggleDescription('villa')">Leer más</button>
+            {% if session.get('user') %}
+            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
+            {% else %}
             <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
+            {% endif %}
             <div id="villa" class="room-description" style="display: none;">
                 <h4>Comodidades En La Habitación</h4>
                 <ul>
@@ -266,8 +290,8 @@
       <h5 class="modal-title mb-3">⚠️ Atención</h5>
       <p>Debes registrarte o iniciar sesión para continuar con la reserva.</p>
       <div class="d-flex justify-content-center mt-3">
-        <button class="btn btn-secondary me-2" data-bs-dismiss="modal">Cerrar</button>
-        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">Ir a Login</button>
+    <button class="btn btn-secondary me-2" data-bs-dismiss="modal">Cerrar</button>
+    <button class="btn btn-primary" onclick="window.location.href='{{ url_for('registro.login', next=url_for('hospedaje_usuario.hospedaje_usuario')) }}'">Ir a Login</button>
       </div>
     </div>
   </div>

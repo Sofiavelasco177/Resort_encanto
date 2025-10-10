@@ -8,35 +8,38 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/google-login')
 def google_login():
+    # Propagar `next` para volver post-login
+    next_param = request.args.get('next')
     oauth = current_app.config.get('OAUTH')
     if oauth is None:
         # Modo desarrollo (fake login si está activado)
         if current_app.config.get('ENABLE_DEV_GOOGLE'):
-            return redirect(url_for('auth.google_dev_login'))
+            return redirect(url_for('auth.google_dev_login', next=next_param))
         flash('Google OAuth no está configurado.')
-        return redirect(url_for('registro.login'))
+        return redirect(url_for('registro.login', next=next_param))
 
     try:
         # Respetar esquema preferido (https en prod) si está configurado
         scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
-        redirect_uri = url_for('auth.google_authorize', _external=True, _scheme=scheme)
+        redirect_uri = url_for('auth.google_authorize', _external=True, _scheme=scheme, next=next_param)
         current_app.logger.info(f"Iniciando login con Google. redirect_uri={redirect_uri}")
         return oauth.google.authorize_redirect(redirect_uri)
     except Exception as e:
         current_app.logger.exception(f'Error en Google login: {e}')
         # Si falla, usar modo desarrollo
         if current_app.config.get('ENABLE_DEV_GOOGLE'):
-            return redirect(url_for('auth.google_dev_login'))
+            return redirect(url_for('auth.google_dev_login', next=next_param))
         flash('Error al iniciar sesión con Google. Intenta con usuario y contraseña.')
-        return redirect(url_for('registro.login'))
+        return redirect(url_for('registro.login', next=next_param))
 
 
 @auth_bp.route('/google_authorize')
 def google_authorize():
+    next_param = request.args.get('next')
     oauth = current_app.config.get('OAUTH')
     if oauth is None:
         flash('Google OAuth no está configurado.')
-        return redirect(url_for('registro.login'))
+        return redirect(url_for('registro.login', next=next_param))
 
     # Obtener token y datos del usuario desde Google
     try:
@@ -47,9 +50,9 @@ def google_authorize():
     except Exception as e:
         current_app.logger.exception(f'Error al autorizar con Google: {e}')
         if current_app.config.get('ENABLE_DEV_GOOGLE'):
-            return redirect(url_for('auth.google_dev_login'))
+            return redirect(url_for('auth.google_dev_login', next=next_param))
         flash('No se pudo completar el inicio de sesión con Google.')
-        return redirect(url_for('registro.login'))
+        return redirect(url_for('registro.login', next=next_param))
 
     # Buscar usuario en BD por correo
     usuario = Usuario.query.filter_by(correo=user_info['email']).first()
@@ -76,6 +79,15 @@ def google_authorize():
 
     flash(f'¡Bienvenido, {usuario.usuario}!', 'success')
 
+    # Redirigir a next si está presente y es seguro
+    try:
+        from urllib.parse import urlparse
+        if next_param:
+            u = urlparse(next_param)
+            if (not u.netloc) and (u.path.startswith('/')):
+                return redirect(next_param)
+    except Exception:
+        pass
     if session['user']['rol'] == 'admin':
         return redirect(url_for('main.home_admin'))
     return redirect(url_for('main.home_usuario'))
@@ -83,10 +95,11 @@ def google_authorize():
 
 @auth_bp.route('/google_dev_login')
 def google_dev_login():
+    next_param = request.args.get('next')
     """Simulación de login Google para desarrollo"""
     if not current_app.config.get('ENABLE_DEV_GOOGLE'):
         flash('Modo dev Google deshabilitado')
-        return redirect(url_for('registro.login'))
+        return redirect(url_for('registro.login', next=next_param))
 
     user_info = {
         'email': 'dev.user@example.com',
@@ -114,6 +127,14 @@ def google_dev_login():
     }
 
     flash('Inicio de sesión simulado en modo desarrollo', 'info')
+    if next_param:
+        try:
+            from urllib.parse import urlparse
+            u = urlparse(next_param)
+            if (not u.netloc) and (u.path.startswith('/')):
+                return redirect(next_param)
+        except Exception:
+            pass
     return redirect(url_for('main.home_usuario'))
 
 @auth_bp.route('/logout')
