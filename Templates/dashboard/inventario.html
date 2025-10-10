@@ -3,14 +3,13 @@
 {% block content %}
 <div class="inventory-page">
 	<div class="container my-4">
-		<div class="inv-header p-4 text-center">
-			<h1 class="mb-1">Inventario de Habitación</h1>
-			<p class="mb-0"> control de inventario hotelero</p>
-		</div>
-        <div class="inv-accent my-3"></div>
-
-	<div class="content-card p-4 mt-3 form-dark-box form-dark" id="inventoryCapture">
-					<form id="inventoryForm" method="POST" action="{{ url_for('admin.inventario_save') }}" class="form-dark">
+		<div class="form-card" id="inventoryCapture">
+			<div class="form-header">
+				<h3>🧾 Inventario de Habitación</h3>
+				<div class="sub">Control de inventario hotelero</div>
+			</div>
+			<div class="form-body">
+				<form id="inventoryForm" method="POST" action="{{ url_for('admin.inventario_save') }}">
 						<input type="hidden" name="habitacion_id" value="{{ (record.habitacion_id if record else (habitacion.id if habitacion else '')) }}" />
 						<input type="hidden" name="rec_id" value="{{ record.id if record else '' }}" />
 				<div class="info-section">
@@ -220,12 +219,12 @@
 						<input class="form-control" type="date" name="supervisor_date" value="{{ record.supervisor_date if record else '' }}" />
 					</div>
 				</div>
+				<div class="d-flex justify-content-center gap-3 mt-4 no-print flex-wrap">
+					<button type="button" class="btn btn-cancel btn-lg px-4" id="btn-reset"><i class="bi bi-arrow-repeat me-1"></i> Limpiar</button>
+					<button type="submit" class="btn btn-form-primary btn-lg px-4"><i class="bi bi-save me-1"></i> Guardar en BD</button>
+				</div>
 			</form>
-		</div>
-
-			<div class="d-flex justify-content-center gap-3 mt-4 no-print flex-wrap">
-				<button type="button" class="btn btn-secondary btn-lg px-4" id="btn-reset"><i class="bi bi-arrow-repeat me-1"></i> Limpiar</button>
-				<button type="submit" class="btn btn-primary btn-lg px-4" form="inventoryForm"><i class="bi bi-save me-1"></i> Guardar en BD</button>
+			</div>
 		</div>
 	</div>
 </div>
