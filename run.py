@@ -146,6 +146,16 @@ def media_utilities():
             if not image_path:
                 return placeholder
             s = str(image_path).strip()
+            def _add_ver(u, path=None):
+                if version is not None:
+                    return f"{u}?v={version}"
+                try:
+                    if path and _os.path.isfile(path):
+                        ts = int(_os.path.getmtime(path))
+                        return f"{u}?v={ts}"
+                except Exception:
+                    pass
+                return u
             if s.startswith('http://') or s.startswith('https://'):
                 return s
             # uploads/<file>
@@ -154,35 +164,33 @@ def media_utilities():
                 inst = _os.path.join(base, 'instance', 'uploads', rel)
                 if _os.path.isfile(inst):
                     u = url_for('media_file', filename=rel)
-                    if version is not None:
-                        u += f'?v={version}'
-                    return u
+                    return _add_ver(u, inst)
                 # ¿sigue en static por volumen legacy?
                 legacy = _os.path.join(app.static_folder, 'img', 'uploads', rel)
                 if _os.path.isfile(legacy):
-                    return url_for('static', filename=f'img/uploads/{rel}')
+                    return _add_ver(url_for('static', filename=f'img/uploads/{rel}'), legacy)
                 return placeholder
             # img/uploads/<file>
             if s.startswith('img/uploads/'):
                 rel = s.split('img/uploads/', 1)[1]
                 legacy = _os.path.join(app.static_folder, 'img', 'uploads', rel)
                 if _os.path.isfile(legacy):
-                    return url_for('static', filename=f'img/uploads/{rel}')
+                    return _add_ver(url_for('static', filename=f'img/uploads/{rel}'), legacy)
                 inst = _os.path.join(base, 'instance', 'uploads', rel)
                 if _os.path.isfile(inst):
-                    return url_for('media_file', filename=rel)
+                    return _add_ver(url_for('media_file', filename=rel), inst)
                 return placeholder
             # static/<...>
             if s.startswith('static/'):
                 rel = s[7:]
                 cand = _os.path.join(app.static_folder, rel)
                 if _os.path.isfile(cand):
-                    return url_for('static', filename=rel)
+                    return _add_ver(url_for('static', filename=rel), cand)
                 return placeholder
             # tratar como ruta relativa bajo static/
             cand = _os.path.join(app.static_folder, s)
             if _os.path.isfile(cand):
-                return url_for('static', filename=s)
+                return _add_ver(url_for('static', filename=s), cand)
             return placeholder
         except Exception:
             try:
