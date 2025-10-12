@@ -97,8 +97,8 @@ def home_admin():
 
 @main_bp.route('/hospedaje_admin')
 def hospedaje_admin():
-    habitaciones = nuevaHabitacion.query.order_by(nuevaHabitacion.plan.asc(), nuevaHabitacion.numero.asc()).all()
-    return render_template('dashboard/hospedaje_admin.html', habitaciones=habitaciones)
+    # Redirigir a la ruta del blueprint de administrador
+    return redirect(url_for('admin.hospedaje_index'))
 
 @main_bp.route('/restaurante_admin')
 def restaurante_admin():

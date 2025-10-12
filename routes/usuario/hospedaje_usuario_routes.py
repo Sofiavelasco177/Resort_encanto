@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from models.baseDatos import db, nuevaHabitacion, Huesped, Reserva
 from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
 
 hospedaje_usuario_bp = Blueprint('hospedaje_usuario', __name__)
 
@@ -45,17 +46,35 @@ def reservar_habitacion(habitacion_id):
             flash('La habitación no está disponible para las fechas seleccionadas. Por favor elige otras fechas.', 'warning')
             return redirect(url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=habitacion.id))
 
-        # Guardar huésped en BD (ya validamos disponibilidad)
-        huesped = Huesped(
-            nombre=request.form['nombre'],
-            tipoDocumento=request.form['tipoDocumento'],
-            numeroDocumento=request.form['numeroDocumento'],
-            telefono=request.form.get('telefono'),
-            correo=request.form.get('correo'),
-            procedencia=request.form.get('procedencia'),
-            nuevaHabitacion_id=habitacion.id  # Usa la FK correcta
-        )
-        db.session.add(huesped)
+        # Validar número de documento (columna es Integer actualmente)
+        ndoc_raw = (request.form.get('numeroDocumento') or '').strip()
+        try:
+            ndoc = int(ndoc_raw)
+        except Exception:
+            flash('El número de documento debe ser numérico.', 'danger')
+            return redirect(url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=habitacion.id))
+
+        # Guardar o reutilizar huésped en BD (evitar error de UNIQUE)
+        huesped = Huesped.query.filter_by(numeroDocumento=ndoc).first()
+        if huesped:
+            # Actualizar datos básicos para mantenerlos al día
+            huesped.nombre = request.form.get('nombre') or huesped.nombre
+            huesped.tipoDocumento = request.form.get('tipoDocumento') or huesped.tipoDocumento
+            huesped.telefono = request.form.get('telefono') or huesped.telefono
+            huesped.correo = request.form.get('correo') or huesped.correo
+            huesped.procedencia = request.form.get('procedencia') or huesped.procedencia
+            huesped.nuevaHabitacion_id = habitacion.id
+        else:
+            huesped = Huesped(
+                nombre=request.form['nombre'],
+                tipoDocumento=request.form['tipoDocumento'],
+                numeroDocumento=ndoc,
+                telefono=request.form.get('telefono'),
+                correo=request.form.get('correo'),
+                procedencia=request.form.get('procedencia'),
+                nuevaHabitacion_id=habitacion.id  # Usa la FK correcta
+            )
+            db.session.add(huesped)
 
         noches = max(1, (check_out - check_in).days)
         total = float(habitacion.precio or 0) * noches
@@ -69,7 +88,19 @@ def reservar_habitacion(habitacion_id):
             total=total
         )
         db.session.add(reserva)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            # Mensaje genérico; en logs quedará el detalle
+            flash('No se pudo crear la reserva. Verifica tus datos e inténtalo de nuevo.', 'danger')
+            # Registrar error para diagnóstico
+            try:
+                from flask import current_app
+                current_app.logger.exception('Error guardando reserva/huésped: %s', e)
+            except Exception:
+                pass
+            return redirect(url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=habitacion.id))
 
         # Redirigir a checkout (Wompi)
         return redirect(url_for('pagos_usuario.checkout_reserva', reserva_id=reserva.id))

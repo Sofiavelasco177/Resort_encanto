@@ -198,6 +198,31 @@
                 try {
                     const el = document.getElementById('room3d-config');
                     if (el) conf = JSON.parse(el.textContent);
+                    // Mapear caracteristicas si vienen en JSON
+                    if (conf && conf.caracteristicas && typeof conf.caracteristicas === 'object'){
+                        const car = conf.caracteristicas;
+                        if (car.beds != null) conf.beds = parseInt(car.beds) || conf.beds;
+                        if (car.camas != null) conf.beds = parseInt(car.camas) || conf.beds;
+                        const bsz = (car.bedSize || car.cama_tam || car.cama_tipo || '').toString().toLowerCase();
+                        if (bsz.includes('king')) conf.bedSize = 'king';
+                        else if (bsz.includes('queen')) conf.bedSize = 'queen';
+                        else if (bsz) conf.bedSize = 'double';
+                        if (car.hasDesk != null) conf.hasDesk = !!car.hasDesk;
+                        if (car.escritorio != null) conf.hasDesk = !!car.escritorio;
+                        if (car.hasWardrobe != null) conf.hasWardrobe = !!car.hasWardrobe;
+                        if (car.guardarropa != null) conf.hasWardrobe = !!car.guardarropa;
+                        if (car.hasCurtains != null) conf.hasCurtains = !!car.hasCurtains;
+                        if (car.cortinas != null) conf.hasCurtains = !!car.cortinas;
+                        if (car.hasAC != null) conf.hasAC = !!car.hasAC;
+                        if (car.aire != null) conf.hasAC = !!car.aire;
+                        if (car.hasCeilingLights != null) conf.hasCeilingLights = !!car.hasCeilingLights;
+                        if (car.luces_techo != null) conf.hasCeilingLights = !!car.luces_techo;
+                        if (car.dims && typeof car.dims === 'object'){
+                            conf.dims.w = car.dims.w || conf.dims.w;
+                            conf.dims.d = car.dims.d || conf.dims.d;
+                            conf.dims.h = car.dims.h || conf.dims.h;
+                        }
+                    }
                 } catch(e) {}
 
         function init() {
