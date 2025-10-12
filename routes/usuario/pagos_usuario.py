@@ -5,11 +5,20 @@ import requests
 import hmac
 import hashlib
 
+try:
+    import mercadopago  # Mercado Pago SDK (opcional)
+except Exception:
+    mercadopago = None
+
 pagos_usuario_bp = Blueprint('pagos_usuario', __name__)
 
 
 def _current_user_id():
     return session.get('user', {}).get('id')
+
+
+def _payment_provider() -> str:
+    return (os.getenv('PAYMENT_PROVIDER', 'WOMPI') or 'WOMPI').strip().upper()
 
 
 @pagos_usuario_bp.route('/pago/checkout/<int:reserva_id>')
@@ -21,15 +30,64 @@ def checkout_reserva(reserva_id):
         flash('No autorizado para pagar esta reserva', 'danger')
         return redirect(url_for('registro.login'))
 
-    public_key = os.getenv('WOMPI_PUBLIC_KEY', 'pub_test_ATgfa6zjR4rV4i2O1RrE8Gxx')  # Placeholder test key
-    # Usar esquema preferido si está configurado (https en prod detrás de proxy)
-    scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
-    redirect_url = url_for('pagos_usuario.wompi_retorno', _external=True, _scheme=scheme)
-
-    # Wompi usa montos en centavos
-    amount_in_cents = int((reserva.total or 0) * 100)
+    # Decidir proveedor
+    provider = _payment_provider()
     reference = f"RES-{reserva.id}"
     habitacion = nuevaHabitacion.query.get(reserva.habitacion_id)
+
+    if provider == 'MP':
+        # Mercado Pago Checkout Pro (redirect a init_point)
+        if mercadopago is None:
+            flash('Mercado Pago no está instalado en el servidor. Contacta al administrador.', 'danger')
+            return redirect(url_for('perfil_usuario.perfil'))
+        access_token = os.getenv('MP_ACCESS_TOKEN')
+        if not access_token:
+            flash('Falta configurar MP_ACCESS_TOKEN para Mercado Pago.', 'danger')
+            return redirect(url_for('perfil_usuario.perfil'))
+        sdk = mercadopago.SDK(access_token)
+        scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
+        success_url = url_for('pagos_usuario.mp_retorno', _external=True, _scheme=scheme, status='success', ref=reference)
+        failure_url = url_for('pagos_usuario.mp_retorno', _external=True, _scheme=scheme, status='failure', ref=reference)
+        pending_url = url_for('pagos_usuario.mp_retorno', _external=True, _scheme=scheme, status='pending', ref=reference)
+        notif_url = url_for('pagos_usuario.mp_webhook', _external=True, _scheme=scheme)
+
+        item_title = f"Habitación {habitacion.nombre if habitacion else reserva.habitacion_id} ({reference})"
+        preference_data = {
+            "items": [
+                {
+                    "title": item_title,
+                    "quantity": 1,
+                    "currency_id": "COP",
+                    "unit_price": float(reserva.total or 0)
+                }
+            ],
+            "external_reference": reference,
+            "back_urls": {
+                "success": success_url,
+                "failure": failure_url,
+                "pending": pending_url
+            },
+            "auto_return": "approved",
+            "notification_url": notif_url
+        }
+        try:
+            pref_resp = sdk.preference().create(preference_data)
+            init = pref_resp.get('response', {}).get('init_point') or pref_resp.get('response', {}).get('sandbox_init_point')
+            if not init:
+                current_app.logger.warning('No se obtuvo init_point de Mercado Pago: %s', pref_resp)
+                flash('No se pudo iniciar el pago con Mercado Pago.', 'danger')
+                return redirect(url_for('perfil_usuario.perfil'))
+            return redirect(init)
+        except Exception as e:
+            current_app.logger.exception('Error creando preferencia de Mercado Pago: %s', e)
+            flash('Error iniciando pago con Mercado Pago.', 'danger')
+            return redirect(url_for('perfil_usuario.perfil'))
+
+    # WOMPI (por defecto)
+    public_key = os.getenv('WOMPI_PUBLIC_KEY', 'pub_test_ATgfa6zjR4rV4i2O1RrE8Gxx')  # Placeholder test key
+    scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
+    redirect_url = url_for('pagos_usuario.wompi_retorno', _external=True, _scheme=scheme)
+    amount_in_cents = int((reserva.total or 0) * 100)
 
     return render_template(
         'usuario/checkout_wompi.html',
@@ -99,6 +157,102 @@ def wompi_retorno():
         flash('Pago en proceso. Te informaremos cuando sea confirmado.', 'info')
 
     return redirect(url_for('perfil_usuario.perfil'))
+
+
+# ---------------- MERCADO PAGO ---------------- #
+
+@pagos_usuario_bp.route('/pago/mp/retorno')
+def mp_retorno():
+    ref = request.args.get('ref') or ''
+    status = (request.args.get('status') or '').lower()
+    if not ref.startswith('RES-'):
+        flash('Referencia inválida', 'danger')
+        return redirect(url_for('main.home_usuario'))
+    try:
+        rid = int(ref.split('-')[1])
+    except Exception:
+        flash('Referencia inválida', 'danger')
+        return redirect(url_for('main.home_usuario'))
+
+    reserva = Reserva.query.get(rid)
+    if not reserva:
+        flash('Reserva no encontrada', 'danger')
+        return redirect(url_for('main.home_usuario'))
+
+    # Mapear estados
+    if status == 'success':
+        mp_status = 'APPROVED'
+    elif status == 'failure':
+        mp_status = 'REJECTED'
+    else:
+        mp_status = 'PENDING'
+
+    _apply_status_to_reserva(reserva, mp_status)
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    if mp_status == 'APPROVED':
+        flash('Pago aprobado (Mercado Pago).', 'success')
+    elif mp_status == 'REJECTED':
+        flash('El pago fue rechazado (Mercado Pago).', 'danger')
+    else:
+        flash('Pago en proceso (Mercado Pago).', 'info')
+    return redirect(url_for('perfil_usuario.perfil'))
+
+
+@pagos_usuario_bp.route('/pago/mp/webhook', methods=['POST'])
+def mp_webhook():
+    # Nota: Validaciones de firma pueden añadirse (x-signature). Aquí priorizamos flujo básico.
+    payload = request.get_json(silent=True) or {}
+    topic = (payload.get('type') or payload.get('topic') or '').lower()
+    data = payload.get('data') or {}
+    payment_id = data.get('id') or data.get('payment_id')
+
+    status = None
+    ref = None
+    if mercadopago and payment_id:
+        try:
+            access_token = os.getenv('MP_ACCESS_TOKEN')
+            sdk = mercadopago.SDK(access_token)
+            p = sdk.payment().get(payment_id)
+            pr = p.get('response', {})
+            status = (pr.get('status') or '').upper()
+            ref = pr.get('external_reference') or ''
+        except Exception as e:
+            current_app.logger.exception('Error consultando pago MP: %s', e)
+
+    if not ref or not ref.startswith('RES-'):
+        return jsonify({'ok': True})
+
+    try:
+        rid = int(ref.split('-')[1])
+    except Exception:
+        return jsonify({'ok': True})
+
+    reserva = Reserva.query.get(rid)
+    if not reserva:
+        return jsonify({'ok': True})
+
+    # Convertir estados de MP a internos
+    map_status = {
+        'APPROVED': 'APPROVED',
+        'REJECTED': 'REJECTED',
+        'PENDING': 'PENDING',
+        'IN_PROCESS': 'PENDING',
+        'IN_MEDIATION': 'PENDING'
+    }
+    st = map_status.get(status or 'PENDING', 'PENDING')
+    _apply_status_to_reserva(reserva, st)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.exception('Error guardando estado reserva MP: %s', e)
+        return jsonify({'ok': False}), 500
+
+    return jsonify({'ok': True})
 
 
 @pagos_usuario_bp.route('/pago/wompi/webhook', methods=['POST'])
