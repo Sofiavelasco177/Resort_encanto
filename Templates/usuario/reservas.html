@@ -128,16 +128,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 {# Configuración 3D por habitación inyectada desde el servidor #}
 {% set _name = (habitacion.nombre or '').lower() %}
+{% set _plan = (habitacion.plan or '').lower() %}
 {% set _suite = 'suite' in _name %}
-{% set _deluxe = 'deluxe' in _name or 'premium' in _name %}
+{% set _deluxe = 'deluxe' in _name or 'premium' in _name or _plan=='oro' %}
 {% set _cap = habitacion.cupo_personas or 1 %}
-{% set _beds = 2 if _cap >= 3 else 1 %}
-{% set _bedsize = 'king' if _suite else ('queen' if _deluxe or _cap >= 3 else 'double') %}
-{% set _hasDesk = True if _suite or _deluxe else False %}
+{% set _beds = 2 if _cap >= 3 or _plan=='oro' else 1 %}
+{% set _bedsize = 'king' if (_suite or _plan=='oro') else ('queen' if _deluxe or _cap >= 3 else 'double') %}
+{% set _hasDesk = True if (_suite or _deluxe or _plan in ['oro','plata']) else False %}
 {% set _hasWardrobe = True %}
 {% set _hasCurtains = True %}
-{% set _hasAC = True if _suite or _deluxe else False %}
+{% set _hasAC = True if (_suite or _deluxe or _plan in ['oro','plata']) else False %}
 {% set _hasCeilingLights = True %}
+{% set _dims = {'w': 12, 'd': 12, 'h': 7} if _plan=='oro' else ({'w': 11, 'd': 11, 'h': 6.5} if _plan=='plata' else {'w': 10, 'd': 10, 'h': 6}) %}
+{# Intentar parsear caracteristicas si vienen como JSON para ajustar #}
+{% set _car_json = None %}
+{% if habitacion.caracteristicas and habitacion.caracteristicas.strip().startswith('{') %}
+    {% set _car_json = habitacion.caracteristicas %}
+{% endif %}
 <script id="room3d-config" type="application/json">
 {
     "beds": {{ _beds }},
@@ -148,7 +155,9 @@
     "hasAC": {{ 'true' if _hasAC else 'false' }},
     "hasCeilingLights": {{ 'true' if _hasCeilingLights else 'false' }},
     "palette": "{{ 'warm' if _suite or _deluxe else 'neutral' }}",
-    "dims": {"w": 10, "d": 10, "h": 6}
+    "dims": {"w": {{ _dims.w }}, "d": {{ _dims.d }}, "h": {{ _dims.h }}},
+    "plan": "{{ habitacion.plan or '' }}"{% if _car_json %},
+    "caracteristicas": {{ _car_json|safe }}{% endif %}
 }
 </script>
 <script>
@@ -185,7 +194,7 @@
 
         let scene, camera, renderer;
         let targetRotationY = 0, targetRotationX = 0; let isDragging=false, mouseX=0, mouseY=0;
-                let conf = { beds:1, bedSize:'double', hasDesk:false, hasWardrobe:true, hasCurtains:true, hasAC:false, hasCeilingLights:true, palette:'neutral', dims:{w:10,d:10,h:6} };
+                let conf = { beds:1, bedSize:'double', hasDesk:false, hasWardrobe:true, hasCurtains:true, hasAC:false, hasCeilingLights:true, palette:'neutral', dims:{w:10,d:10,h:6}, plan:'' };
                 try {
                     const el = document.getElementById('room3d-config');
                     if (el) conf = JSON.parse(el.textContent);
@@ -251,7 +260,7 @@
                         const roof = new THREE.Mesh(new THREE.PlaneGeometry(conf.dims.w,conf.dims.d), new THREE.MeshStandardMaterial({color:0xffffff})); roof.rotation.x=Math.PI/2; roof.position.y=conf.dims.h; scene.add(roof);
         }
                 function createBeds(count, size){
-                        const spacing = 4.5;
+                        const spacing = (conf.plan && conf.plan.toLowerCase()==='oro') ? 5.2 : ((conf.plan && conf.plan.toLowerCase()==='plata') ? 4.8 : 4.5);
                         for(let b=0;b<count;b++){
                             const g=new THREE.Group();
                             const dims = size==='king'?{w:4.2,l:3.2}:{w:(size==='queen'?3.8:3.2), l:(size==='queen'?2.9:2.6)};
@@ -275,7 +284,7 @@
                 function createCurtains(){ const g=new THREE.Group(); const cloth=new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.9,20,2), new THREE.MeshStandardMaterial({color:0x444444, side:THREE.DoubleSide})); cloth.position.set(3.2,2.4,-(conf.dims.d/2-0.02)); cloth.castShadow=true; g.add(cloth); const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,3,8), new THREE.MeshStandardMaterial({color:0x222})); rod.rotation.z=Math.PI/2; rod.position.set(3.2,3.0,-(conf.dims.d/2-0.0)); g.add(rod); scene.add(g); }
                 function createWardrobeWall(){ const g=new THREE.Group(); const totalW=conf.dims.w-1.2; const startX=-totalW/2; for(let i=0;i<5;i++){ const panel=new THREE.Mesh(new THREE.BoxGeometry(totalW/5 - .05,2.3,.1), new THREE.MeshStandardMaterial({color:0xf5f1e8})); panel.position.set(startX + (i+0.5)* (totalW/5), 2.0, -(conf.dims.d/2-0.05)); g.add(panel);} const shelf=new THREE.Mesh(new THREE.BoxGeometry(totalW, .1, .2), new THREE.MeshStandardMaterial({color:0x6b4f3a})); shelf.position.set(0,1.4,-(conf.dims.d/2-0.06)); g.add(shelf); scene.add(g); }
                 function createDeskArea(){ const g=new THREE.Group(); const top=new THREE.Mesh(new THREE.BoxGeometry(3.5,.1,.6), new THREE.MeshStandardMaterial({color:0x3b3b3b})); top.position.set(-(conf.dims.w/2)+2.2,1.0,-1.5); g.add(top); const leg=new THREE.Mesh(new THREE.BoxGeometry(.1,0.9,.6), new THREE.MeshStandardMaterial({color:0x3b3b3b})); leg.position.set(-(conf.dims.w/2)+0.5,0.55,-1.5); g.add(leg); const mon=new THREE.Mesh(new THREE.BoxGeometry(.9,.55,.05), new THREE.MeshStandardMaterial({color:0x222})); mon.position.set(-(conf.dims.w/2)+1.2,1.5,-1.5); g.add(mon); scene.add(g); }
-                function createCeilingLights(){ for(let i=0;i<3;i++){ const lamp=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.25,12), new THREE.MeshStandardMaterial({color:0xdddddd})); lamp.position.set(-2+i*2.2, conf.dims.h-0.2, -1.0); scene.add(lamp);} }
+                function createCeilingLights(){ const n = (conf.plan && conf.plan.toLowerCase()==='oro') ? 4 : 3; for(let i=0;i<n;i++){ const lamp=new THREE.Mesh(new THREE.ConeGeometry(0.12,0.25,12), new THREE.MeshStandardMaterial({color:0xdddddd})); lamp.position.set(-2+i*2.2, conf.dims.h-0.2, -1.0); scene.add(lamp);} }
                 function createACUnit(){ const ac=new THREE.Mesh(new THREE.BoxGeometry(1.2,.4,.4), new THREE.MeshStandardMaterial({color:0xeeeeee})); ac.position.set(conf.dims.w/2 - 0.6, conf.dims.h-0.7, 2.8); scene.add(ac); }
         function createDoor(){ const g=new THREE.Group(); const frame=new THREE.Mesh(new THREE.BoxGeometry(1.2,2.5,.1), new THREE.MeshStandardMaterial({color:0x654321})); g.add(frame); const handle=new THREE.Mesh(new THREE.SphereGeometry(.05,16,16), new THREE.MeshStandardMaterial({color:0xffd700})); handle.position.set(.4,0,.1); g.add(handle); g.position.set(-3.5,1.25,4.95); g.rotation.y=Math.PI; scene.add(g); }
                 function createRug(){ const rug=new THREE.Mesh(new THREE.PlaneGeometry(3.4,2.2), new THREE.MeshStandardMaterial({color:0xb89b88, roughness:1})); rug.rotation.x=-Math.PI/2; rug.position.set(0,.01,1); scene.add(rug); }

@@ -76,91 +76,71 @@
 	</div>
 
 	<!-- Listado de habitaciones por plan (debajo del formulario) -->
-	<div class="row" id="habitaciones-admin">
+	<div id="habitaciones-admin">
 		{% for plan, group in habitaciones|groupby('plan') %}
-		<div class="col-12">
-			<h4 class="mb-3">Plan {{ plan or 'Sin plan' }}</h4>
-		</div>
-		{% for h in group %}
-		<div class="col-md-4 mb-4">
-			<div class="card habitacion-card estado-{{ h.estado|lower }}" style="min-height: 420px; max-height: 420px; display: flex; flex-direction: column; justify-content: space-between;">
-				{% set imgpath = h.imagen if h.imagen else 'img/default.jpg' %}
-				<img src="{{ url_for('static', filename=imgpath) }}" class="card-img-top" alt="{{ h.nombre }}" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
-				<div class="card-body" style="flex: 1 1 auto;">
-					<h5 class="card-title">{{ h.nombre }} {% if h.numero %}<span class="text-muted">#{{ '%02d'|format(h.numero) }}</span>{% endif %}</h5>
- 					<p class="card-text">Plan: {{ h.plan or '—' }}<br>Cupo: {{ h.cupo_personas }}<br>Precio: ${{ '{:,.0f}'.format(h.precio) }} COP</p>
- 					<!-- Descripción oculta y botón Leer más -->
- 					<div class="card-text" style="max-height: 0; overflow: hidden;">
- 						{{ h.descripcion }}
- 					</div>
- 					<button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}">Leer más</button>
-					<span class="badge estado-label {{ h.estado|lower }}">{{ h.estado }}</span>
-					<div class="d-flex justify-content-end align-items-end mt-3" style="position: absolute; bottom: 10px; right: 10px; gap: 8px;">
-						<a href="{{ url_for('admin.inventario_view') }}?room_id={{ h.id }}" class="btn btn-light btn-sm" title="Inventario">
-							<i class="bi bi-clipboard-check"></i>
-						</a>
-						<a href="{{ url_for('admin.hospedaje_editar', habitacion_id=h.id) }}" class="btn btn-light btn-sm me-2" title="Editar">
-							<i class="bi bi-pencil-square"></i>
-						</a>
-						<form action="{{ url_for('admin.hospedaje_eliminar', habitacion_id=h.id) }}" method="POST" style="display:inline;">
-							<button type="submit" class="btn btn-light btn-sm" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta habitación?')">
-								<i class="bi bi-trash"></i>
-							</button>
-						</form>
-		 			</div>
-		 		</div>
-		 		<!-- Modal para mostrar toda la info de la habitación -->
-		 		<div class="modal fade" id="modalHabitacion{{ h.id }}" tabindex="-1" aria-labelledby="modalHabitacionLabel{{ h.id }}" aria-hidden="true">
-		 			<div class="modal-dialog modal-lg">
-		 				<div class="modal-content">
-		 					<div class="modal-header">
-		 						<h5 class="modal-title" id="modalHabitacionLabel{{ h.id }}">{{ h.nombre }}</h5>
-		 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-		 					</div>
-		 					<div class="modal-body">
-								{% set imgpath2 = h.imagen if h.imagen else 'img/default.jpg' %}
-								<img src="{{ url_for('static', filename=imgpath2) }}" class="img-fluid mb-3" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
-								<p><strong>Plan:</strong> {{ h.plan or '—' }}</p>
-								<p><strong>Número:</strong> {{ h.numero or '—' }}</p>
-								<p><strong>Cupo:</strong> {{ h.cupo_personas }}</p>
-		 						<p><strong>Precio:</strong> ${{ '{:,.0f}'.format(h.precio) }} COP</p>
-		 						<p><strong>Estado:</strong> {{ h.estado }}</p>
-		 						{% if h.descripcion %}
-		 							<p><strong>Descripción:</strong> {{ h.descripcion }}</p>
-		 						{% else %}
-		 							<p><strong>Descripción:</strong> <span class="text-muted">Sin descripción</span></p>
-		 						{% endif %}
-	                            {% if h.caracteristicas %}
-	                                {% set car = h.caracteristicas %}
-	                                <details class="mt-2">
-	                                    <summary>Ver características</summary>
-	                                    <pre class="mt-2" style="white-space: pre-wrap;">{{ car }}</pre>
-	                                </details>
-	                            {% endif %}
-		 					</div>
-		 					<div class="modal-footer">
-		 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-		 					</div>
-		 				</div>
-		 			</div>
-		 		</div>
-		 	</div>
-		</div>
-	{% endfor %}
-        <div class="col-12"><hr class="my-4"></div>
-        {% endfor %}
-{% endblock %}
+			<div class="col-12">
+				<h4 class="mb-3">Plan {{ plan or 'Sin plan' }}</h4>
+			</div>
+			<div class="row">
+			{% for h in group %}
+				<div class="col-md-4 mb-4">
+					<div class="card habitacion-card estado-{{ h.estado|lower }}" style="min-height: 420px; max-height: 420px; display: flex; flex-direction: column; justify-content: space-between;">
+						{% set imgpath = h.imagen if h.imagen else 'img/default.jpg' %}
+						<img src="{{ url_for('static', filename=imgpath) }}" class="card-img-top" alt="{{ h.nombre }}" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+						<div class="card-body" style="flex: 1 1 auto;">
+							<h5 class="card-title">{{ h.nombre }} {% if h.numero %}<span class="text-muted">#{{ '%02d'|format(h.numero) }}</span>{% endif %}</h5>
+							<p class="card-text">Plan: {{ h.plan or '—' }}<br>Cupo: {{ h.cupo_personas }}<br>Precio: ${{ '{:,.0f}'.format(h.precio) }} COP</p>
+							<div class="card-text" style="max-height: 0; overflow: hidden;">{{ h.descripcion }}</div>
+							<button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}">Leer más</button>
+							<span class="badge estado-label {{ h.estado|lower }}">{{ h.estado }}</span>
+							<div class="d-flex justify-content-end align-items-end mt-3" style="position: absolute; bottom: 10px; right: 10px; gap: 8px;">
+								<a href="{{ url_for('admin.inventario_view') }}?room_id={{ h.id }}" class="btn btn-light btn-sm" title="Inventario"><i class="bi bi-clipboard-check"></i></a>
+								<a href="{{ url_for('admin.hospedaje_editar', habitacion_id=h.id) }}" class="btn btn-light btn-sm me-2" title="Editar"><i class="bi bi-pencil-square"></i></a>
+								<form action="{{ url_for('admin.hospedaje_eliminar', habitacion_id=h.id) }}" method="POST" style="display:inline;">
+									<button type="submit" class="btn btn-light btn-sm" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta habitación?')"><i class="bi bi-trash"></i></button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+			</div>
+		{% endfor %}
+	</div>
 
-{% block scripts %}
-<script>
-	document.addEventListener('DOMContentLoaded', function(){
-		const fileInput = document.getElementById('imagen');
-		const fileName = document.getElementById('file-name');
-		if (fileInput && fileName) {
-			fileInput.addEventListener('change', ()=>{
-				fileName.textContent = fileInput.files?.[0]?.name || 'Ningún archivo seleccionado';
-			});
-		}
-	});
-</script>
-{% endblock %}
+	<!-- Modales renderizados fuera del grid -->
+	{% for plan, group in habitaciones|groupby('plan') %}
+		{% for h in group %}
+		<div class="modal fade" id="modalHabitacion{{ h.id }}" tabindex="-1" aria-labelledby="modalHabitacionLabel{{ h.id }}" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="modalHabitacionLabel{{ h.id }}">{{ h.nombre }}</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+					</div>
+					<div class="modal-body">
+						{% set imgpath2 = h.imagen if h.imagen else 'img/default.jpg' %}
+						<img src="{{ url_for('static', filename=imgpath2) }}" class="img-fluid mb-3" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+						<p><strong>Plan:</strong> {{ h.plan or '—' }}</p>
+						<p><strong>Número:</strong> {{ h.numero or '—' }}</p>
+						<p><strong>Cupo:</strong> {{ h.cupo_personas }}</p>
+						<p><strong>Precio:</strong> ${{ '{:,.0f}'.format(h.precio) }} COP</p>
+						<p><strong>Estado:</strong> {{ h.estado }}</p>
+						{% if h.descripcion %}
+							<p><strong>Descripción:</strong> {{ h.descripcion }}</p>
+						{% else %}
+							<p><strong>Descripción:</strong> <span class="text-muted">Sin descripción</span></p>
+						{% endif %}
+						{% if h.caracteristicas %}
+							<hr>
+							<pre class="mt-2" style="white-space: pre-wrap;">{{ h.caracteristicas }}</pre>
+						{% endif %}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	{% endfor %}

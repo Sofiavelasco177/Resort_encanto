@@ -352,6 +352,7 @@ def inventarios_list():
     room = (request.args.get('room') or '').strip()
     rtype = (request.args.get('type') or '').strip()
     inspector = (request.args.get('inspector') or '').strip()
+    plan = (request.args.get('plan') or '').strip()
     date_from = request.args.get('date_from')
     date_to = request.args.get('date_to')
 
@@ -362,6 +363,10 @@ def inventarios_list():
         q = q.filter(InventarioHabitacion.room_type.ilike(f"%{rtype}%"))
     if inspector:
         q = q.filter(InventarioHabitacion.inspector.ilike(f"%{inspector}%"))
+    if plan:
+        # Filtrar por plan si el inventario está asociado a una habitación
+        q = q.join(nuevaHabitacion, InventarioHabitacion.habitacion_id == nuevaHabitacion.id)
+        q = q.filter(nuevaHabitacion.plan.ilike(plan))
     # Rango de fechas de inspección
     def _pdate(s):
         try:
@@ -384,6 +389,15 @@ def inventarios_list():
     # Nota: usamos todo el conjunto (sin aplicar filtros) para opciones completas
     all_types = [row[0] for row in db.session.query(InventarioHabitacion.room_type).filter(InventarioHabitacion.room_type.isnot(None)).distinct().order_by(InventarioHabitacion.room_type.asc()).all()]
     all_inspectors = [row[0] for row in db.session.query(InventarioHabitacion.inspector).filter(InventarioHabitacion.inspector.isnot(None)).distinct().order_by(InventarioHabitacion.inspector.asc()).all()]
+    # Planes disponibles (desde habitaciones registradas)
+    plans_list = [row[0] for row in db.session.query(nuevaHabitacion.plan).filter(nuevaHabitacion.plan.isnot(None)).distinct().order_by(nuevaHabitacion.plan.asc()).all()]
+
+    # Mapa de habitación por id para enriquecer la tabla (plan, número, nombre)
+    habs_by_id = {}
+    hab_ids = [r.habitacion_id for r in registros if r.habitacion_id]
+    if hab_ids:
+        for hab in nuevaHabitacion.query.filter(nuevaHabitacion.id.in_(hab_ids)).all():
+            habs_by_id[hab.id] = hab
 
     return render_template(
         'dashboard/inventarios_list.html',
@@ -393,10 +407,13 @@ def inventarios_list():
         room=room,
         rtype=rtype,
         inspector=inspector,
+        plan=plan,
         date_from=date_from or '',
         date_to=date_to or '',
         types_list=all_types,
         inspectors_list=all_inspectors,
+        plans_list=plans_list,
+        habs_by_id=habs_by_id,
     )
 
 @admin_bp.route('/inventario/export/csv')

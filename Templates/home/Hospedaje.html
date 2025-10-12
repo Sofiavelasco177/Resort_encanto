@@ -8,22 +8,23 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
-/* Small local styles for the filter pill */
-.filter-pill {
-    background: #ffffffcc; /* slight translucency */
-    border-radius: 999px;
-    padding: 6px 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-.filter-pill svg { width:18px; height:18px; display:block; fill: #0d6efd; }
-.filter-pill .pill-text { font-size: 14px; color: #212529; font-weight:500; }
-@media (max-width: 576px) {
-    .filter-pill .pill-text { display:none; }
-}
+/* Filter pill */
+.filter-pill{background:#ffffffcc;border-radius:999px;padding:6px 12px;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,0.06);box-shadow:0 2px 6px rgba(0,0,0,0.04)}
+.filter-pill svg{width:18px;height:18px;display:block;fill:#0d6efd}
+.filter-pill .pill-text{font-size:14px;color:#212529;font-weight:500}
+@media(max-width:576px){.filter-pill .pill-text{display:none}}
+
+/* Single-column room card layout */
+.room-card{border:0;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.10);overflow:hidden;background:#fff}
+.room-card .room-img{width:100%;height:360px;object-fit:cover}
+@media(min-width:768px){.room-card .room-img{height:420px}}
+.room-card .room-body{padding:20px 22px}
+.room-card .room-title{font-weight:800;font-size:1.6rem;margin:0}
+.room-card .room-sub{color:#6b7280;font-size:.95rem}
+.room-card .room-price{font-weight:800;color:#0b7285;font-size:1.15rem}
+.room-card .room-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.room-card .badge-plan{background:#fde68a;color:#7c2d12}
+.room-card .room-num{color:#9ca3af;font-size:.9rem}
 </style>
 
 
@@ -80,17 +81,27 @@
         </div>
     </div>
 
-        <div class="row" id="habitaciones-publicas">
-            {% for h in habitaciones %}
-                <div class="col-md-6 mb-5 room-block" data-type="{{ h.nombre }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
-                    <div class="row align-items-center">
-                        <div class="col-md-6 order-md-2">
-                            <img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="img-fluid room-img">
+        {% for plan, group in habitaciones|groupby('plan') %}
+        <div class="row" id="habitaciones-publicas-{{ (plan or 'Sin plan')|lower }}">
+            <div class="col-12 mb-3">
+                <h2 class="mt-4">Plan {{ plan or 'Sin plan' }}</h2>
+            </div>
+            {% for h in group %}
+            <div class="col-12 mb-5 room-block" data-type="{{ h.nombre }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
+                <div class="card room-card">
+                    <img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="room-img">
+                    <div class="room-body">
+                        <div class="room-meta mb-1">
+                            {% if h.plan %}<span class="badge badge-plan">{{ h.plan }}</span>{% endif %}
+                            {% if h.numero %}<span class="room-num">#{{ '%02d'|format(h.numero) }}</span>{% endif %}
+                            <span class="room-sub">Cupo: {{ h.cupo_personas }}</span>
                         </div>
-                        <div class="col-md-6 order-md-1">
-                            <h3>{{ h.nombre }} {% if h.plan %}<span class="badge bg-warning text-dark">{{ h.plan }}</span>{% endif %} {% if h.numero %}<span class="text-muted">#{{ '%02d'|format(h.numero) }}</span>{% endif %}</h3>
-                            <p>Cupo: {{ h.cupo_personas }}<br>Precio: ${{ '{:,.0f}'.format(h.precio) }} COP</p>
-                            <div class="price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
+                        <h3 class="room-title mb-2">{{ h.nombre }}</h3>
+                        {% if h.descripcion %}
+                        <p class="room-sub mb-2">{{ h.descripcion }}</p>
+                        {% endif %}
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
                             {% if session.get('user') %}
                             <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
                             {% else %}
@@ -99,187 +110,12 @@
                         </div>
                     </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
+        {% endfor %}
 
-    <!-- Standard Room -->
-    <div class="row align-items-center mb-5 room-block" data-type="Estandar" data-capacity="2" data-price="1170000">
-        <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(2).jpg') }}" alt="Habitación Estándar" class="img-fluid room-img">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <h3>Habitación Estándar</h3>
-            <p>Vista parcial al mar, cama king size, baño con ducha y bañera, Wi-Fi de alta velocidad, minibar surtido.</p>
-            <div class="price">Desde $1.170.000 COP</div>
-            <div class="rating">
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">☆</span>
-            </div>
-            <button class="btn btn-link" onclick="toggleDescription('standard-room')">Leer más</button>
-            {% if session.get('user') %}
-            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
-            {% else %}
-            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
-            {% endif %}
-            <div id="standard-room" class="room-description" style="display: none;">
-                
-                <h4>Comodidades En La Habitación</h4>
-                <ul>
-                    <li>Aire acondicionado</li>
-                    <li>TV</li>
-                    <li>Secador de pelo</li>
-                    <li>Control remoto</li>
-                    <li>Minibar/nevera</li>
-                    <li>Satélite Direct TV</li>
-                    <li>Caja de seguridad</li>
-                    <li>Servicios L'occitane</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Premium Room -->
-    <div class="row align-items-center mb-5 room-block" data-type="Premium" data-capacity="2" data-price="2300000">
-        <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(3).jpg') }}" alt="Habitación Premium" class="img-fluid room-img">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <h3>Habitación Premium</h3>
-            <p>Vista al mar, cama king size premium, baño de mármol con jacuzzi, Wi-Fi VIP ultra rápido, minibar premium.</p>
-            <div class="price">Desde $2.300.000 COP</div>
-            <div class="rating">
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-            </div>
-            <button class="btn btn-link" onclick="toggleDescription('premium-room')">Leer más</button>
-            {% if session.get('user') %}
-            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
-            {% else %}
-            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
-            {% endif %}
-            <div id="premium-room" class="room-description" style="display: none;">
-                
-                <h4>Comodidades En La Habitación</h4>
-                <ul>
-                    <li>Aire acondicionado</li>
-                    <li>TV</li>
-                    <li>Secador de pelo</li>
-                    <li>Control remoto</li>
-                    <li>Minibar/nevera</li>
-                    <li>Satélite Direct TV</li>
-                    <li>Caja de seguridad</li>
-                    <li>Servicios L'occitane</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="row align-items-center mb-5 room-block" data-type="Familiar" data-capacity="4" data-price="1850000">
-        <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(7).jpg') }}" alt="Suite Familiar" class="img-fluid room-img">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <h3>Suite Familiar</h3>
-            <p>Espaciosa suite para familias, con dos ambientes, sala privada, y vistas al jardín. Capacidad para 4 personas.</p>
-            <div class="price">Desde $1.850.000 COP</div>
-            <div class="rating">
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">☆</span>
-            </div>
-            <button class="btn btn-link" onclick="toggleDescription('family-suite')">Leer más</button>
-            {% if session.get('user') %}
-            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
-            {% else %}
-            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
-            {% endif %}
-            <div id="family-suite" class="room-description" style="display: none;">
-                <h4>Comodidades En La Habitación</h4>
-                <ul>
-                    <li>Dos camas king o una king + sofá cama</li>
-                    <li>Sala de estar privada</li>
-                    <li>Balcony con vista al jardín</li>
-                    <li>Jacuzzi opcional</li>
-                    <li>Minibar completo</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="row align-items-center mb-5 room-block" data-type="Deluxe" data-capacity="2" data-price="2750000">
-        <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(5).jpg') }}" alt="Suite Deluxe" class="img-fluid room-img">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <h3>Suite Deluxe</h3>
-            <p>Lujo y confort en una suite con vistas parciales al mar, cama king size, y baño en mármol con amenities premium.</p>
-            <div class="price">Desde $2.750.000 COP</div>
-            <div class="rating">
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-            </div>
-            <button class="btn btn-link" onclick="toggleDescription('deluxe-suite')">Leer más</button>
-            {% if session.get('user') %}
-            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
-            {% else %}
-            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
-            {% endif %}
-            <div id="deluxe-suite" class="room-description" style="display: none;">
-                <h4>Comodidades En La Habitación</h4>
-                <ul>
-                    <li>Cama king size premium</li>
-                    <li>Baño en mármol con ducha y bañera</li>
-                    <li>Smart TV y sistema de sonido</li>
-                    <li>Servicio a la habitación 24h</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    
-    <div class="row align-items-center mb-5 room-block" data-type="Villa" data-capacity="6" data-price="6500000">
-        <div class="col-md-6 order-md-2">
-            <img src="{{ url_for('static', filename='img/habitacion(6).jpg') }}" alt="Villa Privada" class="img-fluid room-img">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <h3>Villa Privada</h3>
-            <p>Villa independiente con piscina privada, jardín y servicio personalizado. Ideal para grupos o celebraciones.</p>
-            <div class="price">Desde $6.500.000 COP</div>
-            <div class="rating">
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-              <span class="star" style="color: blue;">★</span>
-            </div>
-            <button class="btn btn-link" onclick="toggleDescription('villa')">Leer más</button>
-            {% if session.get('user') %}
-            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
-            {% else %}
-            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
-            {% endif %}
-            <div id="villa" class="room-description" style="display: none;">
-                <h4>Comodidades En La Habitación</h4>
-                <ul>
-                    <li>Piscina privada</li>
-                    <li>Cocineta y comedor</li>
-                    <li>Servicio de mayordomo</li>
-                    <li>Traslado privado desde el muelle</li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <!-- Removed static demo cards to keep only DB-driven rooms -->
 
 </div>
 

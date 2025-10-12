@@ -9,20 +9,24 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <div class="fw-semibold">{{ reserva.habitacion_id }} · Total</div>
+          <div class="fw-semibold">Habitación {{ habitacion.nombre if habitacion else ('#'+(reserva.habitacion_id|string)) }} · Total</div>
           <div class="small text-muted">Se procesará en Wompi (Sandbox)</div>
         </div>
         <div class="fs-4 fw-bold">${{ '%.0f'|format(reserva.total or 0) }} COP</div>
       </div>
 
-      <form>
+      {% if not wompi_public_key %}
+      <div class="alert alert-danger">Falta configurar WOMPI_PUBLIC_KEY en el entorno.</div>
+      {% endif %}
+      <form method="POST" onsubmit="return false;">
         <script src="https://checkout.wompi.co/widget.js"
                 data-render="button"
                 data-public-key="{{ wompi_public_key }}"
                 data-currency="{{ currency }}"
                 data-amount-in-cents="{{ amount_in_cents }}"
                 data-reference="{{ reference }}"
-                data-redirect-url="{{ redirect_url }}">
+                data-redirect-url="{{ redirect_url }}"
+                data-country="{{ country|default('CO') }}">
         </script>
       </form>
 

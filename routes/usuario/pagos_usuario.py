@@ -22,20 +22,25 @@ def checkout_reserva(reserva_id):
         return redirect(url_for('registro.login'))
 
     public_key = os.getenv('WOMPI_PUBLIC_KEY', 'pub_test_ATgfa6zjR4rV4i2O1RrE8Gxx')  # Placeholder test key
-    redirect_url = url_for('pagos_usuario.wompi_retorno', _external=True)
+    # Usar esquema preferido si está configurado (https en prod detrás de proxy)
+    scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
+    redirect_url = url_for('pagos_usuario.wompi_retorno', _external=True, _scheme=scheme)
 
     # Wompi usa montos en centavos
     amount_in_cents = int((reserva.total or 0) * 100)
     reference = f"RES-{reserva.id}"
+    habitacion = nuevaHabitacion.query.get(reserva.habitacion_id)
 
     return render_template(
         'usuario/checkout_wompi.html',
         reserva=reserva,
+        habitacion=habitacion,
         wompi_public_key=public_key,
         amount_in_cents=amount_in_cents,
         reference=reference,
         redirect_url=redirect_url,
-        currency='COP'
+        currency='COP',
+        country='CO'
     )
 
 
