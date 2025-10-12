@@ -83,6 +83,44 @@ def checkout_reserva(reserva_id):
             flash('Error iniciando pago con Mercado Pago.', 'danger')
             return redirect(url_for('perfil_usuario.perfil'))
 
+    if provider == 'EPAYCO':
+        # EPAYCO Checkout (script) con response y confirmation URLs
+        pub = os.getenv('EPAYCO_PUBLIC_KEY')
+        p_key = os.getenv('EPAYCO_PRIVATE_KEY')  # Para firma de verificación (no expone en front)
+        cust = os.getenv('EPAYCO_P_CUST_ID_CLIENTE')
+        if not pub or not p_key or not cust:
+            flash('Falta configurar EPAYCO_PUBLIC_KEY, EPAYCO_PRIVATE_KEY o EPAYCO_P_CUST_ID_CLIENTE.', 'danger')
+            return redirect(url_for('perfil_usuario.perfil'))
+
+        scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
+        response_url = url_for('pagos_usuario.epayco_retorno', _external=True, _scheme=scheme)
+        confirm_url = url_for('pagos_usuario.epayco_confirmacion', _external=True, _scheme=scheme)
+        amount = float(reserva.total or 0)
+        currency = 'cop'
+        country = 'co'
+        test = 'true' if str(os.getenv('EPAYCO_TEST', '1')).lower() in ('1','true','yes','on') else 'false'
+        invoice = str(reserva.id)
+        reference = f"RES-{reserva.id}"
+        title = f"Habitación {habitacion.nombre if habitacion else reserva.habitacion_id}"
+        description = f"Reserva {reference}"
+
+        return render_template(
+            'usuario/checkout_epayco.html',
+            reserva=reserva,
+            habitacion=habitacion,
+            epayco_public_key=pub,
+            amount=amount,
+            currency=currency,
+            country=country,
+            test=test,
+            invoice=invoice,
+            reference=reference,
+            title=title,
+            description=description,
+            response_url=response_url,
+            confirm_url=confirm_url,
+        )
+
     # WOMPI (por defecto)
     public_key = os.getenv('WOMPI_PUBLIC_KEY', 'pub_test_ATgfa6zjR4rV4i2O1RrE8Gxx')  # Placeholder test key
     scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
@@ -320,3 +358,118 @@ def _apply_status_to_reserva(reserva: Reserva, wompi_status: str):
         reserva.estado = 'Cancelada'
     else:
         reserva.estado = 'Activa'
+
+
+# ----------------- EPAYCO HANDLERS ----------------- #
+
+def _epayco_verify_signature(data: dict) -> bool:
+    """Verifica la firma de ePayco para confirmaciones/retornos.
+    Firma: md5(p_cust_id_cliente^p_key^x_ref_payco^x_transaction_id^x_amount^x_currency_code)
+    """
+    try:
+        import hashlib
+        cust = os.getenv('EPAYCO_P_CUST_ID_CLIENTE', '')
+        pkey = os.getenv('EPAYCO_PRIVATE_KEY', '')
+        ref_payco = str(data.get('x_ref_payco', ''))
+        tx_id = str(data.get('x_transaction_id', ''))
+        amount = str(data.get('x_amount', ''))
+        curr = str(data.get('x_currency_code', ''))
+        signature = (data.get('x_signature') or '').lower()
+        comp = f"{cust}^{pkey}^{ref_payco}^{tx_id}^{amount}^{curr}"
+        md5h = hashlib.md5(comp.encode('utf-8')).hexdigest().lower()
+        return md5h == signature and all([cust, pkey, ref_payco, tx_id, amount, curr])
+    except Exception:
+        return False
+
+
+def _epayco_extract_reserva_id(data: dict) -> int | None:
+    # Intentar por x_id_invoice (string del invoice) o x_extra1 (nuestra reference), o ref simple
+    inv = data.get('x_id_invoice') or data.get('x_invoice_id') or data.get('invoice') or data.get('p_id_invoice')
+    if inv:
+        try:
+            return int(str(inv))
+        except Exception:
+            pass
+    ref = data.get('x_extra1') or data.get('external_reference') or data.get('ref') or ''
+    if ref and str(ref).startswith('RES-'):
+        try:
+            return int(str(ref).split('-')[1])
+        except Exception:
+            return None
+    return None
+
+
+def _epayco_map_status(text: str) -> str:
+    t = (text or '').strip().lower()
+    if t in ('aceptada', 'approved', 'success'):  # según idioma
+        return 'APPROVED'
+    if t in ('rechazada', 'rejected', 'failure', 'fallida'):
+        return 'DECLINED'
+    return 'PENDING'
+
+
+@pagos_usuario_bp.route('/pago/epayco/retorno')
+def epayco_retorno():
+    # Retorno del navegador (GET)
+    data = request.args.to_dict(flat=True)
+    rid = _epayco_extract_reserva_id(data)
+    if not rid:
+        flash('Referencia de pago inválida (ePayco)', 'danger')
+        return redirect(url_for('main.home_usuario'))
+
+    reserva = Reserva.query.get(rid)
+    if not reserva:
+        flash('Reserva no encontrada', 'danger')
+        return redirect(url_for('main.home_usuario'))
+
+    # Intentar verificar firma si están los campos
+    if not _epayco_verify_signature(data):
+        current_app.logger.warning('Firma ePayco inválida en retorno: %s', data)
+        # No abortamos; puede ser retorno sin firma. Dejar estado como esté.
+
+    status = _epayco_map_status(data.get('x_transaction_state') or data.get('status'))
+    _apply_status_to_reserva(reserva, status)
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    if status == 'APPROVED':
+        flash('Pago aprobado (ePayco).', 'success')
+    elif status == 'DECLINED':
+        flash('El pago fue rechazado (ePayco).', 'danger')
+    else:
+        flash('Pago en proceso (ePayco).', 'info')
+    return redirect(url_for('perfil_usuario.perfil'))
+
+
+@pagos_usuario_bp.route('/pago/epayco/confirmacion', methods=['POST'])
+def epayco_confirmacion():
+    # Webhook de ePayco (POST form)
+    data = request.form.to_dict(flat=True)
+    if not data:
+        # Intentar JSON si no viene form
+        data = request.get_json(silent=True) or {}
+
+    rid = _epayco_extract_reserva_id(data)
+    if not rid:
+        return jsonify({'ok': True})
+
+    reserva = Reserva.query.get(rid)
+    if not reserva:
+        return jsonify({'ok': True})
+
+    if not _epayco_verify_signature(data):
+        current_app.logger.warning('Firma ePayco inválida en confirmación: %s', data)
+        return jsonify({'ok': False, 'error': 'invalid_signature'}), 400
+
+    status = _epayco_map_status(data.get('x_transaction_state'))
+    _apply_status_to_reserva(reserva, status)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.exception('Error guardando estado reserva ePayco: %s', e)
+        return jsonify({'ok': False}), 500
+
+    return jsonify({'ok': True})
