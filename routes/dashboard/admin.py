@@ -4,8 +4,19 @@ from datetime import datetime
 from flask import session
 from flask import send_file, make_response
 import io, csv
-from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
+try:
+    from openpyxl import Workbook
+    from openpyxl.utils import get_column_letter
+except Exception:
+    Workbook = None
+    def get_column_letter(col_index:int):
+        # Fallback simple mapping A..Z, AA.. as naive
+        letters = ''
+        i = col_index
+        while i:
+            i, rem = divmod(i - 1, 26)
+            letters = chr(65 + rem) + letters
+        return letters or 'A'
 from datetime import date
 try:
     # ReportLab para exportar PDF del inventario
@@ -40,6 +51,12 @@ def hospedaje_actualizar(habitacion_id):
         habitacion.nombre = request.form["nombre"]
         # Asegurar que la descripción también se actualiza
         habitacion.descripcion = request.form.get("descripcion", habitacion.descripcion)
+        habitacion.plan = request.form.get("plan") or None
+        try:
+            habitacion.numero = int(request.form.get("numero")) if request.form.get("numero") else None
+        except Exception:
+            habitacion.numero = None
+        habitacion.caracteristicas = request.form.get("caracteristicas") or habitacion.caracteristicas
         habitacion.precio = float(request.form["precio"])
         habitacion.cupo_personas = int(request.form.get("cupo_personas", 1))
         habitacion.estado = request.form.get("estado", "Disponible")
@@ -651,6 +668,12 @@ def hospedaje_nueva():
         precio = float(request.form["precio"])
         cupo_personas = int(request.form.get("cupo_personas", 1))
         estado = request.form.get("estado", "Disponible")
+        plan = request.form.get("plan") or None
+        try:
+            numero = int(request.form.get("numero")) if request.form.get("numero") else None
+        except Exception:
+            numero = None
+        caracteristicas = request.form.get("caracteristicas") or None
         imagen_file = request.files.get("imagen")
         imagen_path = None
         if imagen_file and imagen_file.filename:
@@ -668,6 +691,9 @@ def hospedaje_nueva():
         habitacion = nuevaHabitacion(
             nombre=nombre,
             descripcion=descripcion,
+            plan=plan,
+            numero=numero,
+            caracteristicas=caracteristicas,
             precio=precio,
             estado=estado,
             cupo_personas=cupo_personas,

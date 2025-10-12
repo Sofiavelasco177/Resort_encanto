@@ -39,7 +39,13 @@ class nuevaHabitacion(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
+    # Plan de habitación: Oro, Plata, (Bronce en futuro)
+    plan = db.Column(db.String(20), nullable=True, index=True)
+    # Número de habitación dentro del plan/piso
+    numero = db.Column(db.Integer, nullable=True)
     descripcion = db.Column(db.Text, nullable=True)
+    # Características detalladas (JSON serializado o texto)
+    caracteristicas = db.Column(db.Text, nullable=True)
     precio = db.Column(db.Float, nullable=False)
     estado = db.Column(db.String(20), nullable=False, default="Disponible")
     cupo_personas = db.Column(db.Integer, nullable=False, default=1)

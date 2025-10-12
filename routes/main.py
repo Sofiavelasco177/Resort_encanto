@@ -25,7 +25,9 @@ def home():
 
 @main_bp.route('/hospedaje')
 def hospedaje():
-    return render_template('home/Hospedaje.html')
+    # Mostrar habitaciones públicas organizadas
+    habitaciones = nuevaHabitacion.query.order_by(nuevaHabitacion.plan.asc(), nuevaHabitacion.numero.asc()).all()
+    return render_template('home/Hospedaje.html', habitaciones=habitaciones)
 
 @main_bp.route('/restaurante')
 def restaurantes():
@@ -95,7 +97,7 @@ def home_admin():
 
 @main_bp.route('/hospedaje_admin')
 def hospedaje_admin():
-    habitaciones = nuevaHabitacion.query.all()
+    habitaciones = nuevaHabitacion.query.order_by(nuevaHabitacion.plan.asc(), nuevaHabitacion.numero.asc()).all()
     return render_template('dashboard/hospedaje_admin.html', habitaciones=habitaciones)
 
 @main_bp.route('/restaurante_admin')

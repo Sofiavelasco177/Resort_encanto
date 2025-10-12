@@ -88,7 +88,7 @@
                             <img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="img-fluid room-img">
                         </div>
                         <div class="col-md-6 order-md-1">
-                            <h3>{{ h.nombre }}</h3>
+                            <h3>{{ h.nombre }} {% if h.plan %}<span class="badge bg-warning text-dark">{{ h.plan }}</span>{% endif %} {% if h.numero %}<span class="text-muted">#{{ '%02d'|format(h.numero) }}</span>{% endif %}</h3>
                             <p>Cupo: {{ h.cupo_personas }}<br>Precio: ${{ '{:,.0f}'.format(h.precio) }} COP</p>
                             <div class="price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
                             {% if session.get('user') %}

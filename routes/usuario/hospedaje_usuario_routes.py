@@ -6,8 +6,15 @@ hospedaje_usuario_bp = Blueprint('hospedaje_usuario', __name__)
 
 @hospedaje_usuario_bp.route('/hospedaje_usuario')
 def hospedaje_usuario():
-    habitaciones = nuevaHabitacion.query.all()
-    return render_template('usuario/hospedaje_usuario.html', habitaciones=habitaciones)
+    habitaciones = nuevaHabitacion.query.order_by(nuevaHabitacion.plan.asc(), nuevaHabitacion.numero.asc()).all()
+    # Agrupar por plan para la vista
+    grouped = { 'Oro': [], 'Plata': [], 'Bronce': [], 'Otro': [] }
+    for h in habitaciones:
+        key = (h.plan or 'Otro')
+        if key not in grouped:
+            grouped[key] = []
+        grouped[key].append(h)
+    return render_template('usuario/hospedaje_usuario.html', habitaciones=habitaciones, habitaciones_por_plan=grouped)
 
 
 @hospedaje_usuario_bp.route('/reservar/<int:habitacion_id>', methods=['GET', 'POST'])

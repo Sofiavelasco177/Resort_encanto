@@ -3,8 +3,14 @@
 {% block content %}
 
 <div class="container mt-4 hospedaje-usuario">
-    <div class="row g-3 g-md-4" id="habitaciones-usuario">
-        {% for h in habitaciones %}
+    {% if habitaciones_por_plan %}
+    {% for plan, rooms in habitaciones_por_plan.items() %}
+    {% if rooms %}
+    <div class="row g-3 g-md-4 mb-4" id="habitaciones-usuario-{{ plan|lower }}">
+        <div class="col-12">
+            <h3 class="mb-3">Plan {{ plan }}</h3>
+        </div>
+        {% for h in rooms %}
         <div class="col-12 col-sm-6 col-lg-4">
                         <div class="card habitacion-card h-100">
                          {% set raw = h.imagen or '' %}
@@ -19,6 +25,9 @@
                          <img src="{{ img_url }}" 
                                  class="card-img-top room-img" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                 <div class="card-body d-flex justify-content-center gap-2">
+                    {% if h.numero %}
+                    <span class="badge text-bg-secondary">#{{ "%02d"|format(h.numero) }}</span>
+                    {% endif %}
                     <!-- Botón Especificaciones (abre modal único por habitación) -->
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}">
                         Especificaciones
@@ -57,7 +66,16 @@
                                 <p><strong>Precio:</strong> ${{ '{:,.0f}'.format(h.precio) }} COP</p>
                                 <p><strong>Estado:</strong> {{ h.estado }}</p>
                                 <p><strong>Capacidad:</strong> {{ h.cupo_personas }} personas</p>
+                                <p><strong>Plan:</strong> {{ h.plan or '—' }} {% if h.numero %}· <strong>Habitación:</strong> #{{ '%02d'|format(h.numero) }}{% endif %}</p>
                                 <p><strong>Descripción:</strong> {{ h.descripcion if h.descripcion else "Sin descripción" }}</p>
+                                {% if h.caracteristicas %}
+                                <hr>
+                                {% set car = h.caracteristicas %}
+                                <details>
+                                    <summary>Ver características detalladas</summary>
+                                    <pre class="mt-2" style="white-space: pre-wrap;">{{ car }}</pre>
+                                </details>
+                                {% endif %}
                             </div>
 
                             <!-- Reservar dentro del modal (redirige igual que el botón externo) -->
@@ -71,10 +89,24 @@
                 </div>
             </div>
         </div>
-
         {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    <div class="row g-3 g-md-4" id="habitaciones-usuario">
+        {% for h in habitaciones %}
+        <!-- fallback sin agrupación -->
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card habitacion-card h-100">
+                <img src="{{ url_for('static', filename='img/default.jpg') }}" class="card-img-top room-img" alt="{{ h.nombre }}">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-        <!--CARTAS DE EJEMPLO FIJAS-->
+    <!--CARTAS DE EJEMPLO FIJAS-->
         <div class="col-12 col-sm-6 col-lg-4">
             <div class="card habitacion-card h-100">
                 <img src="{{ url_for('static', filename='img/habitacion(1).jpg') }}" 
