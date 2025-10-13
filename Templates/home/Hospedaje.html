@@ -14,17 +14,19 @@
 .filter-pill .pill-text{font-size:14px;color:#212529;font-weight:500}
 @media(max-width:576px){.filter-pill .pill-text{display:none}}
 
-/* Single-column room card layout */
-.room-card{border:0;border-radius:16px;box-shadow:0 10px 28px rgba(0,0,0,.10);overflow:hidden;background:#fff}
-.room-card .room-img{width:100%;height:360px;object-fit:cover}
-@media(min-width:768px){.room-card .room-img{height:420px}}
+/* Single-column room card layout (más alto para diferenciar) */
+.room-card{border:0;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.12);overflow:hidden;background:#fff}
+.room-card .room-img{width:100%;height:460px;object-fit:cover}
+@media(min-width:768px){.room-card .room-img{height:520px}}
 .room-card .room-body{padding:20px 22px}
-.room-card .room-title{font-weight:800;font-size:1.6rem;margin:0}
+.room-card .room-title{font-weight:800;font-size:1.5rem;margin:0}
 .room-card .room-sub{color:#6b7280;font-size:.95rem}
-.room-card .room-price{font-weight:800;color:#0b7285;font-size:1.15rem}
+.room-card .room-price{font-weight:800;color:#0b7285;font-size:1.1rem}
 .room-card .room-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.room-card .badge-plan{background:#fde68a;color:#7c2d12}
+.room-card .badge-plan{background:#fef3c7;color:#7c2d12}
 .room-card .room-num{color:#9ca3af;font-size:.9rem}
+.plan-title{font-size:1.25rem;font-weight:800;margin-top:1.5rem}
+.room-badge{position:absolute;top:16px;left:16px;background:rgba(0,0,0,.55);color:#fff;padding:6px 10px;border-radius:999px;font-size:.85rem}
 </style>
 
 
@@ -83,17 +85,16 @@
 
         {% for plan, group in habitaciones|groupby('plan') %}
         <div class="row" id="habitaciones-publicas-{{ (plan or 'Sin plan')|lower }}">
-            <div class="col-12 mb-3">
-                <h2 class="mt-4">Plan {{ plan or 'Sin plan' }}</h2>
+            <div class="col-12 mb-2">
+                <div class="plan-title">Plan {{ plan or 'Sin plan' }}</div>
             </div>
             {% for h in group %}
             <div class="col-12 mb-5 room-block" data-type="{{ h.nombre }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
-                <div class="card room-card">
-                    <img src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="room-img">
+                <div class="card room-card position-relative">
+                    <span class="room-badge">{{ h.plan or 'General' }}{% if h.numero %} · #{{ '%02d'|format(h.numero) }}{% endif %}</span>
+                    <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="room-img">
                     <div class="room-body">
                         <div class="room-meta mb-1">
-                            {% if h.plan %}<span class="badge badge-plan">{{ h.plan }}</span>{% endif %}
-                            {% if h.numero %}<span class="room-num">#{{ '%02d'|format(h.numero) }}</span>{% endif %}
                             <span class="room-sub">Cupo: {{ h.cupo_personas }}</span>
                         </div>
                         <h3 class="room-title mb-2">{{ h.nombre }}</h3>
@@ -144,34 +145,36 @@ function mostrarModal() {
     modal.show();
 }
 
+// Ocultar/mostrar sin reescribir el contenedor (evita romper títulos/estructura)
 function filterRooms() {
     const type = document.getElementById('filter-type').value;
     const guests = parseInt(document.getElementById('filter-guests').value) || 0;
     const priceOrder = document.getElementById('filter-price-order').value;
-    const blocks = document.querySelectorAll('.room-block');
-    let roomsArray = Array.from(blocks);
-    
-    // Filter
-    roomsArray = roomsArray.filter(b => {
+    const blocks = Array.from(document.querySelectorAll('.room-block'));
+
+    // Filtrar visibilidad
+    blocks.forEach(b => {
         const t = b.getAttribute('data-type') || '';
         const cap = parseInt(b.getAttribute('data-capacity') || '0');
         let visible = true;
-        if (type && type !== '' && type !== t) visible = false;
+        if (type && type !== '' && !t.toLowerCase().includes(type.toLowerCase())) visible = false;
         if (guests > 0 && cap < guests) visible = false;
-        return visible;
+        b.style.display = visible ? '' : 'none';
     });
 
-    // Sort
-    if (priceOrder === 'asc') {
-        roomsArray.sort((a, b) => parseInt(a.getAttribute('data-price')) - parseInt(b.getAttribute('data-price')));
-    } else if (priceOrder === 'desc') {
-        roomsArray.sort((a, b) => parseInt(b.getAttribute('data-price')) - parseInt(a.getAttribute('data-price')));
+    // Orden por precio (dentro de cada sección), manteniendo estructura
+    if (priceOrder) {
+        const sections = document.querySelectorAll('[id^="habitaciones-publicas-"]');
+        sections.forEach(sec => {
+            const kids = Array.from(sec.querySelectorAll(':scope > .col-12.room-block'));
+            kids.sort((a,b) => {
+                const pa = parseFloat(a.getAttribute('data-price')||'0');
+                const pb = parseFloat(b.getAttribute('data-price')||'0');
+                return priceOrder === 'asc' ? pa - pb : pb - pa;
+            });
+            kids.forEach(k => sec.appendChild(k));
+        });
     }
-
-    // Append sorted/filtered rooms to the container
-    const container = document.querySelector('.container.mt-5');
-    container.innerHTML = '';
-    roomsArray.forEach(room => container.appendChild(room));
 }
 
 function resetFilters() {
@@ -182,37 +185,8 @@ function resetFilters() {
 }
 
 function applyFiltersAndClose() {
-    // Filtrar habitaciones según los criterios seleccionados
-    const type = document.getElementById('filter-type').value;
-    const guests = parseInt(document.getElementById('filter-guests').value) || 0;
-    const priceOrder = document.getElementById('filter-price-order').value;
-    const blocks = document.querySelectorAll('.room-block');
-    let roomsArray = Array.from(blocks);
-    
-    // Filtrar
-    roomsArray = roomsArray.filter(b => {
-        const t = b.getAttribute('data-type') || '';
-        const cap = parseInt(b.getAttribute('data-capacity') || '0');
-        let visible = true;
-        if (type && type !== '' && type !== t) visible = false;
-        if (guests > 0 && cap < guests) visible = false;
-        return visible;
-    });
-
-    // Ordenar por precio
-    var order = document.getElementById('filter-price-order').value;
-    var roomBlocks = Array.from(document.querySelectorAll('.room-block'));
-    if (order) {
-        roomBlocks.sort(function(a, b) {
-            var priceA = parseFloat(a.getAttribute('data-price'));
-            var priceB = parseFloat(b.getAttribute('data-price'));
-            return order === 'asc' ? priceA - priceB : priceB - priceA;
-        });
-        var container = document.querySelector('.container.mt-5');
-        roomBlocks.forEach(function(block) {
-            container.appendChild(block);
-        });
-    }
+    // Aplicar filtros y ordenar
+    filterRooms();
 
     // close bootstrap dropdown
     const dropdownEl = document.getElementById('filterDropdown');
@@ -221,6 +195,9 @@ function applyFiltersAndClose() {
         dd.hide();
     }
 }
+
+// Ejecutar una vez para estado inicial consistente
+document.addEventListener('DOMContentLoaded', filterRooms);
 </script>
 
 {% endblock %}
