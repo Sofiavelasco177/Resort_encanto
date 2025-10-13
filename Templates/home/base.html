@@ -76,6 +76,25 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Modal de Login reutilizable -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Inicia sesión para reservar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Para continuar con la reserva necesitas iniciar sesión.</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">Ir a iniciar sesión</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Footer -->
 <footer class="bg-dark text-white text-center p-4 mt-auto" style="margin-top: 48px;">
     <div class="container">
@@ -112,6 +131,14 @@
                 const toasts = document.querySelectorAll('.toast');
                 toasts.forEach(t => new bootstrap.Toast(t, { delay: 4000 }).show());
             });
+
+            // Mostrar modal de login cuando un usuario no autenticado intenta reservar
+            window.mostrarModal = function(){
+                var el = document.getElementById('loginModal');
+                if (!el) return;
+                var modal = bootstrap.Modal.getOrCreateInstance(el);
+                modal.show();
+            }
         </script>
 </body>
 </html>

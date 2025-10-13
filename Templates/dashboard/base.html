@@ -114,6 +114,13 @@
                 const toasts = document.querySelectorAll('.toast');
                 toasts.forEach(t => new bootstrap.Toast(t, { delay: 4000 }).show());
             });
+
+            // Ayuda de accesibilidad para modales en admin
+            document.addEventListener('shown.bs.modal', function (event) {
+                const modal = event.target;
+                const firstInteractive = modal.querySelector('button, [href], input, select, textarea');
+                if (firstInteractive) firstInteractive.focus();
+            });
         </script>
 
 </body>
