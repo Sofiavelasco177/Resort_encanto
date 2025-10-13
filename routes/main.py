@@ -25,9 +25,25 @@ def home():
 
 @main_bp.route('/hospedaje')
 def hospedaje():
-    # Mostrar habitaciones públicas organizadas
-    habitaciones = nuevaHabitacion.query.order_by(nuevaHabitacion.plan.asc(), nuevaHabitacion.numero.asc()).all()
-    return render_template('home/Hospedaje.html', habitaciones=habitaciones)
+    # Mostrar habitaciones públicas organizadas sin depender de groupby Jinja (evita TypeError con None)
+    habitaciones = nuevaHabitacion.query.order_by(nuevaHabitacion.numero.asc()).all()
+
+    # Agrupar en Python con fallback de plan y orden preferido
+    prefer_order = ["Oro", "Plata", "Bronce", "Sin plan"]
+    habitaciones_por_plan = {}
+    for h in habitaciones:
+        plan_label = (h.plan or '').strip() or 'Sin plan'
+        habitaciones_por_plan.setdefault(plan_label, []).append(h)
+
+    # Ordenar cada grupo por numero si existe, luego por id
+    for key, items in habitaciones_por_plan.items():
+        items.sort(key=lambda x: (x.numero if getattr(x, 'numero', None) is not None else 1_000_000, x.id))
+
+    # Orden estable de planes
+    presentes = list(habitaciones_por_plan.keys())
+    plan_order = [p for p in prefer_order if p in presentes] + sorted([p for p in presentes if p not in prefer_order])
+
+    return render_template('home/Hospedaje.html', habitaciones=habitaciones, habitaciones_por_plan=habitaciones_por_plan, plan_order=plan_order)
 
 @main_bp.route('/restaurante')
 def restaurantes():
