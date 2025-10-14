@@ -2,20 +2,121 @@
 
 {% block content %}
 <div class="container my-4">
-	<div class="p-3 p-md-4 bg-white rounded-4 shadow-sm">
+	<div class="p-3 p-md-4 bg-white rounded-4 shadow-sm mb-3">
 		<h3 class="mb-2">Restaurante</h3>
-		<p class="text-muted mb-0">Explora nuestro menú y reserva tu experiencia gastronómica. (Próximamente)</p>
+		<p class="text-muted mb-0">Explora nuestro menú y reserva tu experiencia gastronómica.</p>
 	</div>
-  
-	<div class="row g-3 g-md-4 mt-1">
-		<!-- cards placeholder -->
-		<div class="col-12 col-sm-6 col-lg-4">
-			<div class="card h-100">
-				<img class="card-img-top" src="{{ url_for('static', filename='img/r1.jpg') }}" alt="Plato 1">
-				<div class="card-body">
-					<h6 class="card-title">Plato destacado</h6>
-					<p class="card-text text-muted">Descripción breve del plato.</p>
-				</div>
+
+	<div class="menu-grid">
+		<!-- 1 -->
+		<article class="menu-card">
+			<div class="menu-media">
+				<img src="{{ url_for('static', filename='img/r2.jpg') }}" alt="Frescura del Mar">
+				<span class="menu-tag">Especialidad marina</span>
+			</div>
+			<div class="menu-index-title">
+				<div class="menu-index">01</div>
+				<h3 class="menu-title mb-0">Frescura del Mar</h3>
+			</div>
+			<div class="menu-meta">
+				<div class="label">Valoración</div>
+				<div class="menu-stars">★ ★ ★ ★ ☆</div>
+			</div>
+			<div class="d-flex justify-content-end pt-1">
+				<button class="menu-btn" data-bs-toggle="modal" data-bs-target="#umodal1">Descubrir menú</button>
+			</div>
+		</article>
+
+		<!-- 2 -->
+		<article class="menu-card">
+			<div class="menu-media">
+				<img src="{{ url_for('static', filename='img/r3.jpg') }}" alt="Sabor Caribeño">
+				<span class="menu-tag">Sazón del Caribe</span>
+			</div>
+			<div class="menu-index-title">
+				<div class="menu-index">02</div>
+				<h3 class="menu-title mb-0">Sabor Caribeño</h3>
+			</div>
+			<div class="menu-meta">
+				<div class="label">Valoración</div>
+				<div class="menu-stars">★ ★ ★ ★ ☆</div>
+			</div>
+			<div class="d-flex justify-content-end pt-1">
+				<button class="menu-btn" data-bs-toggle="modal" data-bs-target="#umodal2">Descubrir menú</button>
+			</div>
+		</article>
+
+		<!-- 3 -->
+		<article class="menu-card">
+			<div class="menu-media">
+				<img src="{{ url_for('static', filename='img/r4.jpg') }}" alt="Exquisito al Paladar">
+				<span class="menu-tag">Selección gourmet</span>
+			</div>
+			<div class="menu-index-title">
+				<div class="menu-index">03</div>
+				<h3 class="menu-title mb-0">Exquisito al Paladar</h3>
+			</div>
+			<div class="menu-meta">
+				<div class="label">Valoración</div>
+				<div class="menu-stars">★ ★ ★ ★ ☆</div>
+			</div>
+			<div class="d-flex justify-content-end pt-1">
+				<button class="menu-btn" data-bs-toggle="modal" data-bs-target="#umodal3">Descubrir menú</button>
+			</div>
+		</article>
+	</div>
+</div>
+
+<!-- Modales usuario -->
+<div class="modal fade" id="umodal1" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header bg-warning text-dark">
+				<h5 class="modal-title">🍽 1. Frescura del Mar</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body text-center">
+				<img src="{{ url_for('static', filename='img/r2.jpg') }}" class="img-fluid rounded mb-3">
+				<p>Suavidad del pescado fresco con toque isleño. Ideal para un almuerzo frente al mar.</p>
+			</div>
+			<div class="modal-footer">
+				<a href="#" class="btn btn-warning">Añadir al pedido</a>
+			</div>
+		</div>
+	</div>
+1</div>
+
+<div class="modal fade" id="umodal2" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header bg-warning text-dark">
+				<h5 class="modal-title">🍽 2. Sabor Caribeño</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body text-center">
+				<img src="{{ url_for('static', filename='img/r3.jpg') }}" class="img-fluid rounded mb-3">
+				<p>Pulpo y camarones en sazón tradicional caribeña. Vibrante y lleno de sabor.</p>
+			</div>
+			<div class="modal-footer">
+				<a href="#" class="btn btn-warning">Añadir al pedido</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="umodal3" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header bg-warning text-dark">
+				<h5 class="modal-title">🍽️ 3. Exquisito al Paladar</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body text-center">
+				<img src="{{ url_for('static', filename='img/r4.jpg') }}" class="img-fluid rounded mb-3">
+				<p>Corte de res a fuego lento con vegetales. Una opción gourmet.</p>
+			</div>
+			<div class="modal-footer">
+				<a href="#" class="btn btn-warning">Añadir al pedido</a>
 			</div>
 		</div>
 	</div>

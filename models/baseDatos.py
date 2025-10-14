@@ -50,6 +50,7 @@ class nuevaHabitacion(db.Model):
     estado = db.Column(db.String(20), nullable=False, default="Disponible")
     cupo_personas = db.Column(db.Integer, nullable=False, default=1)
     imagen = db.Column(db.String(255), nullable=True)  # Ruta de la imagen
+    model3d = db.Column(db.String(255), nullable=True)  # URL del modelo 3D
 
     def __repr__(self):
         return f"<nuevaHabitacion {self.nombre} - {self.estado}>"
