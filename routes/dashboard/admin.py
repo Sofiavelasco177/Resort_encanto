@@ -774,7 +774,9 @@ def admin_restaurante_nuevo():
         p = PlatoRestaurante(nombre=nombre, categoria=categoria, precio=precio, descripcion=descripcion, icono=icono, orden=next_order)
         db.session.add(p)
         db.session.commit()
-        flash('Plato creado', 'success')
+        total = PlatoRestaurante.query.count()
+        current_app.logger.info(f"[RESTO] Creado plato '{p.nombre}' cat={p.categoria} orden={p.orden}. Total ahora={total}")
+        flash(f'Plato creado (total: {total})', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'No se pudo crear el plato: {e}', 'danger')
