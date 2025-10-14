@@ -111,11 +111,7 @@
                         {% endif %}
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                             <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
-                            {% if session.get('user') %}
-                            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
-                            {% else %}
-                            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
-                            {% endif %}
+                            <a class="btn btn-primary" href="{{ url_for('registro.login', next=url_for('hospedaje_usuario.hospedaje_usuario')) }}">Reservar Ahora</a>
                         </div>
                     </div>
                 </div>
@@ -146,11 +142,7 @@
                         {% endif %}
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                             <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
-                            {% if session.get('user') %}
-                            <a class="btn btn-primary" href="{{ url_for('hospedaje_usuario.hospedaje_usuario') }}">Reservar Ahora</a>
-                            {% else %}
-                            <button class="btn btn-primary" onclick="mostrarModal()">Reservar Ahora</button>
-                            {% endif %}
+                            <a class="btn btn-primary" href="{{ url_for('registro.login', next=url_for('hospedaje_usuario.hospedaje_usuario')) }}">Reservar Ahora</a>
                         </div>
                     </div>
                 </div>

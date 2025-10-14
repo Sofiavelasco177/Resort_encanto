@@ -2,75 +2,7 @@
 
 {% block content %}
 <div class="container my-4">
-	<!-- Filtros por categoría (píldoras) -->
-	<div class="d-flex gap-2 flex-wrap mb-3">
-		{% for cat in categorias %}
-			<button class="btn btn-filter" data-cat="{{ cat }}">{{ cat }}</button>
-		{% endfor %}
-	</div>
-
-	<!-- Lista de platos por categoría -->
-	<div class="menu-list">
-		{% for cat in categorias %}
-			<div class="menu-section" data-cat-section="{{ cat }}">
-				{% for p in grupos.get(cat, []) %}
-					<div class="menu-row card border-0 shadow-sm mb-3" style="border-radius: 16px; overflow: hidden; background: linear-gradient(180deg,#e7fff7 0%, #f7fffb 60%);">
-						<div class="row g-0 align-items-center">
-							<div class="col-md-2 text-center py-4 fs-1">{{ p.icono or '🍽️' }}</div>
-							<div class="col-md-8 py-3 px-4">
-								<div class="fw-bold">{{ p.nombre }}</div>
-								<div class="text-muted small">{{ p.descripcion }}</div>
-								<div class="fw-bold text-success mt-2">${{ '%.0f'|format(p.precio) }}</div>
-							</div>
-							<div class="col-md-2 text-end pe-4">
-								<button class="btn btn-primary rounded-pill mt-3">Agregar</button>
-							</div>
-						</div>
-					</div>
-				{% endfor %}
-			</div>
-		{% endfor %}
-	</div>
-</div>
-
-<script>
-	// Filtro simple por categoría en el cliente
-	document.querySelectorAll('.btn-filter').forEach(btn => {
-		btn.addEventListener('click', () => {
-			const cat = btn.dataset.cat;
-			document.querySelectorAll('[data-cat-section]').forEach(sec => {
-				sec.style.display = (sec.dataset.catSection === cat) ? '' : 'none';
-			});
-		});
-	});
-	// Mostrar primera categoría por defecto
-	const first = document.querySelector('[data-cat-section]');
-	if (first) {
-		document.querySelectorAll('[data-cat-section]').forEach((sec,i)=>{ sec.style.display = (i===0)?'':'none'; });
-	}
-</script>
 {% endblock %}
-		<!-- 7 -->
-		<article class="menu-card">
-			<div class="menu-media">
-				<img src="{{ url_for('static', filename='img/r8.jpg') }}" alt="Pescado, Vegetales y Camarones">
-				<span class="menu-tag">Favorito</span>
-			</div>
-			<div class="menu-index-title">
-				<div class="menu-index">07</div>
-				<h3 class="menu-title mb-0">Pescado, Vegetales y Camarones</h3>
-			</div>
-			<div class="menu-meta">
-				<div class="label">Valoración</div>
-				<div class="menu-stars">★ ★ ★ ★ ☆</div>
-			</div>
-			<div class="d-flex justify-content-end pt-1">
-				<button class="menu-btn" data-bs-toggle="modal" data-bs-target="#umodal7">Descubrir menú</button>
-			</div>
-		</article>
-
-		<!-- 8 -->
-		<article class="menu-card">
 			<div class="menu-media">
 				<img src="{{ url_for('static', filename='img/r10.jpg') }}" alt="Cóctel Azul Tropical">
 				<span class="menu-tag">Bebida tropical</span>
