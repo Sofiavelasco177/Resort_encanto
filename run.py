@@ -280,6 +280,38 @@ def init_database():
                     db.session.rollback()
                     app.logger.warning('No se pudo hacer backfill de orden en posts home: %s', e)
 
+                # Migraciones defensivas para nuevaHabitacion (agregar columnas faltantes)
+                try:
+                    if 'nuevaHabitacion' in inspector.get_table_names():
+                        hab_cols = [c['name'] for c in inspector.get_columns('nuevaHabitacion')]
+                    else:
+                        hab_cols = []
+                except Exception:
+                    hab_cols = []
+                stmts_hab = []
+                if hab_cols is not None and 'plan' not in hab_cols:
+                    stmts_hab.append("ALTER TABLE nuevaHabitacion ADD COLUMN plan VARCHAR(20) NULL")
+                if hab_cols is not None and 'numero' not in hab_cols:
+                    stmts_hab.append("ALTER TABLE nuevaHabitacion ADD COLUMN numero INTEGER NULL")
+                if hab_cols is not None and 'caracteristicas' not in hab_cols:
+                    stmts_hab.append("ALTER TABLE nuevaHabitacion ADD COLUMN caracteristicas TEXT NULL")
+                if hab_cols is not None and 'estado' not in hab_cols:
+                    stmts_hab.append("ALTER TABLE nuevaHabitacion ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'Disponible'")
+                if hab_cols is not None and 'cupo_personas' not in hab_cols:
+                    stmts_hab.append("ALTER TABLE nuevaHabitacion ADD COLUMN cupo_personas INTEGER NOT NULL DEFAULT 1")
+                if hab_cols is not None and 'imagen' not in hab_cols:
+                    stmts_hab.append("ALTER TABLE nuevaHabitacion ADD COLUMN imagen VARCHAR(255) NULL")
+                if hab_cols is not None and 'model3d' not in hab_cols:
+                    stmts_hab.append("ALTER TABLE nuevaHabitacion ADD COLUMN model3d VARCHAR(255) NULL")
+                for s in stmts_hab:
+                    try:
+                        db.session.execute(text(s))
+                        db.session.commit()
+                        app.logger.info('Migración aplicada a nuevaHabitacion: %s', s)
+                    except Exception as e:
+                        db.session.rollback()
+                        app.logger.warning('No se pudo aplicar migración a nuevaHabitacion %s: %s', s, e)
+
                 # Migrar imágenes legacy de static/img/uploads -> instance/uploads
                 try:
                     from models.baseDatos import Post

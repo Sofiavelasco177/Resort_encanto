@@ -70,12 +70,13 @@ def main():
         except Exception as e:
             app.logger.warning(f"No se pudo inspeccionar/ajustar la tabla 'usuario': {e}")
 
-        # Migraciones defensivas para nuevaHabitacion (agregar plan, numero, caracteristicas)
+        # Migraciones defensivas para nuevaHabitacion
         try:
             inspector = inspect(db.engine)
             if 'nuevaHabitacion' in inspector.get_table_names():
                 cols = [c['name'] for c in inspector.get_columns('nuevaHabitacion')]
                 stmts = []
+                # Nuevos campos introducidos en el modelo
                 if 'plan' not in cols:
                     stmts.append("ALTER TABLE nuevaHabitacion ADD COLUMN plan VARCHAR(20) NULL")
                 if 'numero' not in cols:
@@ -83,6 +84,15 @@ def main():
                     stmts.append("ALTER TABLE nuevaHabitacion ADD COLUMN numero INTEGER NULL")
                 if 'caracteristicas' not in cols:
                     stmts.append("ALTER TABLE nuevaHabitacion ADD COLUMN caracteristicas TEXT NULL")
+                if 'estado' not in cols:
+                    stmts.append("ALTER TABLE nuevaHabitacion ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'Disponible'")
+                if 'cupo_personas' not in cols:
+                    # INTEGER en SQLite, INT en MySQL
+                    stmts.append("ALTER TABLE nuevaHabitacion ADD COLUMN cupo_personas INTEGER NOT NULL DEFAULT 1")
+                if 'imagen' not in cols:
+                    stmts.append("ALTER TABLE nuevaHabitacion ADD COLUMN imagen VARCHAR(255) NULL")
+                if 'model3d' not in cols:
+                    stmts.append("ALTER TABLE nuevaHabitacion ADD COLUMN model3d VARCHAR(255) NULL")
                 for s in stmts:
                     try:
                         db.session.execute(text(s))
