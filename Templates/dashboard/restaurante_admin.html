@@ -20,8 +20,11 @@
             <tr>
                 <th>#</th>
                 <th>Plato</th>
+                <th>Descripción</th>
                 <th>Categoria</th>
                 <th>Precio</th>
+                <th>Icono</th>
+                <th>Orden</th>
                 <th></th>
             </tr>
         </thead>
@@ -30,8 +33,20 @@
             <tr>
                 <td>{{ p.id }}</td>
                 <td>{{ p.nombre }}</td>
+                <td class="text-truncate" style="max-width: 260px;">{{ p.descripcion }}</td>
                 <td>{{ p.categoria }}</td>
                 <td>${{ '%.2f'|format(p.precio) }}</td>
+                <td>{{ p.icono }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('admin.admin_restaurante_orden', pid=p.id) }}" class="d-inline">
+                        <input type="hidden" name="dir" value="up">
+                        <button class="btn btn-sm btn-outline-light">▲</button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin.admin_restaurante_orden', pid=p.id) }}" class="d-inline">
+                        <input type="hidden" name="dir" value="down">
+                        <button class="btn btn-sm btn-outline-light">▼</button>
+                    </form>
+                </td>
                 <td class="text-end">
                     <a href="{{ url_for('admin.admin_restaurante_editar', plato_id=p.id) }}" class="btn btn-sm btn-primary me-2">Editar</a>
                     <form method="POST" action="{{ url_for('admin.admin_restaurante_eliminar', plato_id=p.id) }}" style="display:inline-block;">
@@ -52,19 +67,34 @@
     <h4>➕ Crear nuevo plato</h4>
     <div class="inv-accent mb-2"></div>
     <form method="POST" action="{{ url_for('admin.admin_restaurante_nuevo') }}" class="mt-3 p-3 rounded-4 form-dark-box form-dark">
-        <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input class="form-control" name="nombre" required>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Nombre</label>
+                <input class="form-control" name="nombre" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Categoria</label>
+                <select class="form-select" name="categoria">
+                    <option>Entradas</option>
+                    <option>Principales</option>
+                    <option>Postres</option>
+                    <option>Bebidas</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Precio</label>
+                <input class="form-control" name="precio" type="number" step="0.01" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Icono (emoji o texto)</label>
+                <input class="form-control" name="icono" placeholder="🥗, 🍤, 🍰, 🥤">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Descripción</label>
+                <input class="form-control" name="descripcion">
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Categoria</label>
-            <input class="form-control" name="categoria">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Precio</label>
-            <input class="form-control" name="precio" type="number" required>
-        </div>
-        <button class="btn btn-success" type="submit">Crear</button>
+        <button class="btn btn-success mt-3" type="submit">Crear</button>
     </form>
 
     <hr class="my-4">
@@ -74,19 +104,33 @@
     <h4>✏️ Editar plato</h4>
     <div class="inv-accent mb-2"></div>
     <form method="POST" action="{{ url_for('admin.admin_restaurante_editar', plato_id=plato.id) }}" class="mt-3 p-3 rounded-4 form-dark-box form-dark">
-        <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input class="form-control" name="nombre" value="{{ plato.nombre }}" required>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Nombre</label>
+                <input class="form-control" name="nombre" value="{{ plato.nombre }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Categoria</label>
+                <select class="form-select" name="categoria">
+                    {% for cat in ['Entradas','Principales','Postres','Bebidas'] %}
+                        <option value="{{cat}}" {{ 'selected' if plato.categoria==cat else '' }}>{{cat}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Precio</label>
+                <input class="form-control" name="precio" type="number" step="0.01" value="{{ plato.precio }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Icono</label>
+                <input class="form-control" name="icono" value="{{ plato.icono }}" placeholder="🥗, 🍤, 🍰, 🥤">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Descripción</label>
+                <input class="form-control" name="descripcion" value="{{ plato.descripcion }}">
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Categoria</label>
-            <input class="form-control" name="categoria" value="{{ plato.categoria }}">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Precio</label>
-            <input class="form-control" name="precio" type="number" value="{{ plato.precio }}" required>
-        </div>
-        <button class="btn btn-primary" type="submit">Guardar</button>
+        <button class="btn btn-primary mt-3" type="submit">Guardar</button>
     </form>
     {% endif %}
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post
+from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante
 from datetime import datetime
 from flask import session
 from flask import send_file, make_response
@@ -746,9 +746,8 @@ def hospedaje_eliminar(habitacion_id):
     return redirect(url_for("admin.hospedaje_index"))
 
 # ==========================
-# 📌 SECCIÓN RESTAURANTE
+# 📌 SECCIÓN RESTAURANTE (CRUD real)
 # ==========================
-_platos_demo = []
 
 @admin_bp.route("/home_dashboard")
 def home_dashboard():
@@ -756,41 +755,84 @@ def home_dashboard():
 
 @admin_bp.route("/restaurante")
 def admin_restaurante():
-    return render_template("dashboard/restaurante_admin.html", platos=_platos_demo)
+    platos = PlatoRestaurante.query.order_by(PlatoRestaurante.categoria.asc(), PlatoRestaurante.orden.asc(), PlatoRestaurante.creado_en.desc()).all()
+    return render_template("dashboard/restaurante_admin.html", platos=platos)
 
 #añadir nuevo plato ---------------------------------------------------------
 
 @admin_bp.route("/restaurante/nuevo", methods=["POST"])
 def admin_restaurante_nuevo():
-    nombre = request.form.get("nombre")
-    categoria = request.form.get("categoria")
-    precio = float(request.form.get("precio") or 0)
-    nuevo_id = max([p["id"] for p in _platos_demo]) + 1 if _platos_demo else 1
-    _platos_demo.append({"id": nuevo_id, "nombre": nombre, "categoria": categoria, "precio": precio})
+    try:
+        nombre = request.form.get("nombre")
+        categoria = request.form.get("categoria")
+        precio = float(request.form.get("precio") or 0)
+        descripcion = request.form.get("descripcion")
+        icono = request.form.get("icono")
+        # calcular siguiente orden por categoría
+        last = PlatoRestaurante.query.filter_by(categoria=categoria).order_by(PlatoRestaurante.orden.desc()).first()
+        next_order = (last.orden + 1) if last else 1
+        p = PlatoRestaurante(nombre=nombre, categoria=categoria, precio=precio, descripcion=descripcion, icono=icono, orden=next_order)
+        db.session.add(p)
+        db.session.commit()
+        flash('Plato creado', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo crear el plato: {e}', 'danger')
     return redirect(url_for("admin.admin_restaurante"))
 
 #editar plato ----------------------------------------------------------
 
 @admin_bp.route("/restaurante/editar/<int:plato_id>", methods=["GET", "POST"])
 def admin_restaurante_editar(plato_id):
-    plato = next((p for p in _platos_demo if p["id"] == plato_id), None)
-    if not plato:
-        return redirect(url_for("admin.admin_restaurante"))
-
+    plato = PlatoRestaurante.query.get_or_404(plato_id)
     if request.method == "POST":
-        plato["nombre"] = request.form.get("nombre")
-        plato["categoria"] = request.form.get("categoria")
-        plato["precio"] = float(request.form.get("precio") or 0)
-        return redirect(url_for("admin.admin_restaurante"))
-
-    return render_template("dashboard/restaurante_admin.html", platos=_platos_demo, plato=plato)
+        try:
+            plato.nombre = request.form.get("nombre") or plato.nombre
+            plato.categoria = request.form.get("categoria") or plato.categoria
+            plato.precio = float(request.form.get("precio") or plato.precio)
+            plato.descripcion = request.form.get("descripcion")
+            plato.icono = request.form.get("icono")
+            db.session.commit()
+            flash('Plato actualizado', 'success')
+            return redirect(url_for("admin.admin_restaurante"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar: {e}', 'danger')
+    # recargar lista
+    platos = PlatoRestaurante.query.order_by(PlatoRestaurante.categoria.asc(), PlatoRestaurante.orden.asc()).all()
+    return render_template("dashboard/restaurante_admin.html", platos=platos, plato=plato)
 
 #eliminar plato ----------------------------------------------------------
 
 @admin_bp.route("/restaurante/eliminar/<int:plato_id>", methods=["POST"])
 def admin_restaurante_eliminar(plato_id):
-    global _platos_demo
-    _platos_demo = [p for p in _platos_demo if p["id"] != plato_id]
+    p = PlatoRestaurante.query.get_or_404(plato_id)
+    try:
+        db.session.delete(p)
+        db.session.commit()
+        flash('Plato eliminado', 'warning')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo eliminar: {e}', 'danger')
+    return redirect(url_for('admin.admin_restaurante'))
+
+# Ordenar platos (mover arriba/abajo dentro de su categoría)
+@admin_bp.route('/restaurante/<int:pid>/orden', methods=['POST'])
+def admin_restaurante_orden(pid):
+    direction = request.form.get('dir')  # up/down
+    p = PlatoRestaurante.query.get_or_404(pid)
+    try:
+        if direction == 'up':
+            neighbor = PlatoRestaurante.query.filter(PlatoRestaurante.categoria == p.categoria, PlatoRestaurante.orden < p.orden).order_by(PlatoRestaurante.orden.desc()).first()
+        else:
+            neighbor = PlatoRestaurante.query.filter(PlatoRestaurante.categoria == p.categoria, PlatoRestaurante.orden > p.orden).order_by(PlatoRestaurante.orden.asc()).first()
+        if neighbor:
+            p.orden, neighbor.orden = neighbor.orden, p.orden
+            db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo reordenar: {e}', 'danger')
+    return redirect(url_for('admin.admin_restaurante'))
 
 # ==========================
 # 📄 NOSOTROS (Contenido dinámico)

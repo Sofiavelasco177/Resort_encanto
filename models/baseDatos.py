@@ -253,3 +253,23 @@ class Post(db.Model):
 
     def __repr__(self):
         return f"<Post {self.titulo} cat={self.categoria} activo={self.activo}>"
+
+
+# ------------------------------
+# Menú del Restaurante (CRUD real)
+# ------------------------------
+class PlatoRestaurante(db.Model):
+    __tablename__ = 'plato_restaurante'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(150), nullable=False)
+    descripcion = db.Column(db.String(300), nullable=True)
+    precio = db.Column(db.Float, nullable=False, default=0)
+    categoria = db.Column(db.String(50), nullable=True)  # Entradas, Principales, Postres, Bebidas
+    icono = db.Column(db.String(120), nullable=True)     # emoji o nombre de icono
+    activo = db.Column(db.Boolean, default=True)
+    orden = db.Column(db.Integer, nullable=False, default=0)
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Plato {self.nombre} ${self.precio:.2f} cat={self.categoria}>"

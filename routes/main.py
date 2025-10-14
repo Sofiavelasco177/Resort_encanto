@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
 from jinja2 import TemplateNotFound
 from datetime import datetime
-from models.baseDatos import nuevaHabitacion, Post
+from models.baseDatos import nuevaHabitacion, Post, PlatoRestaurante
 
 main_bp = Blueprint('main', __name__)
 
@@ -92,7 +92,18 @@ def hospedaje_usuario():
 
 @main_bp.route('/restaurante_usuario')
 def restaurante_usuario():
-    return render_template('usuario/restaurante_usuario.html')
+    # Obtener platos activos, agrupados por categoria
+    platos = PlatoRestaurante.query.filter_by(activo=True).order_by(PlatoRestaurante.categoria.asc(), PlatoRestaurante.orden.asc(), PlatoRestaurante.creado_en.desc()).all()
+    grupos = {}
+    for p in platos:
+        cat = p.categoria or 'Otros'
+        grupos.setdefault(cat, []).append(p)
+    categorias = ['Entradas','Principales','Postres','Bebidas']
+    # mantener orden predefinido y añadir otras categorías al final
+    cat_presentes = [c for c in categorias if c in grupos]
+    extra = [c for c in grupos.keys() if c not in categorias]
+    categorias_final = cat_presentes + extra
+    return render_template('usuario/restaurante_usuario.html', grupos=grupos, categorias=categorias_final)
 
 @main_bp.route('/experiencias_usuario')
 def experiencias_usuario():
