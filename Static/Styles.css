@@ -399,6 +399,12 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
+/* Usuario - Menú Restaurante (lista tipo screenshot) */
+.menu-list .menu-row { transition: box-shadow .2s, transform .15s; }
+.menu-list .menu-row:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(16, 185, 129, .15); }
+.btn.btn-primary.rounded-pill { background: #0ea5a5; border: none; }
+.btn.btn-primary.rounded-pill:hover { filter: brightness(1.05); }
+
 /* =======================
    RESTAURANTE - CARD STYLE
    (Diseño inspirado en maqueta con azules)
