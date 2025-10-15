@@ -8,7 +8,7 @@
     <div class="col-lg-7">
       <form method="post" action="{{ url_for('restaurante_cart.cart_update') }}" class="card p-3">
         <h5 class="mb-3">Carrito</h5>
-        {% if cart.items %}
+  {% if cart_items %}
           <div class="table-responsive">
             <table class="table align-middle">
               <thead>
@@ -21,7 +21,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for it in cart.items %}
+              {% for it in cart_items %}
                 <tr>
                   <td>{{ it.nombre }}</td>
                   <td class="text-end">${{ '{:,.0f}'.format(it.precio) }}</td>

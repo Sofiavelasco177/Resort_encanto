@@ -36,7 +36,9 @@ def view_cart():
     cat_presentes = [c for c in categorias if c in grupos]
     extra = [c for c in grupos.keys() if c not in categorias]
     categorias_final = cat_presentes + extra
-    return render_template('usuario/restaurante_cart.html', cart=cart, grupos=grupos, categorias=categorias_final)
+    # Evitar conflicto Jinja con cart.items (método). Pasar lista explícita.
+    cart_items = cart.get('items', [])
+    return render_template('usuario/restaurante_cart.html', cart=cart, cart_items=cart_items, grupos=grupos, categorias=categorias_final)
 
 
 @restaurante_cart_bp.route('/restaurante/cart/add', methods=['POST'])
