@@ -85,12 +85,23 @@ def hospedaje_actualizar(habitacion_id):
 # ==========================
 @admin_bp.route("/hospedaje")
 def hospedaje_index():
+    # Optional text search
+    q = (request.args.get('q') or '').strip().lower()
     habitaciones = nuevaHabitacion.query.all()
+    if q:
+        def _match(h):
+            return any([(h.nombre or '').lower().find(q) >= 0,
+                        (h.plan or '').lower().find(q) >= 0,
+                        (h.estado or '').lower().find(q) >= 0])
+        habitaciones = [h for h in habitaciones if _match(h)]
     # Agrupar por plan en Python para evitar errores de ordenación en Jinja (None vs None)
     habitaciones_por_plan = {}
     for h in habitaciones:
         label = (h.plan or '').strip() or 'Sin plan'
         habitaciones_por_plan.setdefault(label, []).append(h)
+    # Ordenar cada grupo por número y luego por nombre
+    for k, lst in habitaciones_por_plan.items():
+        lst.sort(key=lambda x: (x.numero is None, x.numero if x.numero is not None else 0, (x.nombre or '').lower()))
     # Orden deseado de planes
     base_order = ['Oro', 'Plata', 'Bronce', 'Sin plan']
     # Incluir cualquier otro plan que exista
@@ -101,6 +112,7 @@ def hospedaje_index():
         habitaciones=habitaciones,
         habitaciones_por_plan=habitaciones_por_plan,
         plan_order=plan_order,
+        q=q,
     )
 
 # ==========================
@@ -811,10 +823,11 @@ def admin_restaurante_nuevo():
         precio = float(request.form.get("precio") or 0)
         descripcion = request.form.get("descripcion")
         icono = request.form.get("icono")
+        imagen_path = _save_uploaded_image('imagen')
         # calcular siguiente orden por categoría
         last = PlatoRestaurante.query.filter_by(categoria=categoria).order_by(PlatoRestaurante.orden.desc()).first()
         next_order = (last.orden + 1) if last else 1
-        p = PlatoRestaurante(nombre=nombre, categoria=categoria, precio=precio, descripcion=descripcion, icono=icono, orden=next_order)
+        p = PlatoRestaurante(nombre=nombre, categoria=categoria, precio=precio, descripcion=descripcion, icono=icono, imagen=imagen_path, orden=next_order)
         db.session.add(p)
         db.session.commit()
         total = PlatoRestaurante.query.count()
@@ -837,6 +850,9 @@ def admin_restaurante_editar(plato_id):
             plato.precio = float(request.form.get("precio") or plato.precio)
             plato.descripcion = request.form.get("descripcion")
             plato.icono = request.form.get("icono")
+            new_img = _save_uploaded_image('imagen')
+            if new_img:
+                plato.imagen = new_img
             db.session.commit()
             flash('Plato actualizado', 'success')
             return redirect(url_for("admin.admin_restaurante"))

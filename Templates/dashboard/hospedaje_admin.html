@@ -4,6 +4,13 @@
 <div class="container mt-5">
 	<div class="d-flex justify-content-between align-items-center mb-2">
 		<h2>Hospedaje — Administración</h2>
+		<form class="d-flex" method="get" action="{{ url_for('admin.hospedaje_index') }}" style="gap:8px">
+			<input class="form-control" type="search" name="q" value="{{ q or '' }}" placeholder="Buscar por nombre, plan o estado">
+			<button class="btn btn-outline-light" type="submit">Buscar</button>
+			{% if q %}
+				<a class="btn btn-link text-decoration-none" href="{{ url_for('admin.hospedaje_index') }}">Quitar filtro</a>
+			{% endif %}
+		</form>
 	</div>
 	<div class="inv-accent mb-4"></div>
 
@@ -112,6 +119,7 @@
 				</div>
 			{% endfor %}
 			</div>
+			{% endfor %}
 		{% else %}
 			<div class="col-12"><div class="text-muted">No hay habitaciones registradas.</div></div>
 		{% endif %}

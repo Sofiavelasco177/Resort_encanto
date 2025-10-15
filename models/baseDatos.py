@@ -267,6 +267,7 @@ class PlatoRestaurante(db.Model):
     precio = db.Column(db.Float, nullable=False, default=0)
     categoria = db.Column(db.String(50), nullable=True)  # Entradas, Principales, Postres, Bebidas
     icono = db.Column(db.String(120), nullable=True)     # emoji o nombre de icono
+    imagen = db.Column(db.String(255), nullable=True)    # ruta relativa a instance/uploads (via /media) o static
     activo = db.Column(db.Boolean, default=True)
     orden = db.Column(db.Integer, nullable=False, default=0)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)

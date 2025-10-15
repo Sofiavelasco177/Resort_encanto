@@ -80,16 +80,16 @@
         {% for p in items %}
           <div class="menu-item">
             <div class="item-image">
-              {# Muestra imagen si existiera en el modelo, si no, un placeholder con emoji/icono #}
+              {# Muestra imagen si existiera en el modelo, si no, un placeholder #}
               {% set img = p.imagen or p.image or p.foto %}
               {% if img %}
-                <img src="{{ img }}" alt="{{ p.nombre }}" onerror="this.style.display='none'">
+                <img src="{{ media_url(img) }}" alt="{{ p.nombre }}" onerror="this.style.display='none'">
               {% else %}
-                <span class="emoji">{{ p.icono or '🍽️' }}</span>
+                <span class="emoji">🍽️</span>
               {% endif %}
             </div>
             <div class="item-info">
-              <div class="item-name">{{ p.icono or '🍽️' }} {{ p.nombre }}</div>
+              <div class="item-name">{{ p.nombre }}</div>
               {% if p.descripcion %}<div class="item-description">{{ p.descripcion }}</div>{% endif %}
             </div>
             <div class="item-actions">
