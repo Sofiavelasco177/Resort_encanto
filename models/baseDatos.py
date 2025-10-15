@@ -273,3 +273,43 @@ class PlatoRestaurante(db.Model):
 
     def __repr__(self):
         return f"<Plato {self.nombre} ${self.precio:.2f} cat={self.categoria}>"
+
+
+# ------------------------------
+# Reservas de Restaurante (mesas) y detalle de pedido
+# ------------------------------
+class ReservaRestaurante(db.Model):
+    __tablename__ = 'reserva_restaurante'
+
+    id = db.Column(db.Integer, primary_key=True)
+    # usuario puede ser null si el flujo permite reserva sin login; normalmente usaremos login
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=True)
+    nombre_cliente = db.Column(db.String(150), nullable=True)
+    telefono_cliente = db.Column(db.String(50), nullable=True)
+    cupo_personas = db.Column(db.Integer, nullable=False, default=1)
+    fecha_reserva = db.Column(db.DateTime, nullable=True)
+    estado = db.Column(db.String(30), nullable=False, default='Pendiente')  # Pendiente, Confirmada, Cancelada
+    ticket_numero = db.Column(db.String(50), nullable=True, unique=True, index=True)
+    total = db.Column(db.Float, nullable=False, default=0)
+    file_ticket = db.Column(db.String(255), nullable=True)  # ruta PDF
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+    items = db.relationship('ReservaPlato', backref='reserva', cascade='all, delete-orphan', lazy=True)
+
+    def __repr__(self):
+        return f"<ReservaRestaurante id={self.id} ticket={self.ticket_numero} total={self.total}>"
+
+
+class ReservaPlato(db.Model):
+    __tablename__ = 'reserva_plato'
+
+    id = db.Column(db.Integer, primary_key=True)
+    reserva_id = db.Column(db.Integer, db.ForeignKey('reserva_restaurante.id'), nullable=False)
+    plato_id = db.Column(db.Integer, db.ForeignKey('plato_restaurante.id'), nullable=True)
+    nombre_plato = db.Column(db.String(200), nullable=False)
+    precio_unitario = db.Column(db.Float, nullable=False, default=0)
+    cantidad = db.Column(db.Integer, nullable=False, default=1)
+    subtotal = db.Column(db.Float, nullable=False, default=0)
+
+    def __repr__(self):
+        return f"<ReservaPlato {self.nombre_plato} x{self.cantidad} = {self.subtotal}>"

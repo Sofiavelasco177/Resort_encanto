@@ -17,6 +17,7 @@ from authlib.integrations.flask_client import OAuth
 from utils.extensions import db, bcrypt, serializer
 from routes.usuario.perfil_usuario_routes import perfil_usuario_bp
 from routes.usuario.pagos_usuario import pagos_usuario_bp
+from routes.usuario.restaurante_usuario_cart import restaurante_cart_bp
 from flask import Blueprint
 
 # Cargar variables de entorno
@@ -385,6 +386,13 @@ def init_database():
                     db.session.rollback()
                     app.logger.warning('No se pudo migrar imágenes legacy: %s', e)
 
+                # Asegurar tablas de reservas de restaurante
+                try:
+                    from models.baseDatos import ReservaRestaurante, ReservaPlato
+                    db.create_all()  # crea si faltan
+                except Exception as e:
+                    app.logger.warning('No se pudieron crear tablas de restaurante: %s', e)
+
             except Exception as e:
                 app.logger.exception('Error revisando/alterando la tabla usuario al iniciar: %s', e)
 
@@ -397,6 +405,9 @@ try:
     init_database()
 except Exception as _e:
     logger.warning(f"No se pudo inicializar/verificar automáticamente la base de datos: {_e}")
+
+# Registrar blueprints (después de init_db)
+app.register_blueprint(restaurante_cart_bp)
 
 # ---------------- GOOGLE OAUTH ---------------- #
 oauth = OAuth(app)
