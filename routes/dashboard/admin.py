@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante
+from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante, ReservaRestaurante
 from datetime import datetime
 from flask import session
 from flask import send_file, make_response
@@ -87,6 +87,34 @@ def hospedaje_actualizar(habitacion_id):
 def hospedaje_index():
     habitaciones = nuevaHabitacion.query.all()
     return render_template("dashboard/hospedaje_admin.html", habitaciones=habitaciones)
+
+# ==========================
+# 📌 SECCIÓN RESTAURANTE: Reservas (admin)
+# ==========================
+@admin_bp.route('/restaurante/reservas')
+def restaurante_reservas_list():
+    estado = (request.args.get('estado') or '').strip()
+    q = ReservaRestaurante.query.order_by(ReservaRestaurante.creado_en.desc())
+    if estado:
+        q = q.filter(ReservaRestaurante.estado == estado)
+    reservas = q.limit(200).all()
+    return render_template('dashboard/restaurante_reservas_admin.html', reservas=reservas, estado=estado)
+
+@admin_bp.route('/restaurante/reservas/<int:reserva_id>/estado', methods=['POST'])
+def restaurante_reserva_estado(reserva_id):
+    r = ReservaRestaurante.query.get_or_404(reserva_id)
+    nuevo = request.form.get('estado')
+    if nuevo not in ('Pendiente','Confirmada','Atendida','Cancelada'):
+        flash('Estado no válido', 'danger')
+        return redirect(url_for('admin.restaurante_reservas_list'))
+    try:
+        r.estado = nuevo
+        db.session.commit()
+        flash('Estado actualizado', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo actualizar: {e}', 'danger')
+    return redirect(url_for('admin.restaurante_reservas_list'))
 
 # ==========================
 # SECCIÓN INICIO (Home) - CRUD de contenido usando Post
