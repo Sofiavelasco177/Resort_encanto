@@ -158,11 +158,10 @@ def reservar_restaurante():
 
     # Generar PDF en memoria
     pdf_bytes = _build_ticket_pdf(reserva)
-    # Guardar opcionalmente a disco (instance/uploads/tickets)
+    # Guardar opcionalmente a disco (instance/uploads/tickets), compatible con /media
     try:
         import os
-        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        tickets_dir = os.path.join(base, 'instance', 'uploads', 'tickets')
+        tickets_dir = os.path.join(current_app.instance_path, 'uploads', 'tickets')
         os.makedirs(tickets_dir, exist_ok=True)
         path = os.path.join(tickets_dir, f"{reserva.ticket_numero}.pdf")
         with open(path, 'wb') as f:

@@ -45,7 +45,7 @@
             <td>${{ '{:,.0f}'.format(r.total or 0) }} COP</td>
             <td>
               {% if r.file_ticket %}
-                <a href="{{ url_for('media_file', filename=r.file_ticket.split('uploads/')[1]) }}" target="_blank">Descargar</a>
+                <a href="{{ media_url(r.file_ticket) }}" target="_blank">Descargar</a>
               {% else %}
                 —
               {% endif %}
