@@ -87,7 +87,7 @@
         </form>
     {% else %}
         <div class="alert alert-info">
-            Para compartir una experiencia, por favor <a href="{{ url_for('login') }}">inicia sesión</a> o crea una cuenta.
+            Para compartir una experiencia, por favor <a href="{{ url_for('registro.login', next=request.path) }}">inicia sesión</a> o crea una cuenta.
         </div>
     {% endif %}
 
@@ -141,7 +141,7 @@
                     <div class="small text-muted">¡Buenos servicios! Puntuación: <strong>8.6</strong></div>
                 </div>
                 <div>
-                    <a href="{{ url_for('login') }}" class="btn btn-primary">Ver disponibilidad</a>
+                    <a href="{{ url_for('registro.login', next=request.path) }}" class="btn btn-primary">Ver disponibilidad</a>
                 </div>
             </div>
 
@@ -201,7 +201,7 @@
 
 
     <!-- Availability quick row similar to reference -->
-    <form method="GET" action="{{ url_for('login') }}">
+    <form method="GET" action="{{ url_for('registro.login', next=request.path) }}">
     <div class="card p-3 mb-4 mt-3">
         <div class="d-flex flex-column flex-md-row align-items-center">
             <div class="me-4 mb-2 mb-md-0">

@@ -48,7 +48,7 @@
                             <span class="d-none d-sm-inline ms-1">Cerrar sesión</span>
                         </a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-login" title="Iniciar sesión">
+                        <a href="{{ url_for('registro.login') }}" class="btn btn-login" title="Iniciar sesión">
                             <i class="bi bi-box-arrow-right fs-4"></i>
                         </a>
                     {% endif %}
@@ -89,7 +89,7 @@
                     <p>Para continuar con la reserva necesitas iniciar sesión.</p>
                 </div>
                 <div class="modal-footer">
-                    <a href="{{ url_for('login') }}" class="btn btn-primary">Ir a iniciar sesión</a>
+                    <a href="{{ url_for('registro.login', next=request.path) }}" class="btn btn-primary">Ir a iniciar sesión</a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 </div>
             </div>
