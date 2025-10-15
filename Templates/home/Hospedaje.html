@@ -50,15 +50,13 @@
                 <div class="dropdown-menu p-3" aria-labelledby="filterDropdown">
                     <form id="filter-form" class="row g-2 align-items-center" onsubmit="return false;">
                         <div class="col-12">
-                            <label for="filter-type" class="form-label">Tipo</label>
-                            <select id="filter-type" class="form-select">
+                            <label for="filter-plan" class="form-label">Plan</label>
+                            <select id="filter-plan" class="form-select">
                                 <option value="">Todos</option>
-                                <option value="Basica">Habitación Básica</option>
-                                <option value="Estandar">Habitación Estándar</option>
-                                <option value="Premium">Habitación Premium</option>
-                                <option value="Familiar">Suite Familiar</option>
-                                <option value="Deluxe">Suite Deluxe</option>
-                                <option value="Villa">Villa Privada</option>
+                                <option value="Oro">Oro</option>
+                                <option value="Plata">Plata</option>
+                                <option value="Bronce">Bronce</option>
+                                <option value="Sin plan">Sin plan</option>
                             </select>
                         </div>
                         <div class="col-12">
@@ -92,7 +90,7 @@
                 <div class="plan-title">Plan {{ plan }}</div>
             </div>
             {% for h in group %}
-            <div class="col-12 mb-5 room-block" data-type="{{ h.nombre }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
+            <div class="col-12 mb-5 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
                 <div class="card room-card position-relative">
                     <span class="room-badge">{{ h.plan or 'General' }}{% if h.numero %} · #{{ '%02d'|format(h.numero) }}{% endif %}</span>
                     {% set model_url = h.model3d or h.model_url or h.modelo3d %}
@@ -123,7 +121,7 @@
         {# Fallback por si no pasamos plan_order: usar listado plano sin títulos #}
         <div class="row" id="habitaciones-publicas">
             {% for h in habitaciones %}
-            <div class="col-12 mb-5 room-block" data-type="{{ h.nombre }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
+            <div class="col-12 mb-5 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
                 <div class="card room-card position-relative">
                     <span class="room-badge">{{ h.plan or 'General' }}{% if h.numero %} · #{{ '%02d'|format(h.numero) }}{% endif %}</span>
                     {% set model_url = h.model3d or h.model_url or h.modelo3d %}
@@ -182,17 +180,17 @@ function mostrarModal() {
 
 // Ocultar/mostrar sin reescribir el contenedor (evita romper títulos/estructura)
 function filterRooms() {
-    const type = document.getElementById('filter-type').value;
+    const plan = document.getElementById('filter-plan').value;
     const guests = parseInt(document.getElementById('filter-guests').value) || 0;
     const priceOrder = document.getElementById('filter-price-order').value;
     const blocks = Array.from(document.querySelectorAll('.room-block'));
 
     // Filtrar visibilidad
     blocks.forEach(b => {
-        const t = b.getAttribute('data-type') || '';
+        const p = b.getAttribute('data-plan') || '';
         const cap = parseInt(b.getAttribute('data-capacity') || '0');
         let visible = true;
-        if (type && type !== '' && !t.toLowerCase().includes(type.toLowerCase())) visible = false;
+        if (plan && plan !== '' && p !== plan) visible = false;
         if (guests > 0 && cap < guests) visible = false;
         b.style.display = visible ? '' : 'none';
     });
@@ -213,7 +211,7 @@ function filterRooms() {
 }
 
 function resetFilters() {
-    document.getElementById('filter-type').value = '';
+    document.getElementById('filter-plan').value = '';
     document.getElementById('filter-guests').value = '';
     document.getElementById('filter-price-order').value = '';
     document.querySelectorAll('.room-block').forEach(b => b.style.display = '');
