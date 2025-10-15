@@ -188,6 +188,32 @@ class Reserva(db.Model):
     estado = db.Column(db.String(20), nullable=False, default='Activa')  # Activa, Completada, Cancelada
     total = db.Column(db.Float, nullable=True)
 
+
+# ------------------------------
+# Datos de huéspedes capturados al reservar (antes del pago)
+# ------------------------------
+class ReservaDatosHospedaje(db.Model):
+    __tablename__ = 'reserva_datos_hospedaje'
+
+    id = db.Column(db.Integer, primary_key=True)
+    reserva_id = db.Column(db.Integer, db.ForeignKey('reserva.id'), nullable=False, unique=True)
+    # Huésped titular
+    nombre1 = db.Column(db.String(100), nullable=False)
+    tipo_doc1 = db.Column(db.String(50), nullable=False)
+    num_doc1 = db.Column(db.String(50), nullable=False)
+    telefono1 = db.Column(db.String(20), nullable=True)
+    correo1 = db.Column(db.String(255), nullable=True)
+    procedencia1 = db.Column(db.String(100), nullable=True)
+    # Acompañante (opcional)
+    nombre2 = db.Column(db.String(100), nullable=True)
+    tipo_doc2 = db.Column(db.String(50), nullable=True)
+    num_doc2 = db.Column(db.String(50), nullable=True)
+    telefono2 = db.Column(db.String(20), nullable=True)
+    correo2 = db.Column(db.String(255), nullable=True)
+    procedencia2 = db.Column(db.String(100), nullable=True)
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 # ------------------------------
 # Facturas (archivos descargables)
 # ------------------------------
@@ -197,6 +223,40 @@ class Factura(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=False)
     reserva_id = db.Column(db.Integer, db.ForeignKey('reserva.id'), nullable=True)
     file_path = db.Column(db.String(255), nullable=False)  # relativo a static o ruta absoluta
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# ------------------------------
+# Ticket de Hospedaje (descargable tras pago)
+# ------------------------------
+class TicketHospedaje(db.Model):
+    __tablename__ = 'ticket_hospedaje'
+
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_numero = db.Column(db.String(50), nullable=False, unique=True, index=True)
+    reserva_id = db.Column(db.Integer, db.ForeignKey('reserva.id'), nullable=False, unique=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=False)
+    habitacion_id = db.Column(db.Integer, db.ForeignKey('nuevaHabitacion.id'), nullable=False)
+    habitacion_numero = db.Column(db.String(50), nullable=True)
+    # Datos huéspedes
+    nombre1 = db.Column(db.String(100), nullable=False)
+    tipo_doc1 = db.Column(db.String(50), nullable=False)
+    num_doc1 = db.Column(db.String(50), nullable=False)
+    telefono1 = db.Column(db.String(20), nullable=True)
+    correo1 = db.Column(db.String(255), nullable=True)
+    procedencia1 = db.Column(db.String(100), nullable=True)
+    nombre2 = db.Column(db.String(100), nullable=True)
+    tipo_doc2 = db.Column(db.String(50), nullable=True)
+    num_doc2 = db.Column(db.String(50), nullable=True)
+    telefono2 = db.Column(db.String(20), nullable=True)
+    correo2 = db.Column(db.String(255), nullable=True)
+    procedencia2 = db.Column(db.String(100), nullable=True)
+    # Fechas y total
+    check_in = db.Column(db.Date, nullable=False)
+    check_out = db.Column(db.Date, nullable=False)
+    total = db.Column(db.Float, nullable=False, default=0)
+    # Archivo PDF generado
+    file_ticket = db.Column(db.String(255), nullable=True)  # ruta relativa (instance/uploads/tickets_hospedaje/...)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
 
 # ------------------------------

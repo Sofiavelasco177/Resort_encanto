@@ -1,14 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, current_app, flash, session, jsonify
-from models.baseDatos import db, Reserva, nuevaHabitacion
+from flask import Blueprint, render_template, request, redirect, url_for, current_app, flash, session, jsonify, send_from_directory
+from models.baseDatos import db, Reserva, nuevaHabitacion, TicketHospedaje, ReservaDatosHospedaje, Usuario
 import os
 import requests
 import hmac
 import hashlib
+import io
 
-try:
-    import mercadopago  # Mercado Pago SDK (opcional)
-except Exception:
-    mercadopago = None
+mercadopago = None  # import dinámico cuando se necesite
 
 pagos_usuario_bp = Blueprint('pagos_usuario', __name__)
 
@@ -38,8 +36,12 @@ def checkout_reserva(reserva_id):
     if provider == 'MP':
         # Mercado Pago Checkout Pro (redirect a init_point)
         if mercadopago is None:
-            flash('Mercado Pago no está instalado en el servidor. Contacta al administrador.', 'danger')
-            return redirect(url_for('perfil_usuario.perfil'))
+            try:
+                import mercadopago as _mp
+                globals()['mercadopago'] = _mp
+            except Exception:
+                flash('Mercado Pago no está instalado en el servidor. Contacta al administrador.', 'danger')
+                return redirect(url_for('perfil_usuario.perfil'))
         access_token = os.getenv('MP_ACCESS_TOKEN')
         if not access_token:
             flash('Falta configurar MP_ACCESS_TOKEN para Mercado Pago.', 'danger')
@@ -348,11 +350,177 @@ def _wompi_base_url():
     return 'https://production.wompi.co'
 
 
+# ----------------- HOSPEDAJE TICKET HELPERS ----------------- #
+def _gen_ht_ticket_number():
+    from datetime import datetime as _dt
+    return _dt.utcnow().strftime('HT%Y%m%d%H%M%S')
+
+
+def _ensure_ticket_for_reserva(reserva: Reserva):
+    """Crea un TicketHospedaje y su PDF si la reserva está completada y aún no tiene ticket."""
+    if not reserva or reserva.estado != 'Completada':
+        return None
+    t = TicketHospedaje.query.filter_by(reserva_id=reserva.id).first()
+    if t:
+        return t
+    user = Usuario.query.get(reserva.usuario_id)
+    hab = nuevaHabitacion.query.get(reserva.habitacion_id)
+    datos = ReservaDatosHospedaje.query.filter_by(reserva_id=reserva.id).first()
+
+    t = TicketHospedaje(
+        ticket_numero=_gen_ht_ticket_number(),
+        reserva_id=reserva.id,
+        usuario_id=reserva.usuario_id,
+        habitacion_id=reserva.habitacion_id,
+        habitacion_numero=str(hab.numero) if hab and hab.numero is not None else None,
+        nombre1=(datos.nombre1 if datos else (user.usuario if user else '')),
+        tipo_doc1=(datos.tipo_doc1 if datos else ''),
+        num_doc1=(datos.num_doc1 if datos else ''),
+        telefono1=(datos.telefono1 if datos else (user.telefono if user else None)),
+        correo1=(datos.correo1 if datos else (user.correo if user else None)),
+        procedencia1=(datos.procedencia1 if datos else None),
+        nombre2=(datos.nombre2 if datos else None),
+        tipo_doc2=(datos.tipo_doc2 if datos else None),
+        num_doc2=(datos.num_doc2 if datos else None),
+        telefono2=(datos.telefono2 if datos else None),
+        correo2=(datos.correo2 if datos else None),
+        procedencia2=(datos.procedencia2 if datos else None),
+        check_in=reserva.check_in,
+        check_out=reserva.check_out or reserva.check_in,
+        total=float(reserva.total or 0),
+    )
+    db.session.add(t)
+    db.session.flush()
+
+    # Construir PDF
+    try:
+        pdf_bytes = _build_hospedaje_ticket_pdf(t, hab)
+        tickets_dir = os.path.join(current_app.instance_path, 'uploads', 'tickets_hospedaje')
+        os.makedirs(tickets_dir, exist_ok=True)
+        path = os.path.join(tickets_dir, f"{t.ticket_numero}.pdf")
+        with open(path, 'wb') as f:
+            f.write(pdf_bytes.getvalue())
+        t.file_ticket = f"uploads/tickets_hospedaje/{t.ticket_numero}.pdf"
+    except Exception as e:
+        try:
+            current_app.logger.warning('No se pudo generar/guardar el PDF de ticket: %s', e)
+        except Exception:
+            pass
+
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+    return t
+
+
+def _build_hospedaje_ticket_pdf(ticket: TicketHospedaje, habitacion: nuevaHabitacion):
+    buf = io.BytesIO()
+    # Importar reportlab de forma perezosa
+    try:
+        from reportlab.lib.pagesizes import A4 as _A4
+        from reportlab.pdfgen import canvas as _canvas
+        c = _canvas.Canvas(buf, pagesize=_A4)
+        width, height = _A4
+    except Exception:
+        buf.write((f"Ticket {ticket.ticket_numero}\n").encode('utf-8'))
+        buf.seek(0)
+        return buf
+    y = height - 50
+    c.setFont('Helvetica-Bold', 16)
+    c.drawString(40, y, 'Reserva Hospedaje - Ticket')
+    y -= 25
+    c.setFont('Helvetica', 11)
+    c.drawString(40, y, f"Ticket: {ticket.ticket_numero}")
+    y -= 18
+    c.drawString(40, y, f"Habitación: {habitacion.nombre if habitacion else ticket.habitacion_id}  (# {ticket.habitacion_numero or '-'})")
+    y -= 18
+    c.drawString(40, y, f"Check-in: {ticket.check_in.strftime('%Y-%m-%d')}  ·  Check-out: {ticket.check_out.strftime('%Y-%m-%d')}")
+    y -= 18
+    try:
+        noches = max(1, (ticket.check_out - ticket.check_in).days)
+    except Exception:
+        noches = 1
+    c.drawString(40, y, f"Noches: {noches}")
+    y -= 28
+    c.setFont('Helvetica-Bold', 12)
+    c.drawString(40, y, 'Huésped titular:')
+    y -= 18
+    c.setFont('Helvetica', 11)
+    c.drawString(50, y, f"Nombre: {ticket.nombre1}")
+    y -= 16
+    c.drawString(50, y, f"Documento: {ticket.tipo_doc1 or ''} {ticket.num_doc1 or ''}")
+    y -= 16
+    c.drawString(50, y, f"Teléfono: {ticket.telefono1 or '-'} · Correo: {ticket.correo1 or '-'}")
+    y -= 16
+    c.drawString(50, y, f"Procedencia: {ticket.procedencia1 or '-'}")
+    if ticket.nombre2:
+        y -= 24
+        c.setFont('Helvetica-Bold', 12)
+        c.drawString(40, y, 'Acompañante:')
+        y -= 18
+        c.setFont('Helvetica', 11)
+        c.drawString(50, y, f"Nombre: {ticket.nombre2}")
+        y -= 16
+        doc2 = ((ticket.tipo_doc2 or '') + ' ' + (ticket.num_doc2 or '')).strip()
+        if doc2:
+            c.drawString(50, y, f"Documento: {doc2}")
+            y -= 16
+        if ticket.telefono2 or ticket.correo2:
+            c.drawString(50, y, f"Teléfono: {ticket.telefono2 or '-'} · Correo: {ticket.correo2 or '-'}")
+            y -= 16
+        if ticket.procedencia2:
+            c.drawString(50, y, f"Procedencia: {ticket.procedencia2}")
+            y -= 16
+    y -= 10
+    c.setFont('Helvetica-Bold', 12)
+    c.drawString(40, y, f"Total pagado: ${ticket.total:,.0f} COP")
+    y -= 24
+    c.setFont('Helvetica-Oblique', 10)
+    c.drawString(40, y, 'Presenta este ticket en recepción para validar tu reserva.')
+    c.showPage()
+    c.save()
+    buf.seek(0)
+    return buf
+
+
+@pagos_usuario_bp.route('/hospedaje/ticket/<int:reserva_id>')
+def descargar_ticket_hospedaje(reserva_id: int):
+    reserva = Reserva.query.get_or_404(reserva_id)
+    user = session.get('user') or {}
+    is_admin = (user.get('rol') == 'admin')
+    if not is_admin and user.get('id') != reserva.usuario_id and user.get('idUsuario') != reserva.usuario_id:
+        flash('No autorizado', 'danger')
+        return redirect(url_for('registro.login'))
+    t = TicketHospedaje.query.filter_by(reserva_id=reserva.id).first()
+    if not t and reserva.estado == 'Completada':
+        t = _ensure_ticket_for_reserva(reserva)
+    if not t or not t.file_ticket:
+        flash('El ticket aún no está disponible.', 'warning')
+        return redirect(url_for('perfil_usuario.perfil'))
+    rel = t.file_ticket.replace('\\', '/').lstrip('/')
+    if rel.startswith('uploads/'):
+        base = current_app.instance_path
+        subdir, fname = os.path.split(rel)
+        return send_from_directory(os.path.join(base, subdir), fname, as_attachment=True)
+    base = os.path.dirname(t.file_ticket)
+    fname = os.path.basename(t.file_ticket)
+    return send_from_directory(base, fname, as_attachment=True)
+
+
 def _apply_status_to_reserva(reserva: Reserva, wompi_status: str):
     st = (wompi_status or '').upper()
     if st == 'APPROVED':
         # Mantener bloqueadas las fechas: 'Completada' confirma ocupación
         reserva.estado = 'Completada'
+        # Generar ticket de hospedaje si no existe
+        try:
+            _ensure_ticket_for_reserva(reserva)
+        except Exception as e:
+            try:
+                current_app.logger.exception('Error generando ticket de hospedaje: %s', e)
+            except Exception:
+                pass
     elif st in ('DECLINED', 'ERROR', 'VOIDED'):  # cancelada/declinada
         # Liberar fechas: 'Cancelada' libera disponibilidad para ese rango
         reserva.estado = 'Cancelada'

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
-from models.baseDatos import db, nuevaHabitacion, Huesped, Reserva
+from models.baseDatos import db, nuevaHabitacion, Huesped, Reserva, ReservaDatosHospedaje
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -54,7 +54,7 @@ def reservar_habitacion(habitacion_id):
             flash('El número de documento debe ser numérico.', 'danger')
             return redirect(url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=habitacion.id))
 
-        # Guardar o reutilizar huésped en BD (evitar error de UNIQUE)
+    # Guardar o reutilizar huésped en BD (evitar error de UNIQUE)
         huesped = Huesped.query.filter_by(numeroDocumento=ndoc).first()
         if huesped:
             # Actualizar datos básicos para mantenerlos al día
@@ -88,6 +88,25 @@ def reservar_habitacion(habitacion_id):
             total=total
         )
         db.session.add(reserva)
+        db.session.flush()  # asegurar ID de reserva antes de usarlo en datos
+        # También persistir datos declarados en el formulario (titular + acompañante opcional)
+        datos = ReservaDatosHospedaje(
+            reserva_id=reserva.id,
+            nombre1=request.form.get('nombre'),
+            tipo_doc1=request.form.get('tipoDocumento'),
+            num_doc1=str(ndoc_raw),
+            telefono1=request.form.get('telefono'),
+            correo1=request.form.get('correo'),
+            procedencia1=request.form.get('procedencia'),
+            # acompañante (si fue diligenciado en el formulario)
+            nombre2=(request.form.get('nombre2') or None),
+            tipo_doc2=(request.form.get('tipoDocumento2') or None),
+            num_doc2=(request.form.get('numeroDocumento2') or None),
+            telefono2=(request.form.get('telefono2') or None),
+            correo2=(request.form.get('correo2') or None),
+            procedencia2=(request.form.get('procedencia2') or None),
+        )
+        db.session.add(datos)
         try:
             db.session.commit()
         except SQLAlchemyError as e:
@@ -102,7 +121,7 @@ def reservar_habitacion(habitacion_id):
                 pass
             return redirect(url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=habitacion.id))
 
-        # Redirigir a checkout (Wompi)
+    # Redirigir a checkout del proveedor configurado
         return redirect(url_for('pagos_usuario.checkout_reserva', reserva_id=reserva.id))
 
     return render_template('usuario/reservas.html', habitacion=habitacion)

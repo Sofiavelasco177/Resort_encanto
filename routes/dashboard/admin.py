@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante, ReservaRestaurante
+from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante, ReservaRestaurante, Reserva, TicketHospedaje
 from datetime import datetime
 from flask import session
 from flask import send_file, make_response
@@ -115,6 +115,7 @@ def hospedaje_index():
         q=q,
     )
 
+
 # ==========================
 # 📌 SECCIÓN RESTAURANTE: Reservas (admin)
 # ==========================
@@ -142,6 +143,48 @@ def restaurante_reserva_estado(reserva_id):
         db.session.rollback()
         flash(f'No se pudo actualizar: {e}', 'danger')
     return redirect(url_for('admin.restaurante_reservas_list'))
+
+# ==========================
+# 📌 SECCIÓN HOSPEDAJE: Reservas (admin)
+# ==========================
+@admin_bp.route('/hospedaje/reservas')
+def hospedaje_reservas_list():
+    estado = (request.args.get('estado') or '').strip()
+    q = Reserva.query.order_by(Reserva.check_in.desc())
+    if estado:
+        q = q.filter(Reserva.estado == estado)
+    reservas = q.limit(200).all()
+    # Adjuntar ticket si existe
+    tickets_map = {}
+    for r in reservas:
+        t = TicketHospedaje.query.filter_by(reserva_id=r.id).first()
+        if t:
+            tickets_map[r.id] = t
+    return render_template('dashboard/hospedaje_reservas_admin.html', reservas=reservas, tickets=tickets_map, estado=estado)
+
+
+@admin_bp.route('/hospedaje/reservas/<int:reserva_id>/ticket')
+def hospedaje_reserva_ticket(reserva_id: int):
+    # Reutilizar endpoint de usuario para enviar archivo
+    from routes.usuario.pagos_usuario import descargar_ticket_hospedaje
+    return descargar_ticket_hospedaje(reserva_id)
+
+
+@admin_bp.route('/hospedaje/reservas/<int:reserva_id>/estado', methods=['POST'])
+def hospedaje_reserva_estado(reserva_id: int):
+    r = Reserva.query.get_or_404(reserva_id)
+    nuevo = request.form.get('estado')
+    if nuevo not in ('Activa','Completada','Cancelada'):
+        flash('Estado no válido', 'danger')
+        return redirect(url_for('admin.hospedaje_reservas_list'))
+    try:
+        r.estado = nuevo
+        db.session.commit()
+        flash('Estado actualizado', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo actualizar: {e}', 'danger')
+    return redirect(url_for('admin.hospedaje_reservas_list'))
 
 # ==========================
 # SECCIÓN INICIO (Home) - CRUD de contenido usando Post
