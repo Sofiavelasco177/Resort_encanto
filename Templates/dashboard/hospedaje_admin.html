@@ -82,11 +82,13 @@
 
 	<!-- Listado de habitaciones por plan (debajo del formulario) -->
 	<div id="habitaciones-admin">
-		{% for plan, group in habitaciones|groupby('plan') %}
+		{% if plan_order and habitaciones_por_plan %}
+			{% for plan in plan_order %}
 			<div class="col-12">
-				<h4 class="mb-3">Plan {{ plan or 'Sin plan' }}</h4>
+				<h4 class="mb-3">Plan {{ plan }}</h4>
 			</div>
 			<div class="row">
+			{% set group = habitaciones_por_plan[plan] %}
 			{% for h in group %}
 				<div class="col-md-4 mb-4">
 					<div class="card habitacion-card estado-{{ h.estado|lower }}" style="min-height: 420px; max-height: 420px; display: flex; flex-direction: column; justify-content: space-between;">
@@ -110,12 +112,16 @@
 				</div>
 			{% endfor %}
 			</div>
-		{% endfor %}
+		{% else %}
+			<div class="col-12"><div class="text-muted">No hay habitaciones registradas.</div></div>
+		{% endif %}
 	</div>
 
-	<!-- Modales renderizados fuera del grid -->
-	{% for plan, group in habitaciones|groupby('plan') %}
-		{% for h in group %}
+	<!-- Modales renderizados fuera del grid (usar misma agrupación) -->
+	{% if plan_order and habitaciones_por_plan %}
+		{% for plan in plan_order %}
+			{% set group = habitaciones_por_plan[plan] %}
+			{% for h in group %}
 		<div class="modal fade" id="modalHabitacion{{ h.id }}" tabindex="-1" aria-labelledby="modalHabitacionLabel{{ h.id }}" aria-hidden="true">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
@@ -152,7 +158,8 @@
 				</div>
 			</div>
 		</div>
+			{% endfor %}
 		{% endfor %}
-	{% endfor %}
+	{% endif %}
 
 {% endblock %}

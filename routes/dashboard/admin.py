@@ -86,7 +86,22 @@ def hospedaje_actualizar(habitacion_id):
 @admin_bp.route("/hospedaje")
 def hospedaje_index():
     habitaciones = nuevaHabitacion.query.all()
-    return render_template("dashboard/hospedaje_admin.html", habitaciones=habitaciones)
+    # Agrupar por plan en Python para evitar errores de ordenación en Jinja (None vs None)
+    habitaciones_por_plan = {}
+    for h in habitaciones:
+        label = (h.plan or '').strip() or 'Sin plan'
+        habitaciones_por_plan.setdefault(label, []).append(h)
+    # Orden deseado de planes
+    base_order = ['Oro', 'Plata', 'Bronce', 'Sin plan']
+    # Incluir cualquier otro plan que exista
+    extras = [p for p in habitaciones_por_plan.keys() if p not in base_order]
+    plan_order = [p for p in base_order if p in habitaciones_por_plan] + sorted(extras)
+    return render_template(
+        "dashboard/hospedaje_admin.html",
+        habitaciones=habitaciones,
+        habitaciones_por_plan=habitaciones_por_plan,
+        plan_order=plan_order,
+    )
 
 # ==========================
 # 📌 SECCIÓN RESTAURANTE: Reservas (admin)
