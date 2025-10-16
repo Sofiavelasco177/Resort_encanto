@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Isla Encanto — Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='Styles.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="user-shell">
+        <aside class="user-sidebar">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo">
+                <div class="fw-bold">Hotel Isla Encanto</div>
+            </div>
+            <nav class="nav flex-column p-3">
+                <a class="nav-link {% if request.endpoint == 'main.home_usuario' %}active{% endif %}" href="{{ url_for('main.home_usuario') }}"><i class="bi bi-house-door me-2"></i>Inicio</a>
+                <a class="nav-link {% if request.endpoint == 'main.hospedaje_usuario' %}active{% endif %}" href="{{ url_for('main.hospedaje_usuario') }}"><i class="bi bi-buildings me-2"></i>Hospedaje</a>
+                <a class="nav-link {% if request.endpoint == 'main.restaurante_usuario' %}active{% endif %}" href="{{ url_for('main.restaurante_usuario') }}"><i class="bi bi-egg-fried me-2"></i>Restaurante</a>
+                <a class="nav-link {% if request.endpoint == 'main.experiencias_usuario' %}active{% endif %}" href="{{ url_for('main.experiencias_usuario') }}"><i class="bi bi-stars me-2"></i>Experiencias</a>
+                <div class="mt-3 border-top"></div>
+                {% if session.get('user') %}
+                <a class="nav-link {% if request.endpoint and request.endpoint.startswith('perfil_usuario.') %}active{% endif %}" href="{{ url_for('perfil_usuario.perfil') }}"><i class="bi bi-person-circle me-2"></i>Mi perfil</a>
+                <a class="nav-link" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a>
+                {% else %}
+                <a class="nav-link" href="{{ url_for('registro.login') }}"><i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión</a>
+                {% endif %}
+                <a class="nav-link" href="javascript:history.back()"><i class="bi bi-arrow-left me-2"></i>Volver</a>
+            </nav>
+        </aside>
+        <main class="user-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Toasts -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1060">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="toast align-items-center text-bg-{{ 'warning' if category in ['warn','warning'] else ('danger' if category=='danger' else ('success' if category=='success' else 'primary')) }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">{{ message }}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(t => new bootstrap.Toast(t, { delay: 4000 }).show());
+        });
+    </script>
+</body>
+</html>

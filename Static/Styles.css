@@ -5,8 +5,31 @@ body {
     background-color: #f6fbff; /* Lighter background */
     color: #111827; /* dark text for readability */
     font-family: Arial, sans-serif;
-    padding-top: 64px; /* espacio para navbar fijo */
 }
+
+/* Layout para vistas con sidebar (admin y futuro usuario) */
+.layout-app { min-height: 100vh; }
+.sidebar-app {
+    width: 280px;               /* más ancha/alta visualmente */
+    background: #f8fafc;
+}
+.sidebar-brand {
+    height: 88px;               /* barra superior del sidebar más alta */
+    padding: 1rem 1.25rem;
+    background: linear-gradient(90deg, #eef4ff, #ffffff);
+}
+.sidebar-logo { height: 48px; border-radius: 8px; }
+.sidebar-app .nav-link { padding: .65rem .75rem; border-radius: .5rem; color: #334155; }
+.sidebar-app .nav-link.active { background: #e2e8f0; color: #0f172a; }
+.content-app { padding: 1.25rem 1.5rem; }
+
+/* Estado colapsado (admin) */
+.layout-app.collapsed .sidebar-app { width: 84px; }
+.layout-app.collapsed .sidebar-brand { justify-content: center; }
+.layout-app.collapsed .sidebar-logo { height: 40px; }
+.layout-app.collapsed .sidebar-app .nav-link .nav-text { display: none; }
+.layout-app.collapsed .sidebar-app .nav-link i { margin-right: 0 !important; font-size: 1.1rem; }
+.layout-app.collapsed .content-app { padding-left: 1rem; }
 
 /* =======================
    ESTILOS HOME
@@ -218,6 +241,31 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 8px 22px rgba(29, 78, 216, 0.5);
 }
+
+/* Cuando se usa navbar superior, empuja el contenido hacia abajo */
+main { padding-top: 72px; }
+/* Páginas con sidebar no necesitan offset superior */
+.layout-app .content-app { padding-top: 0; }
+.user-shell .user-content { padding-top: 0; }
+
+/* =======================
+   USUARIO - SIDEBAR VERTICAL (alternativa a navbar)
+   ======================= */
+.user-shell { display: flex; min-height: 100vh; }
+.user-sidebar { width: 260px; background: #f8fafc; border-right: 1px solid #e5e7eb; }
+.user-sidebar .brand { height: 88px; padding: 1rem 1.25rem; display:flex; align-items:center; gap:.5rem; border-bottom:1px solid #e5e7eb; }
+.user-sidebar .brand img { height: 44px; border-radius: 8px; }
+.user-sidebar .nav-link { padding: .7rem 1rem; color:#334155; border-radius:.5rem; }
+.user-sidebar .nav-link.active { background:#e2e8f0; color:#0f172a; }
+.user-content { flex:1; padding: 1.25rem 1.5rem; }
+
+/* Estado colapsado (usuario) */
+.user-shell.collapsed .user-sidebar { width: 84px; }
+.user-shell.collapsed .user-sidebar .brand { justify-content: center; }
+.user-shell.collapsed .user-sidebar .brand img { height: 40px; }
+.user-shell.collapsed .user-sidebar .nav-link .nav-text { display: none; }
+.user-shell.collapsed .user-sidebar .nav-link i { margin-right: 0 !important; font-size: 1.1rem; }
+.user-shell.collapsed .user-content { padding-left: 1rem; }
 
 /* =======================
      PERFIL USUARIO (responsivo)

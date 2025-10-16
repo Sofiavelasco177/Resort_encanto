@@ -732,6 +732,24 @@ def __clear_cookies():
             pass
     return resp
 
+@app.errorhandler(500)
+def handle_internal_error(e):
+    """Registra el traceback para 500 y muestra un mensaje amigable con un ID de incidente."""
+    import traceback, uuid
+    incident = uuid.uuid4().hex[:8]
+    try:
+        tb = traceback.format_exc()
+        logger.exception('500 Internal Server Error [%s] en %s UA=%s\n%s', incident, request.path, request.headers.get('User-Agent'), tb)
+    except Exception:
+        pass
+    html = (
+        "<h1>Internal Server Error</h1>"
+        "<p>Ocurrió un error inesperado al procesar tu solicitud.</p>"
+        "<p>ID de incidente: <strong>{incident}</strong></p>"
+        "<p>Por favor intenta nuevamente o contacta al soporte indicando el ID.</p>"
+    ).format(incident=incident)
+    return make_response(html, 500)
+
 if __name__ == '__main__':
     import os
     
