@@ -326,90 +326,90 @@ def init_database():
                         db.session.rollback()
                         app.logger.warning('No se pudo aplicar migración a nuevaHabitacion %s: %s', s, e)
 
-                    # Migraciones defensivas para plato_restaurante (agregar columna imagen si falta)
-                    try:
-                        if 'plato_restaurante' in inspector.get_table_names():
-                            plato_cols = [c['name'] for c in inspector.get_columns('plato_restaurante')]
-                        else:
-                            plato_cols = []
-                    except Exception:
+                # Migraciones defensivas para plato_restaurante (agregar columna imagen si falta)
+                try:
+                    if 'plato_restaurante' in inspector.get_table_names():
+                        plato_cols = [c['name'] for c in inspector.get_columns('plato_restaurante')]
+                    else:
                         plato_cols = []
-                    if plato_cols is not None and 'imagen' not in plato_cols:
-                        try:
-                            db.session.execute(text("ALTER TABLE plato_restaurante ADD COLUMN imagen VARCHAR(255) NULL"))
-                            db.session.commit()
-                            app.logger.info('Columna imagen agregada a plato_restaurante')
-                        except Exception as e:
-                            db.session.rollback()
-                            app.logger.warning('No se pudo agregar columna imagen a plato_restaurante: %s', e)
-
-                    # Intentar migrar imágenes legacy de platos si guardadas en static/img/uploads -> instance/uploads
+                except Exception:
+                    plato_cols = []
+                if plato_cols is not None and 'imagen' not in plato_cols:
                     try:
-                        from models.baseDatos import PlatoRestaurante as _Plato
-                        import shutil
-                        legacy_prefix = os.path.join(app.static_folder, 'img', 'uploads')
-                        inst_uploads = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads')
-                        os.makedirs(inst_uploads, exist_ok=True)
-                        platos = db.session.query(_Plato).filter(_Plato.imagen.isnot(None)).all()
-                        migrated_p = False
-                        for p in platos:
-                            path = (p.imagen or '').strip()
-                            if not path:
-                                continue
-                            # Si ya es uploads/<file>
-                            if path.startswith('uploads/'):
-                                fname = path[8:]
-                                dst = os.path.join(inst_uploads, fname)
-                                if os.path.isfile(dst):
-                                    continue
-                                src = os.path.join(legacy_prefix, fname)
-                                try:
-                                    if os.path.isfile(src):
-                                        os.makedirs(os.path.dirname(dst), exist_ok=True)
-                                        shutil.move(src, dst)
-                                        migrated_p = True
-                                except Exception as em:
-                                    app.logger.warning(f'No se pudo mover legacy uploads de plato a instance: {src} -> {dst}: {em}')
-                                continue
-                            # img/uploads/<file>
-                            if path.startswith('img/uploads/'):
-                                fname = path.split('img/uploads/', 1)[1]
-                                src = os.path.join(legacy_prefix, fname)
-                                dst = os.path.join(inst_uploads, fname)
-                                try:
-                                    if os.path.isfile(src):
-                                        os.makedirs(os.path.dirname(dst), exist_ok=True)
-                                        shutil.move(src, dst)
-                                        p.imagen = f'uploads/{fname}'
-                                        migrated_p = True
-                                    elif os.path.isfile(dst):
-                                        p.imagen = f'uploads/{fname}'
-                                        migrated_p = True
-                                except Exception as em:
-                                    app.logger.warning(f'No se pudo migrar imagen de plato {src} -> {dst}: {em}')
-                                continue
-                            # static/img/uploads/<file>
-                            if path.startswith('static/img/uploads/'):
-                                fname = path.split('static/img/uploads/', 1)[1]
-                                src = os.path.join(legacy_prefix, fname)
-                                dst = os.path.join(inst_uploads, fname)
-                                try:
-                                    if os.path.isfile(src):
-                                        os.makedirs(os.path.dirname(dst), exist_ok=True)
-                                        shutil.move(src, dst)
-                                        p.imagen = f'uploads/{fname}'
-                                        migrated_p = True
-                                    elif os.path.isfile(dst):
-                                        p.imagen = f'uploads/{fname}'
-                                        migrated_p = True
-                                except Exception as em:
-                                    app.logger.warning(f'No se pudo migrar imagen de plato {src} -> {dst}: {em}')
-                        if migrated_p:
-                            db.session.commit()
-                            app.logger.info('Migración de imágenes de platos a instance/uploads completada')
+                        db.session.execute(text("ALTER TABLE plato_restaurante ADD COLUMN imagen VARCHAR(255) NULL"))
+                        db.session.commit()
+                        app.logger.info('Columna imagen agregada a plato_restaurante')
                     except Exception as e:
                         db.session.rollback()
-                        app.logger.warning('No se pudo migrar imágenes legacy de platos: %s', e)
+                        app.logger.warning('No se pudo agregar columna imagen a plato_restaurante: %s', e)
+
+                # Intentar migrar imágenes legacy de platos si guardadas en static/img/uploads -> instance/uploads
+                try:
+                    from models.baseDatos import PlatoRestaurante as _Plato
+                    import shutil
+                    legacy_prefix = os.path.join(app.static_folder, 'img', 'uploads')
+                    inst_uploads = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads')
+                    os.makedirs(inst_uploads, exist_ok=True)
+                    platos = db.session.query(_Plato).filter(_Plato.imagen.isnot(None)).all()
+                    migrated_p = False
+                    for p in platos:
+                        path = (p.imagen or '').strip()
+                        if not path:
+                            continue
+                        # Si ya es uploads/<file>
+                        if path.startswith('uploads/'):
+                            fname = path[8:]
+                            dst = os.path.join(inst_uploads, fname)
+                            if os.path.isfile(dst):
+                                continue
+                            src = os.path.join(legacy_prefix, fname)
+                            try:
+                                if os.path.isfile(src):
+                                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                                    shutil.move(src, dst)
+                                    migrated_p = True
+                            except Exception as em:
+                                app.logger.warning(f'No se pudo mover legacy uploads de plato a instance: {src} -> {dst}: {em}')
+                            continue
+                        # img/uploads/<file>
+                        if path.startswith('img/uploads/'):
+                            fname = path.split('img/uploads/', 1)[1]
+                            src = os.path.join(legacy_prefix, fname)
+                            dst = os.path.join(inst_uploads, fname)
+                            try:
+                                if os.path.isfile(src):
+                                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                                    shutil.move(src, dst)
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated_p = True
+                                elif os.path.isfile(dst):
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated_p = True
+                            except Exception as em:
+                                app.logger.warning(f'No se pudo migrar imagen de plato {src} -> {dst}: {em}')
+                            continue
+                        # static/img/uploads/<file>
+                        if path.startswith('static/img/uploads/'):
+                            fname = path.split('static/img/uploads/', 1)[1]
+                            src = os.path.join(legacy_prefix, fname)
+                            dst = os.path.join(inst_uploads, fname)
+                            try:
+                                if os.path.isfile(src):
+                                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                                    shutil.move(src, dst)
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated_p = True
+                                elif os.path.isfile(dst):
+                                    p.imagen = f'uploads/{fname}'
+                                    migrated_p = True
+                            except Exception as em:
+                                app.logger.warning(f'No se pudo migrar imagen de plato {src} -> {dst}: {em}')
+                    if migrated_p:
+                        db.session.commit()
+                        app.logger.info('Migración de imágenes de platos a instance/uploads completada')
+                except Exception as e:
+                    db.session.rollback()
+                    app.logger.warning('No se pudo migrar imágenes legacy de platos: %s', e)
 
                 # Migrar imágenes legacy de static/img/uploads -> instance/uploads
                 try:
@@ -673,7 +673,7 @@ def health_check():
 
 
 # ------------------- Configuración de logs -------------------
-logging.basicConfig(level=logging.DEBUG)
+# Ya configurado arriba; evitamos reconfigurar para no duplicar handlers y mensajes.
 
 # ------------------- Ejecución de la aplicación -------------------
 
