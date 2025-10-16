@@ -107,12 +107,14 @@ def hospedaje_index():
     # Incluir cualquier otro plan que exista
     extras = [p for p in habitaciones_por_plan.keys() if p not in base_order]
     plan_order = [p for p in base_order if p in habitaciones_por_plan] + sorted(extras)
+    current_year = datetime.utcnow().year
     return render_template(
         "dashboard/hospedaje_admin.html",
         habitaciones=habitaciones,
         habitaciones_por_plan=habitaciones_por_plan,
         plan_order=plan_order,
         q=q,
+        current_year=current_year,
     )
 
 

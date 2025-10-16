@@ -33,6 +33,11 @@
                         Especificaciones
                     </button>
 
+                    <!-- Icono Historial (abre calendario) -->
+                    <button type="button" class="btn btn-outline-secondary btn-sm" title="Historial de reservas" data-bs-toggle="modal" data-bs-target="#calHabitacion{{ h.id }}">
+                        <img src="{{ url_for('static', filename='img/icons/history.svg') }}" alt="Historial" width="18" height="18">
+                    </button>
+
                     <!-- Botón Reservar (dinámico: redirige a tu ruta reservar) -->
                     <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" 
                        class="btn btn-success btn-sm">
@@ -42,7 +47,7 @@
             </div>
         </div>
 
-        <!-- Modal Especificaciones (dinámico) -->
+    <!-- Modal Especificaciones (dinámico) -->
         <div class="modal fade" id="modalHabitacion{{ h.id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
@@ -85,6 +90,31 @@
                                 </a>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Calendario (historial anual) -->
+        <div class="modal fade hab-calendar-modal" id="calHabitacion{{ h.id }}" tabindex="-1" aria-hidden="true" data-url="{{ url_for('hospedaje_usuario.calendario_habitacion', habitacion_id=h.id) }}" data-year="{{ current_year }}">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cronograma anual — {{ h.nombre }}{% if h.numero %} #{{ '%02d'|format(h.numero) }}{% endif %}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2 calendar-controls">
+                            <button class="btn btn-light btn-sm cal-prev" type="button"><i class="bi bi-arrow-left"></i></button>
+                            <div class="fw-semibold">Año <span class="calendar-year"></span></div>
+                            <button class="btn btn-light btn-sm cal-next" type="button"><i class="bi bi-arrow-right"></i></button>
+                        </div>
+                        <div class="calendar-legend small mb-2">
+                            <span class="legend-box bg-available"></span> Disponible
+                            <span class="legend-box bg-occupied ms-3"></span> Ocupada
+                            <span class="legend-box bg-maintenance ms-3"></span> Mantenimiento
+                        </div>
+                        <div class="calendar-body min-vh-25"></div>
                     </div>
                 </div>
             </div>

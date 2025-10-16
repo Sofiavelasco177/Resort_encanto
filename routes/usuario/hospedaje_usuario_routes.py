@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from models.baseDatos import db, nuevaHabitacion, Huesped, Reserva, ReservaDatosHospedaje
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 
 hospedaje_usuario_bp = Blueprint('hospedaje_usuario', __name__)
@@ -15,7 +15,8 @@ def hospedaje_usuario():
         if key not in grouped:
             grouped[key] = []
         grouped[key].append(h)
-    return render_template('usuario/hospedaje_usuario.html', habitaciones=habitaciones, habitaciones_por_plan=grouped)
+    current_year = datetime.utcnow().year
+    return render_template('usuario/hospedaje_usuario.html', habitaciones=habitaciones, habitaciones_por_plan=grouped, current_year=current_year)
 
 
 @hospedaje_usuario_bp.route('/reservar/<int:habitacion_id>', methods=['GET', 'POST'])
@@ -158,3 +159,69 @@ def disponibilidad_habitacion(habitacion_id):
 
     available = _habitacion_disponible(habitacion.id, d_in, d_out)
     return jsonify({'ok': True, 'available': available})
+
+
+@hospedaje_usuario_bp.route('/calendar/<int:habitacion_id>')
+def calendario_habitacion(habitacion_id: int):
+    """Devuelve el cronograma anual día a día para una habitación.
+    Response JSON shape:
+    {
+      ok: true,
+      habitacion_id: N,
+      year: 2025,
+      days: [{date:"YYYY-MM-DD", status:"disponible|ocupada|mantenimiento"}, ...]
+    }
+    """
+    habitacion = nuevaHabitacion.query.get_or_404(habitacion_id)
+    # Año solicitado o actual
+    try:
+        year = int(request.args.get('year')) if request.args.get('year') else datetime.utcnow().year
+    except Exception:
+        year = datetime.utcnow().year
+
+    start = date(year, 1, 1)
+    end = date(year, 12, 31)
+
+    # Pre-cargar reservas no canceladas que intersecten con el año
+    reservas = (
+        Reserva.query
+        .filter(Reserva.habitacion_id == habitacion.id, Reserva.estado != 'Cancelada')
+        .filter(Reserva.check_out >= start, Reserva.check_in <= end)
+        .all()
+    )
+
+    # Construir mapa de fechas
+    days = {}
+
+    # Si la habitación está en mantenimiento permanente, marcar todo el año
+    if (habitacion.estado or '').lower() == 'mantenimiento':
+        cur = start
+        while cur <= end:
+            days[cur] = 'mantenimiento'
+            cur += timedelta(days=1)
+    else:
+        # Inicialmente disponible
+        cur = start
+        while cur <= end:
+            days[cur] = 'disponible'
+            cur += timedelta(days=1)
+
+        # Marcar ocupadas según reservas (check_in inclusive, check_out exclusivo)
+        for r in reservas:
+            d0 = max(start, r.check_in)
+            # check_out puede ser None; asumir al menos 1 noche
+            co = r.check_out or (r.check_in + timedelta(days=1))
+            # exclusivo al salir; acotar al rango del año (+1 para poder usar <)
+            d1_excl = min(end + timedelta(days=1), co)
+            cur = d0
+            while cur < d1_excl:
+                days[cur] = 'ocupada'
+                cur += timedelta(days=1)
+
+    payload = {
+        'ok': True,
+        'habitacion_id': habitacion.id,
+        'year': year,
+        'days': [{'date': d.isoformat(), 'status': days[d]} for d in sorted(days.keys())]
+    }
+    return jsonify(payload)

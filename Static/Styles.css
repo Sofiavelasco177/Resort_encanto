@@ -369,6 +369,21 @@ main { padding-top: 72px; }
 .pricing-card .btn:hover {
     background-color: #329D9C;
 }
+/* ====== Calendar (room schedule) ====== */
+.calendar-legend .legend-box{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.bg-available{background:#d4f8e8;border:1px solid #9ae6b4}
+.bg-occupied{background:#ffd4d4;border:1px solid #f19797}
+.bg-maintenance{background:#fff3bf;border:1px solid #ffd66d}
+.calendar-year{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.calendar-month{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:8px}
+.calendar-month-title{font-weight:600;margin-bottom:6px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calendar-dow{font-size:.75rem;color:#6b7280;text-align:center}
+.calendar-day{height:28px;border-radius:6px;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.calendar-day.empty{background:transparent}
+.calendar-day.status-disponible{background:#d4f8e8;color:#065f46}
+.calendar-day.status-ocupada{background:#ffd4d4;color:#7f1d1d}
+.calendar-day.status-mantenimiento{background:#fff3bf;color:#8a6d3b}
 /* =======================
    ESTILOS LOGIN Y REGISTRO
    ======================= */
