@@ -11,6 +11,9 @@
 </head>
  <body>
     <div class="d-flex layout-app">
+        <button class="btn btn-light mobile-toggle d-lg-none" type="button" aria-label="Abrir menú" title="Abrir menú">
+            <i class="bi bi-list"></i>
+        </button>
         <!-- Sidebar izquierdo -->
         <aside class="sidebar-app bg-light border-end">
             <div class="sidebar-brand d-flex align-items-center gap-2 border-bottom">
@@ -38,7 +41,13 @@
                 <a class="nav-link" href="javascript:history.back()" title="Volver" data-bs-toggle="tooltip" data-bs-placement="right"><i class="bi bi-arrow-left me-2"></i><span class="nav-text">Volver</span></a>
             </nav>
         </aside>
-        <!-- Contenido principal -->
+        <!-- Botón flotante para expandir cuando está colapsado -->
+        <button class="sidebar-expander btn btn-primary btn-sm" type="button" aria-label="Expandir menú" title="Expandir menú" data-bs-toggle="tooltip" data-bs-placement="right">
+            <i class="bi bi-layout-sidebar"></i>
+        </button>
+    <!-- Backdrop overlay -->
+    <div class="sidebar-backdrop d-lg-none"></div>
+    <!-- Contenido principal -->
         <main class="flex-fill content-app">
         <!-- Toasts (top-right) -->
         <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1060">
@@ -102,10 +111,22 @@
                 const key = 'adminSidebarCollapsed';
                 try { if (localStorage.getItem(key) === '1') host.classList.add('collapsed'); } catch(e){}
                 const btn = document.querySelector('.sidebar-toggle');
+                const expander = document.querySelector('.sidebar-expander');
+                const mobileBtn = document.querySelector('.mobile-toggle');
+                const backdrop = document.querySelector('.sidebar-backdrop');
                 if (btn) btn.addEventListener('click', () => {
                     host.classList.toggle('collapsed');
                     try { localStorage.setItem(key, host.classList.contains('collapsed') ? '1' : '0'); } catch(e){}
                 });
+                if (expander) expander.addEventListener('click', () => {
+                    host.classList.remove('collapsed');
+                    try { localStorage.setItem(key, '0'); } catch(e){}
+                });
+                // móvil overlay open/close
+                const openMobile = () => host.classList.add('sidebar-open');
+                const closeMobile = () => host.classList.remove('sidebar-open');
+                if (mobileBtn) mobileBtn.addEventListener('click', openMobile);
+                if (backdrop) backdrop.addEventListener('click', closeMobile);
             });
 
             // Ayuda de accesibilidad para modales en admin

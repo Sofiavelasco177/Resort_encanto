@@ -93,7 +93,7 @@
               {% if p.descripcion %}<div class="item-description">{{ p.descripcion }}</div>{% endif %}
             </div>
             <div class="item-actions">
-              <div class="item-price">${{ '{:,.0f}'.format(p.precio) }} COP</div>
+              <div class="item-price">${{ '{:,.0f}'.format(p.precio or 0) }} COP</div>
               <form method="post" action="{{ url_for('restaurante_cart.cart_add') }}" class="add-form" onsubmit="return onAdd(this)">
                 <div class="quantity-control">
                   <button type="button" class="quantity-btn" onclick="decreaseQuantity(this)">−</button>
