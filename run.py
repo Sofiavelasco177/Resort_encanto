@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory, url_for
+from flask import Flask, render_template, send_from_directory, url_for, redirect
 import logging
 import os
 from datetime import datetime
@@ -29,6 +29,19 @@ default_static = 'static' if os.path.isdir(os.path.join(os.path.dirname(os.path.
 app = Flask(__name__, template_folder='templates', static_folder=default_static, static_url_path='/static')
 # Respetar cabeceras del proxy (X-Forwarded-Proto, Host, etc.) para generar URLs https correctas
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
+# Mitigación defensiva: algunos navegadores (Edge) pueden enviar cookies heredadas/dañadas
+# que rompen el parser de cookies de Werkzeug y generan 400 antes de llegar a la vista.
+# Estas opciones ayudan a que nuestros cookies sean más seguros; el handler 400 más abajo
+# nos permitirá registrar el error y ofrecer una forma de limpiar cookies.
+try:
+    app.config.setdefault('SESSION_COOKIE_SAMESITE', 'Lax')
+    # Si estamos detrás de HTTPS, el proxy nos marca X-Forwarded-Proto; ProxyFix ya ajusta.
+    # Aún así, marcamos Secure para producción si el esquema preferido es https.
+    if (os.environ.get('PREFERRED_URL_SCHEME', 'http').lower() == 'https'):
+        app.config.setdefault('SESSION_COOKIE_SECURE', True)
+except Exception:
+    pass
 
 # Soportar nombres de carpetas con mayúsculas (por compatibilidad)
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -670,6 +683,55 @@ def media_file(filename):
     base = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads')
     # Seguridad básica: normalizar y restringir a carpeta
     return send_from_directory(base, filename, conditional=True)
+
+# ------------------- Manejadores y utilidades de diagnóstico -------------------
+from flask import request, make_response
+
+@app.errorhandler(400)
+def handle_bad_request(e):
+    """Registra detalles cuando ocurre un 400 antes de entrar a las vistas.
+    Suele deberse a cabeceras Cookie inválidas o corruptas enviadas por el navegador.
+    """
+    try:
+        logger.warning(
+            '400 BadRequest en %s UA=%s CookieLen=%s Referer=%s',
+            request.path,
+            request.headers.get('User-Agent'),
+            len(request.headers.get('Cookie', '')),
+            request.headers.get('Referer')
+        )
+        # No logueamos el valor completo de Cookie por privacidad; si se requiere, activar temporalmente:
+        # logger.debug('Cookie completa: %r', request.headers.get('Cookie'))
+    except Exception:
+        pass
+
+    html = (
+        "<h1>Solicitud inválida (400)</h1>"
+        "<p>Es posible que tu navegador esté enviando cookies antiguas o dañadas para este dominio. "
+        "Prueba estos pasos y vuelve a intentarlo:</p>"
+        "<ol>"
+        "<li>Abre una ventana InPrivate/Incógnito y verifica si funciona.</li>"
+        "<li><a href='/{clear}'>Haz clic aquí para limpiar cookies de este sitio</a> (no cierra tu sesión en otros sitios).</li>"
+        "<li>Como alternativa, borra los datos del sitio desde la configuración del navegador.</li>"
+        "</ol>"
+    ).format(clear='__clear_cookies')
+    resp = make_response(html, 400)
+    return resp
+
+@app.route('/__clear_cookies')
+def __clear_cookies():
+    """Borra cookies típicas de la app para mitigar errores 400 por cookies corruptas."""
+    next_url = request.args.get('next') or url_for('home')
+    resp = make_response(redirect(next_url))
+    for name in ('session', 'remember_token', 'csrftoken', 'csrf_token'):
+        try:
+            resp.delete_cookie(name, domain=None)
+            # Muchos navegadores guardan cookies con dominio de nivel superior; intentamos ambos.
+            resp.delete_cookie(name, domain='.' + request.host.split(':')[0])
+        except Exception:
+            pass
+    return resp
+
 if __name__ == '__main__':
     import os
     
