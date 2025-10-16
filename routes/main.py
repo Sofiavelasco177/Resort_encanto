@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
 from jinja2 import TemplateNotFound
 from datetime import datetime
-from models.baseDatos import nuevaHabitacion, Post, PlatoRestaurante
+from models.baseDatos import nuevaHabitacion, Post, PlatoRestaurante, ResenaExperiencia
 
 main_bp = Blueprint('main', __name__)
 
@@ -58,24 +58,50 @@ def nosotros():
 @main_bp.route('/Experiencias', methods=['GET', 'POST'])
 def experiencias():
     comentarios = []
+    # Cargar reseñas aprobadas más recientes
+    try:
+        db_comments = ResenaExperiencia.query.filter_by(aprobado=True).order_by(ResenaExperiencia.creado_en.desc()).limit(100).all()
+        for r in db_comments:
+            comentarios.append({
+                'user': {'username': 'Usuario ' + str(r.usuario_id or ''), 'avatar': None},
+                'contenido': r.contenido,
+                'rating': int(r.calificacion or 0),
+                'created_at': r.creado_en,
+            })
+    except Exception:
+        pass
+
     if request.method == 'POST':
-        contenido = request.form.get('contenido')
-        rating = request.form.get('rating', 0)
-        # Import current_user lazily to avoid hard dependency on flask_login at import time
+        contenido = (request.form.get('contenido') or '').strip()
+        rating = int(request.form.get('rating', 0) or 0)
         try:
             from flask_login import current_user
         except Exception:
             current_user = None
 
-        if current_user and getattr(current_user, 'is_authenticated', False):
+        if current_user and getattr(current_user, 'is_authenticated', False) and contenido:
+            try:
+                # Guardar reseña sin experiencia específica (null), aprobada por defecto
+                r = ResenaExperiencia(
+                    experiencia_id=None,
+                    usuario_id=getattr(current_user, 'idUsuario', None) or session.get('user', {}).get('idUsuario'),
+                    contenido=contenido,
+                    calificacion=max(0, min(5, rating)),
+                    aprobado=True,
+                )
+                from utils.extensions import db
+                db.session.add(r)
+                db.session.commit()
+            except Exception:
+                pass
+            # Añadir también al contexto actual para reflejarlo al instante
             username = getattr(current_user, 'usuario', None) or getattr(current_user, 'username', None) or session.get('user', {}).get('nombre')
-            nuevo = {
+            comentarios.insert(0, {
                 'user': {'username': username or 'Anónimo', 'avatar': None},
                 'contenido': contenido,
-                'rating': int(rating) if rating else 0,
+                'rating': rating,
                 'created_at': datetime.now()
-            }
-            comentarios.append(nuevo)
+            })
     return render_template('home/Experiencias.html', comentarios=comentarios)
 
 #Rutas Usuario -----------------------------------------------------------

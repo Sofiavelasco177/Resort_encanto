@@ -216,7 +216,7 @@
         <div class="table-responsive">
           <table class="table">
             <thead>
-              <tr><th>ID</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Total</th><th>Ticket</th></tr>
+              <tr><th>ID</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Estado</th><th>Total</th><th>Ticket / Pago</th></tr>
             </thead>
             <tbody>
               {% for r in reservas %}
@@ -230,6 +230,8 @@
                 <td>
                   {% if r.estado == 'Completada' %}
                     <a class="btn btn-sm btn-outline-primary" href="{{ url_for('pagos_usuario.descargar_ticket_hospedaje', reserva_id=r.id) }}">Descargar</a>
+                  {% elif r.estado == 'Activa' %}
+                    <a class="btn btn-sm btn-success" href="{{ url_for('pagos_usuario.checkout_reserva', reserva_id=r.id) }}">Pagar ahora</a>
                   {% else %}
                     <span class="text-muted small">No disponible</span>
                   {% endif %}

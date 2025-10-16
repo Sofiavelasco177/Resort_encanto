@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante, ReservaRestaurante, Reserva, TicketHospedaje
+from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante, ReservaRestaurante, Reserva, TicketHospedaje, Experiencia, ResenaExperiencia
 from datetime import datetime
 from flask import session
 from flask import send_file, make_response
@@ -185,6 +185,87 @@ def hospedaje_reserva_estado(reserva_id: int):
         db.session.rollback()
         flash(f'No se pudo actualizar: {e}', 'danger')
     return redirect(url_for('admin.hospedaje_reservas_list'))
+
+# ==========================
+# 📌 SECCIÓN EXPERIENCIAS (CRUD + reseñas)
+# ==========================
+@admin_bp.route('/experiencias')
+def experiencias_list():
+    exps = Experiencia.query.order_by(Experiencia.creado_en.desc()).all()
+    resenas = ResenaExperiencia.query.order_by(ResenaExperiencia.creado_en.desc()).limit(300).all()
+    return render_template('dashboard/experiencias_admin.html', experiencias=exps, resenas=resenas)
+
+@admin_bp.route('/experiencias/create', methods=['POST'])
+def exp_create():
+    try:
+        titulo = (request.form.get('titulo') or '').strip() or 'Sin título'
+        descripcion = request.form.get('descripcion')
+        activo = True if request.form.get('activo') == 'on' else False
+        # Reusar helper de subida de imagen del mismo archivo
+        imagen_path = _save_uploaded_image('imagen')
+        e = Experiencia(titulo=titulo, descripcion=descripcion, activo=activo)
+        if imagen_path:
+            e.imagen = imagen_path
+        db.session.add(e)
+        db.session.commit()
+        flash('Experiencia creada', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'No se pudo crear: {e}', 'danger')
+    return redirect(url_for('admin.experiencias_list'))
+
+@admin_bp.route('/experiencias/<int:exp_id>/update', methods=['POST'])
+def exp_update(exp_id):
+    e = Experiencia.query.get_or_404(exp_id)
+    try:
+        e.titulo = request.form.get('titulo') or e.titulo
+        e.descripcion = request.form.get('descripcion') or e.descripcion
+        e.activo = True if request.form.get('activo') == 'on' else False
+        imagen_path = _save_uploaded_image('imagen')
+        if imagen_path:
+            e.imagen = imagen_path
+        db.session.commit()
+        flash('Experiencia actualizada', 'success')
+    except Exception as ex:
+        db.session.rollback()
+        flash(f'No se pudo actualizar: {ex}', 'danger')
+    return redirect(url_for('admin.experiencias_list'))
+
+@admin_bp.route('/experiencias/<int:exp_id>/delete', methods=['POST'])
+def exp_delete(exp_id):
+    e = Experiencia.query.get_or_404(exp_id)
+    try:
+        db.session.delete(e)
+        db.session.commit()
+        flash('Experiencia eliminada', 'warning')
+    except Exception as ex:
+        db.session.rollback()
+        flash(f'No se pudo eliminar: {ex}', 'danger')
+    return redirect(url_for('admin.experiencias_list'))
+
+@admin_bp.route('/experiencias/resenas/<int:rid>/toggle', methods=['POST'])
+def resena_toggle(rid):
+    r = ResenaExperiencia.query.get_or_404(rid)
+    try:
+        r.aprobado = not bool(r.aprobado)
+        db.session.commit()
+        flash('Estado de aprobación actualizado', 'success')
+    except Exception as ex:
+        db.session.rollback()
+        flash(f'No se pudo actualizar: {ex}', 'danger')
+    return redirect(url_for('admin.experiencias_list'))
+
+@admin_bp.route('/experiencias/resenas/<int:rid>/delete', methods=['POST'])
+def resena_delete(rid):
+    r = ResenaExperiencia.query.get_or_404(rid)
+    try:
+        db.session.delete(r)
+        db.session.commit()
+        flash('Reseña eliminada', 'warning')
+    except Exception as ex:
+        db.session.rollback()
+        flash(f'No se pudo eliminar: {ex}', 'danger')
+    return redirect(url_for('admin.experiencias_list'))
 
 # ==========================
 # SECCIÓN INICIO (Home) - CRUD de contenido usando Post

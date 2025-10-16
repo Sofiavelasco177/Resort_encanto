@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, current_app, flash, session, jsonify, send_from_directory
 from models.baseDatos import db, Reserva, nuevaHabitacion, TicketHospedaje, ReservaDatosHospedaje, Usuario
+from utils.mailer import send_email
 import os
 import requests
 import hmac
@@ -401,6 +402,20 @@ def _ensure_ticket_for_reserva(reserva: Reserva):
         with open(path, 'wb') as f:
             f.write(pdf_bytes.getvalue())
         t.file_ticket = f"uploads/tickets_hospedaje/{t.ticket_numero}.pdf"
+        # Intentar enviar por correo al usuario
+        try:
+            if user and user.correo:
+                subject = f"Tu ticket de reserva #{reserva.id}"
+                body = (
+                    f"<p>Hola {user.usuario},</p>"
+                    f"<p>Adjuntamos tu ticket de hospedaje para la reserva #{reserva.id}.</p>"
+                    f"<p>Check-in: {t.check_in} · Check-out: {t.check_out}</p>"
+                    f"<p>Gracias por tu reserva.</p>"
+                )
+                attach_name = f"{t.ticket_numero}.pdf"
+                send_email(user.correo, subject, body, [(attach_name, pdf_bytes.getvalue())])
+        except Exception:
+            pass
     except Exception as e:
         try:
             current_app.logger.warning('No se pudo generar/guardar el PDF de ticket: %s', e)

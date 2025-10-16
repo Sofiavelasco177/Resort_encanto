@@ -282,6 +282,37 @@ class ActividadUsuario(db.Model):
     detalle = db.Column(db.String(255), nullable=True)
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
 
+# ------------------------------
+# Experiencias y Reseñas
+# ------------------------------
+class Experiencia(db.Model):
+    __tablename__ = 'experiencia'
+
+    id = db.Column(db.Integer, primary_key=True)
+    titulo = db.Column(db.String(200), nullable=False)
+    descripcion = db.Column(db.Text, nullable=True)
+    imagen = db.Column(db.String(255), nullable=True)  # ruta relativa (instance/uploads/ o static)
+    activo = db.Column(db.Boolean, default=True)
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Experiencia {self.titulo} activo={self.activo}>"
+
+
+class ResenaExperiencia(db.Model):
+    __tablename__ = 'resena_experiencia'
+
+    id = db.Column(db.Integer, primary_key=True)
+    experiencia_id = db.Column(db.Integer, db.ForeignKey('experiencia.id'), nullable=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.idUsuario'), nullable=True)
+    contenido = db.Column(db.Text, nullable=False)
+    calificacion = db.Column(db.Integer, nullable=False, default=0)  # 1..5
+    aprobado = db.Column(db.Boolean, default=True)
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Resena exp={self.experiencia_id} user={self.usuario_id} calif={self.calificacion} apr={self.aprobado}>"
+
 """# ------------------------------
 # Tabla de Restaurantes
 # ------------------------------
