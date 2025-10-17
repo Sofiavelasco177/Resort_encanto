@@ -30,6 +30,16 @@ app = Flask(__name__, template_folder='templates', static_folder=default_static,
 # Respetar cabeceras del proxy (X-Forwarded-Proto, Host, etc.) para generar URLs https correctas
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 
+# En algunos despliegues, la ruta automática de estáticos puede no quedar registrada.
+# Registramos de forma defensiva la ruta /static si no existe para evitar 404.
+try:
+    if 'static' not in getattr(app, 'view_functions', {}):
+        # Nota: app.send_static_file requiere el parámetro filename
+        app.add_url_rule(app.static_url_path + '/<path:filename>', endpoint='static', view_func=app.send_static_file)  # type: ignore[arg-type]
+        logger.info("Ruta /static registrada manualmente (fallback)")
+except Exception as e:
+    logger.warning(f"No se pudo registrar manualmente la ruta /static: {e}")
+
 # Mitigación defensiva: algunos navegadores (Edge) pueden enviar cookies heredadas/dañadas
 # que rompen el parser de cookies de Werkzeug y generan 400 antes de llegar a la vista.
 # Estas opciones ayudan a que nuestros cookies sean más seguros; el handler 400 más abajo
