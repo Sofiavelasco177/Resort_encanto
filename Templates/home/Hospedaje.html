@@ -90,19 +90,15 @@
         {% for plan in _plans %}
         {% set group = habitaciones_por_plan[plan] %}
                 <div class="rooms-grid-2" id="habitaciones-publicas-{{ (plan)|lower }}">
-                        <div class="col-12 mb-2" style="grid-column:1/-1;">
-                <div class="plan-title">Plan {{ plan }}</div>
-            </div>
             {% for h in group %}
                         <article class="room-card-v2 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
-                            <div class="room-media">
+                                            <div class="room-media">
                                 {% set model_url = h.model3d or h.model_url or h.modelo3d %}
                                 {% if model_url %}
                                     <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar></model-viewer>
                                 {% else %}
                                     <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}">
                                 {% endif %}
-                                <span class="room-tag">{{ h.plan or 'General' }}</span>
                             </div>
                             <div class="room-index-title">
                                 <div class="room-index">{{ '%02d'|format(loop.index) }}</div>
@@ -124,14 +120,13 @@
                 <div class="rooms-grid-2" id="habitaciones-publicas">
             {% for h in habitaciones %}
                         <article class="room-card-v2 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
-                            <div class="room-media">
+                                            <div class="room-media">
                                 {% set model_url = h.model3d or h.model_url or h.modelo3d %}
                                 {% if model_url %}
                                     <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar></model-viewer>
                                 {% else %}
                                     <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}">
                                 {% endif %}
-                                <span class="room-tag">{{ h.plan or 'General' }}</span>
                             </div>
                             <div class="room-index-title">
                                 <div class="room-index">{{ '%02d'|format(loop.index) }}</div>

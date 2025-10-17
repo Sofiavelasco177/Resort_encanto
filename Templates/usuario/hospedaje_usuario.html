@@ -7,9 +7,6 @@
     {% for plan, rooms in habitaciones_por_plan.items() %}
     {% if rooms %}
     <div class="row g-3 g-md-4 mb-4" id="habitaciones-usuario-{{ plan|lower }}">
-        <div class="col-12">
-            <h3 class="mb-3">Plan {{ plan }}</h3>
-        </div>
         {% for h in rooms %}
         <div class="col-12 col-sm-6 col-lg-4">
                         <div class="card habitacion-card h-100">
@@ -43,78 +40,58 @@
                        class="btn btn-success btn-sm">
                         Reservar
                     </a>
-                </div>
-            </div>
-        </div>
+                        <style>
+                        /* Two-column grid and card style inspired by home hospedaje */
+                        .rooms-grid-2{display:grid;grid-template-columns:1fr;gap:32px}
+                        @media(min-width:768px){.rooms-grid-2{grid-template-columns:repeat(2,1fr)}}
+                        .room-card-v2{border-radius:20px;background:#fff;box-shadow:0 20px 50px rgba(59,130,246,0.15);padding:18px 20px 16px;transition:transform .25s ease,box-shadow .25s ease;position:relative}
+                        .room-card-v2:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(59,130,246,0.22)}
+                        .room-media{position:relative;height:300px;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#e6f1ff 10%,#5c97ff 95%);display:flex;align-items:end}
+                        .room-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+                        .room-index-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:14px 6px 8px;border-bottom:1px solid #eef2ff}
+                        .room-index{font-size:2.2rem;font-weight:700;line-height:1;color:#9bb8ff}
+                        .room-title{font-size:1.2rem;font-weight:700;color:#374151;margin:0}
+                        .room-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 6px 6px;color:#6b7280;font-size:.95rem}
+                        .room-price{font-weight:800;color:#0b7285}
+                        .room-btn{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff;border:none;padding:10px 18px;border-radius:999px;font-weight:800;font-size:.9rem;letter-spacing:.5px;box-shadow:0 10px 24px rgba(59,130,246,.35);transition:transform .15s ease,filter .2s ease,box-shadow .2s ease}
+                        .room-btn:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 16px 28px rgba(37,99,235,.45)}
+                        </style>
 
-    <!-- Modal Especificaciones (dinámico) -->
-        <div class="modal fade" id="modalHabitacion{{ h.id }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-body row">
-                        <div class="col-md-6">
-                                             {% set raw2 = h.imagen or '' %}
-                                             {% if raw2 and (raw2[:4]|lower == 'http') %}
-                                                 {% set img_url2 = raw2 %}
-                                             {% else %}
-                                                 {% set fn2 = (raw2|replace('\\\\','/')|replace('\\','/')) %}
-                                                 {% if fn2.startswith('/static/') %}{% set fn2 = fn2[8:] %}{% endif %}
-                                                 {% if fn2.startswith('static/') %}{% set fn2 = fn2[7:] %}{% endif %}
-                                                 {% set img_url2 = url_for('static', filename=fn2 if fn2 else 'img/default.jpg') %}
-                                             {% endif %}
-                                             <img src="{{ img_url2 }}" 
-                                                     class="img-fluid rounded" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
-                        </div>
-                        <div class="col-md-6 d-flex flex-column justify-content-between">
-                            <div>
-                                <h4>{{ h.nombre }}</h4>
-                                <p><strong>Precio:</strong> ${{ '{:,.0f}'.format(h.precio) }} COP</p>
-                                <p><strong>Estado:</strong> {{ h.estado }}</p>
-                                <p><strong>Capacidad:</strong> {{ h.cupo_personas }} personas</p>
-                                <p><strong>Plan:</strong> {{ h.plan or '—' }} {% if h.numero %}· <strong>Habitación:</strong> #{{ '%02d'|format(h.numero) }}{% endif %}</p>
-                                <p><strong>Descripción:</strong> {{ h.descripcion if h.descripcion else "Sin descripción" }}</p>
-                                {% if h.caracteristicas %}
-                                <hr>
-                                {% set car = h.caracteristicas %}
-                                <details>
-                                    <summary>Ver características detalladas</summary>
-                                    <pre class="mt-2" style="white-space: pre-wrap;">{{ car }}</pre>
-                                </details>
-                                {% endif %}
-                            </div>
-
-                            <!-- Reservar dentro del modal (redirige igual que el botón externo) -->
-                            <div class="text-end">
-                                <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" class="btn btn-success mt-3">
-                                    Reservar
+                        <div class="container mt-4 hospedaje-usuario">
+                            {% if habitaciones_por_plan %}
+                            {% for plan, rooms in habitaciones_por_plan.items() %}
+                            {% if rooms %}
+                            <div class="rooms-grid-2" id="habitaciones-usuario-{{ plan|lower }}">
+                                {% for h in rooms %}
+                                <article class="room-card-v2">
+                                    <div class="room-media">
+                                        {% set raw = h.imagen or '' %}
+                                        {% if raw and (raw[:4]|lower == 'http') %}
+                                            {% set img_url = raw %}
+                                        {% else %}
+                                            {% set fn = (raw|replace('\\\\','/')|replace('\\','/') ) %}
+                                            {% if fn.startswith('/static/') %}{% set fn = fn[8:] %}{% endif %}
+                                            {% if fn.startswith('static/') %}{% set fn = fn[7:] %}{% endif %}
+                                            {% set img_url = url_for('static', filename=fn if fn else 'img/default.jpg') %}
+                                        {% endif %}
+                                        <img src="{{ img_url }}" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+                                    </div>
+                                    <div class="room-index-title">
+                                        <div class="room-index">{{ '%02d'|format(loop.index) }}</div>
+                                        <h3 class="room-title mb-0">{{ h.nombre }}</h3>
+                                    </div>
+                                    <div class="room-meta">
+                                        <div>Cupo: {{ h.cupo_personas }}{% if h.numero %} · Hab. #{{ '%02d'|format(h.numero) }}{% endif %}</div>
+                                        <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2 pt-1">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}">Especificaciones</button>
+                                        <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" class="room-btn">Reservar</a>
+                                    </div>
+                                </article>
                                 </a>
-                            </div>
+                                <!-- Modal Especificaciones (dinámico) -->
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Calendario (historial anual) -->
-        <div class="modal fade hab-calendar-modal" id="calHabitacion{{ h.id }}" tabindex="-1" aria-hidden="true" data-url="{{ url_for('hospedaje_usuario.calendario_habitacion', habitacion_id=h.id) }}" data-year="{{ current_year }}">
-            <div class="modal-dialog modal-xl modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Cronograma anual — {{ h.nombre }}{% if h.numero %} #{{ '%02d'|format(h.numero) }}{% endif %}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2 calendar-controls">
-                            <button class="btn btn-light btn-sm cal-prev" type="button"><i class="bi bi-arrow-left"></i></button>
-                            <div class="fw-semibold">Año <span class="calendar-year"></span></div>
-                            <button class="btn btn-light btn-sm cal-next" type="button"><i class="bi bi-arrow-right"></i></button>
-                        </div>
-                        <div class="calendar-legend small mb-2">
-                            <span class="legend-box bg-available"></span> Disponible
-                            <span class="legend-box bg-occupied ms-3"></span> Ocupada
-                            <span class="legend-box bg-maintenance ms-3"></span> Mantenimiento
-                        </div>
-                        <div class="calendar-body min-vh-25"></div>
                     </div>
                 </div>
             </div>
@@ -124,14 +101,26 @@
     {% endif %}
     {% endfor %}
     {% else %}
-    <div class="row g-3 g-md-4" id="habitaciones-usuario">
+    <div class="rooms-grid-2" id="habitaciones-usuario">
         {% for h in habitaciones %}
         <!-- fallback sin agrupación -->
-        <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card habitacion-card h-100">
-                <img src="{{ url_for('static', filename='img/default.jpg') }}" class="card-img-top room-img" alt="{{ h.nombre }}">
+        <article class="room-card-v2">
+            <div class="room-media">
+                <img src="{{ url_for('static', filename='img/default.jpg') }}" alt="{{ h.nombre }}">
             </div>
-        </div>
+            <div class="room-index-title">
+                <div class="room-index">{{ '%02d'|format(loop.index) }}</div>
+                <h3 class="room-title mb-0">{{ h.nombre }}</h3>
+            </div>
+            <div class="room-meta">
+                <div>Cupo: {{ h.cupo_personas }}</div>
+                <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 pt-1">
+                <a href="#" class="btn btn-outline-secondary disabled">Especificaciones</a>
+                <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" class="room-btn">Reservar</a>
+            </div>
+        </article>
         {% endfor %}
     </div>
     {% endif %}
@@ -139,5 +128,18 @@
     {# Se eliminaron las cartas y modales de ejemplo para evitar confusión y conflictos de IDs. #}
 
 <!-- JS de Bootstrap ya viene desde el base.html si se usa -->
+<script>
+// Ensure "Especificaciones" buttons always open their modal
+document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-bs-toggle="modal"][data-bs-target]');
+    if (!trigger) return;
+    const targetSel = trigger.getAttribute('data-bs-target');
+    const modalEl = document.querySelector(targetSel);
+    if (modalEl && window.bootstrap && bootstrap.Modal) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+});
+</script>
 
 {% endblock %}
