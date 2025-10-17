@@ -50,6 +50,9 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    color: #f5f2f2;
+    text-align: center;
+}
 
 /* =======================
      ESTILOS CARDS ADMIN HABITACIONES
@@ -109,9 +112,6 @@ body {
 @keyframes estadoPulse {
     0% { filter: brightness(1); box-shadow: 0 0 8px 2px rgba(0,0,0,0.08); }
     100% { filter: brightness(1.15); box-shadow: 0 0 16px 4px rgba(0,0,0,0.18); }
-}
-    color: #f5f2f2;
-    text-align: center;
 }
 .hero h1 {
     font-size: 3rem;
@@ -994,6 +994,7 @@ body {
     .room-img {
         height: auto; /* let it flow on small screens */
     }
+}
 
 /* Plan / pricing cards for Selección de Habitación */
 .plans-grid .plan-card {
@@ -1084,7 +1085,6 @@ body {
 /* Make proportional home image taller as requested */
 .proportional-img { max-height: 70vh; }
 .room-img { height: 640px; }
-}
 
 /* Nosotros page typography */
 .nosotros-content p {
