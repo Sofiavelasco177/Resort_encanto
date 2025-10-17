@@ -1,0 +1,160 @@
+{% extends 'usuario/base.html' %}
+
+{% block content %}
+<style>
+  /* Página estilo referencia */
+  .menu-bg {
+    background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+    padding: 20px 0;
+  }
+  .menu-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+  .menu-title { color:#2c3e50; font-size: 2.2em; text-align:center; font-weight:800; }
+  .tabs { display:flex; gap:10px; margin: 20px auto 28px; flex-wrap:wrap; justify-content:center; }
+  .tab {
+    padding: 10px 20px; background:#fff; border:2px solid #2980b9; color:#2c3e50;
+    border-radius:25px; cursor:pointer; font-size:16px; font-weight:600; transition:.25s;
+  }
+  .tab:hover { background:#2980b9; color:#fff; transform: translateY(-2px); }
+  .tab.active { background:#2980b9; color:#fff; }
+
+  .category { display:none; }
+  .category.active { display:block; animation: fadeIn .45s ease; }
+  @keyframes fadeIn { from {opacity:0; transform: translateY(16px);} to {opacity:1; transform:none;} }
+
+  h3.cat-title { color:#2c3e50; font-size:1.6em; margin: 8px 0 18px; padding-bottom:10px; border-bottom:3px solid #2980b9; font-weight:800; }
+
+  .menu-item {
+    display:grid; grid-template-columns: 200px 1fr auto; gap:20px; align-items:center;
+    background:#f8f9fa; border-radius:15px; padding:18px; margin-bottom:18px;
+    box-shadow: 0 4px 6px rgba(0,0,0,.1); transition:.25s;
+  }
+  .menu-item:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,.18); }
+  .item-image { width:200px; height:150px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(145deg, #e3f2fd, #ffffff); border:1px solid #edf2f7; }
+  .item-image img { width:100%; height:100%; object-fit:cover; border-radius:12px; display:block; }
+  .item-image .emoji { font-size: 2rem; }
+  .item-info { display:flex; flex-direction:column; gap:6px; }
+  .item-name { font-size:1.25em; font-weight:800; color:#2c3e50; }
+  .item-description { color:#666; font-size:.98em; line-height:1.4; }
+  .item-actions { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .item-price { font-size:1.15em; font-weight:800; color:#2980b9; }
+  .quantity-control { display:flex; align-items:center; gap:10px; }
+  .quantity-btn { width:30px; height:30px; border:none; background:#2980b9; color:#fff; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:.2s; }
+  .quantity-btn:hover { background:#1f618d; transform: scale(1.08); }
+  .quantity-input { width:56px; text-align:center; border:2px solid #ddd; border-radius:8px; padding:4px; font-size:16px; }
+  .add-btn { padding:10px 26px; background:#2980b9; color:#fff; border:none; border-radius:25px; cursor:pointer; font-size:15px; font-weight:700; transition:.2s; }
+  .add-btn:hover { background:#1f618d; transform: scale(1.03); }
+  @media (max-width: 768px){
+    .menu-item { grid-template-columns: 1fr; text-align:center; }
+    .item-image { width:100%; height:200px; justify-self:center; }
+    .item-actions { flex-direction:row; justify-content:center; }
+  }
+  .cart-cta { display:flex; justify-content:center; margin-top: 10px; }
+  .cart-cta .btn { border-radius:25px; padding:10px 18px; font-weight:700; }
+</style>
+
+<div class="menu-bg">
+  <div class="menu-container">
+    <h1 class="menu-title">🍽️ Menú del Restaurante</h1>
+
+    {% if categorias and grupos %}
+    <!-- Tabs de categorías -->
+    <div class="tabs">
+      {% for c in categorias %}
+        <button class="tab {% if loop.first %}active{% endif %}" onclick="showCategory('cat-{{ c|replace(' ','-')|lower }}', event)">{{ c }}</button>
+      {% endfor %}
+    </div>
+
+    {% for c in categorias %}
+      {% set items = grupos.get(c, []) %}
+      {% if items %}
+      <div id="cat-{{ c|replace(' ','-')|lower }}" class="category {% if loop.first %}active{% endif %}">
+        <h3 class="cat-title">{{ c }}</h3>
+
+        {% for p in items %}
+          <div class="menu-item">
+            <div class="item-image">
+              {# Muestra imagen si existiera en el modelo, si no, un placeholder #}
+              {% set img = p.imagen or p.image or p.foto %}
+              {% if img %}
+                <img src="{{ media_url(img) }}" alt="{{ p.nombre }}" onerror="this.style.display='none'">
+              {% else %}
+                <span class="emoji">🍽️</span>
+              {% endif %}
+            </div>
+            <div class="item-info">
+              <div class="item-name">{{ p.nombre }}</div>
+              {% if p.descripcion %}<div class="item-description">{{ p.descripcion }}</div>{% endif %}
+            </div>
+            <div class="item-actions">
+              <div class="item-price">${{ '{:,.0f}'.format(p.precio or 0) }} COP</div>
+              <form method="post" action="{{ url_for('restaurante_cart.cart_add') }}" class="add-form" onsubmit="return onAdd(this)">
+                <div class="quantity-control">
+                  <button type="button" class="quantity-btn" onclick="decreaseQuantity(this)">−</button>
+                  <input type="number" class="quantity-input" name="cantidad" value="1" min="1">
+                  <button type="button" class="quantity-btn" onclick="increaseQuantity(this)">+</button>
+                </div>
+                <input type="hidden" name="plato_id" value="{{ p.id }}">
+                <div class="mt-2 text-center">
+                  <button type="submit" class="add-btn">Añadir</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="cart-cta">
+      <a href="{{ url_for('restaurante_cart.view_cart') }}" class="btn btn-outline-primary">Ver carrito</a>
+    </div>
+
+    {% else %}
+      <div class="alert alert-info mb-0">No hay platos disponibles por ahora.</div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+  function showCategory(id, ev){
+    const cats = document.querySelectorAll('.category');
+    const tabs = document.querySelectorAll('.tab');
+    cats.forEach(c=> c.classList.remove('active'));
+    tabs.forEach(t=> t.classList.remove('active'));
+    const el = document.getElementById(id);
+    if(el) el.classList.add('active');
+    if(ev && ev.target) ev.target.classList.add('active');
+    // scroll a la cabecera de la categoría
+    if(el){
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({top:y, behavior:'smooth'});
+    }
+  }
+  function increaseQuantity(btn){
+    const input = btn.parentElement.querySelector('.quantity-input');
+    input.value = parseInt(input.value||'1') + 1;
+  }
+  function decreaseQuantity(btn){
+    const input = btn.parentElement.querySelector('.quantity-input');
+    const v = parseInt(input.value||'1');
+    if(v>1) input.value = v-1;
+  }
+  function onAdd(form){
+    const btn = form.querySelector('.add-btn');
+    if(btn){
+      btn.textContent = '✓ Añadido';
+      btn.style.background = '#1f618d';
+      setTimeout(()=>{ btn.textContent = 'Añadir'; btn.style.background = '#2980b9'; }, 1200);
+    }
+    return true; // permitir submit
+  }
+</script>
+{% endblock %}

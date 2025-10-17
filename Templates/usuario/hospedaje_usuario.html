@@ -1,0 +1,143 @@
+{% extends 'usuario/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4 hospedaje-usuario">
+    {% if habitaciones_por_plan %}
+    {% for plan, rooms in habitaciones_por_plan.items() %}
+    {% if rooms %}
+    <div class="row g-3 g-md-4 mb-4" id="habitaciones-usuario-{{ plan|lower }}">
+        <div class="col-12">
+            <h3 class="mb-3">Plan {{ plan }}</h3>
+        </div>
+        {% for h in rooms %}
+        <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="card habitacion-card h-100">
+                         {% set raw = h.imagen or '' %}
+                         {% if raw and (raw[:4]|lower == 'http') %}
+                             {% set img_url = raw %}
+                         {% else %}
+                             {% set fn = (raw|replace('\\\\','/')|replace('\\','/') ) %}
+                             {% if fn.startswith('/static/') %}{% set fn = fn[8:] %}{% endif %}
+                             {% if fn.startswith('static/') %}{% set fn = fn[7:] %}{% endif %}
+                             {% set img_url = url_for('static', filename=fn if fn else 'img/default.jpg') %}
+                         {% endif %}
+                         <img src="{{ img_url }}" 
+                                 class="card-img-top room-img" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+                <div class="card-body d-flex justify-content-center gap-2">
+                    {% if h.numero %}
+                    <span class="badge text-bg-secondary">#{{ "%02d"|format(h.numero) }}</span>
+                    {% endif %}
+                    <!-- Botón Especificaciones (abre modal único por habitación) -->
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}">
+                        Especificaciones
+                    </button>
+
+                    <!-- Icono Historial (abre calendario) -->
+                    <button type="button" class="btn btn-outline-secondary btn-sm" title="Historial de reservas" data-bs-toggle="modal" data-bs-target="#calHabitacion{{ h.id }}">
+                        <img src="{{ url_for('static', filename='img/icons/history.svg') }}" alt="Historial" width="18" height="18">
+                    </button>
+
+                    <!-- Botón Reservar (dinámico: redirige a tu ruta reservar) -->
+                    <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" 
+                       class="btn btn-success btn-sm">
+                        Reservar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    <!-- Modal Especificaciones (dinámico) -->
+        <div class="modal fade" id="modalHabitacion{{ h.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body row">
+                        <div class="col-md-6">
+                                             {% set raw2 = h.imagen or '' %}
+                                             {% if raw2 and (raw2[:4]|lower == 'http') %}
+                                                 {% set img_url2 = raw2 %}
+                                             {% else %}
+                                                 {% set fn2 = (raw2|replace('\\\\','/')|replace('\\','/')) %}
+                                                 {% if fn2.startswith('/static/') %}{% set fn2 = fn2[8:] %}{% endif %}
+                                                 {% if fn2.startswith('static/') %}{% set fn2 = fn2[7:] %}{% endif %}
+                                                 {% set img_url2 = url_for('static', filename=fn2 if fn2 else 'img/default.jpg') %}
+                                             {% endif %}
+                                             <img src="{{ img_url2 }}" 
+                                                     class="img-fluid rounded" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+                        </div>
+                        <div class="col-md-6 d-flex flex-column justify-content-between">
+                            <div>
+                                <h4>{{ h.nombre }}</h4>
+                                <p><strong>Precio:</strong> ${{ '{:,.0f}'.format(h.precio) }} COP</p>
+                                <p><strong>Estado:</strong> {{ h.estado }}</p>
+                                <p><strong>Capacidad:</strong> {{ h.cupo_personas }} personas</p>
+                                <p><strong>Plan:</strong> {{ h.plan or '—' }} {% if h.numero %}· <strong>Habitación:</strong> #{{ '%02d'|format(h.numero) }}{% endif %}</p>
+                                <p><strong>Descripción:</strong> {{ h.descripcion if h.descripcion else "Sin descripción" }}</p>
+                                {% if h.caracteristicas %}
+                                <hr>
+                                {% set car = h.caracteristicas %}
+                                <details>
+                                    <summary>Ver características detalladas</summary>
+                                    <pre class="mt-2" style="white-space: pre-wrap;">{{ car }}</pre>
+                                </details>
+                                {% endif %}
+                            </div>
+
+                            <!-- Reservar dentro del modal (redirige igual que el botón externo) -->
+                            <div class="text-end">
+                                <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" class="btn btn-success mt-3">
+                                    Reservar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Calendario (historial anual) -->
+        <div class="modal fade hab-calendar-modal" id="calHabitacion{{ h.id }}" tabindex="-1" aria-hidden="true" data-url="{{ url_for('hospedaje_usuario.calendario_habitacion', habitacion_id=h.id) }}" data-year="{{ current_year }}">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cronograma anual — {{ h.nombre }}{% if h.numero %} #{{ '%02d'|format(h.numero) }}{% endif %}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2 calendar-controls">
+                            <button class="btn btn-light btn-sm cal-prev" type="button"><i class="bi bi-arrow-left"></i></button>
+                            <div class="fw-semibold">Año <span class="calendar-year"></span></div>
+                            <button class="btn btn-light btn-sm cal-next" type="button"><i class="bi bi-arrow-right"></i></button>
+                        </div>
+                        <div class="calendar-legend small mb-2">
+                            <span class="legend-box bg-available"></span> Disponible
+                            <span class="legend-box bg-occupied ms-3"></span> Ocupada
+                            <span class="legend-box bg-maintenance ms-3"></span> Mantenimiento
+                        </div>
+                        <div class="calendar-body min-vh-25"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    <div class="row g-3 g-md-4" id="habitaciones-usuario">
+        {% for h in habitaciones %}
+        <!-- fallback sin agrupación -->
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card habitacion-card h-100">
+                <img src="{{ url_for('static', filename='img/default.jpg') }}" class="card-img-top room-img" alt="{{ h.nombre }}">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Se eliminaron las cartas y modales de ejemplo para evitar confusión y conflictos de IDs. #}
+
+<!-- JS de Bootstrap ya viene desde el base.html si se usa -->
+
+{% endblock %}
