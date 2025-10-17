@@ -12,19 +12,25 @@
 .filter-pill .pill-text{font-size:14px;color:#212529;font-weight:500}
 @media(max-width:576px){.filter-pill .pill-text{display:none}}
 
-/* Single-column room card layout (más alto para diferenciar) */
-.room-card{border:0;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.12);overflow:hidden;background:#fff}
-.room-card .room-img{width:100%;height:460px;object-fit:cover}
-@media(min-width:768px){.room-card .room-img{height:520px}}
-.room-card .room-body{padding:20px 22px}
-.room-card .room-title{font-weight:800;font-size:1.5rem;margin:0}
-.room-card .room-sub{color:#6b7280;font-size:.95rem}
-.room-card .room-price{font-weight:800;color:#0b7285;font-size:1.1rem}
-.room-card .room-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.room-card .badge-plan{background:#fef3c7;color:#7c2d12}
-.room-card .room-num{color:#9ca3af;font-size:.9rem}
+/* Two-column grid inspired by Restaurante cards */
+.rooms-grid-2{display:grid;grid-template-columns:1fr;gap:32px}
+@media(min-width:768px){.rooms-grid-2{grid-template-columns:repeat(2,1fr)}}
+
+/* Card style similar to .menu-card */
+.room-card-v2{border-radius:20px;background:#fff;box-shadow:0 20px 50px rgba(59,130,246,0.15);padding:18px 20px 16px;transition:transform .25s ease,box-shadow .25s ease;position:relative}
+.room-card-v2:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(59,130,246,0.22)}
+.room-media{position:relative;height:300px;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#e6f1ff 10%,#5c97ff 95%);display:flex;align-items:end}
+.room-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.room-media model-viewer{width:100%;height:100%;background:#f8fafc}
+.room-tag{position:relative;margin:0 0 14px 14px;letter-spacing:2px;font-weight:800;font-size:.72rem;color:#fff;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,0.2);backdrop-filter:blur(6px);text-transform:uppercase}
+.room-index-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:14px 6px 8px;border-bottom:1px solid #eef2ff}
+.room-index{font-size:2.2rem;font-weight:700;line-height:1;color:#9bb8ff}
+.room-title{font-size:1.2rem;font-weight:700;color:#374151;margin:0}
+.room-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 6px 6px;color:#6b7280;font-size:.95rem}
+.room-price{font-weight:800;color:#0b7285}
+.room-btn{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff;border:none;padding:10px 18px;border-radius:999px;font-weight:800;font-size:.9rem;letter-spacing:.5px;box-shadow:0 10px 24px rgba(59,130,246,.35);transition:transform .15s ease,filter .2s ease,box-shadow .2s ease}
+.room-btn:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 16px 28px rgba(37,99,235,.45)}
 .plan-title{font-size:1.25rem;font-weight:800;margin-top:1.5rem}
-.room-badge{position:absolute;top:16px;left:16px;background:rgba(0,0,0,.55);color:#fff;padding:6px 10px;border-radius:999px;font-size:.85rem}
 </style>
 
 
@@ -83,66 +89,62 @@
         {% if _plans %}
         {% for plan in _plans %}
         {% set group = habitaciones_por_plan[plan] %}
-        <div class="row" id="habitaciones-publicas-{{ (plan)|lower }}">
-            <div class="col-12 mb-2">
+                <div class="rooms-grid-2" id="habitaciones-publicas-{{ (plan)|lower }}">
+                        <div class="col-12 mb-2" style="grid-column:1/-1;">
                 <div class="plan-title">Plan {{ plan }}</div>
             </div>
             {% for h in group %}
-            <div class="col-12 mb-5 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
-                <div class="card room-card position-relative">
-                    <span class="room-badge">{{ h.plan or 'General' }}{% if h.numero %} · #{{ '%02d'|format(h.numero) }}{% endif %}</span>
-                    {% set model_url = h.model3d or h.model_url or h.modelo3d %}
-                    {% if model_url %}
-                    <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar style="width:100%;height:520px;background:#f8fafc;border-bottom:1px solid #eef2f7"></model-viewer>
-                    {% else %}
-                    <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="room-img">
-                    {% endif %}
-                    <div class="room-body">
-                        <div class="room-meta mb-1">
-                            <span class="room-sub">Cupo: {{ h.cupo_personas }}</span>
-                        </div>
-                        <h3 class="room-title mb-2">{{ h.nombre }}</h3>
-                        {% if h.descripcion %}
-                        <p class="room-sub mb-2">{{ h.descripcion }}</p>
-                        {% endif %}
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
-                            <a class="btn btn-primary" href="{{ url_for('registro.login', next=url_for('hospedaje_usuario.hospedaje_usuario')) }}">Reservar Ahora</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <article class="room-card-v2 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
+                            <div class="room-media">
+                                {% set model_url = h.model3d or h.model_url or h.modelo3d %}
+                                {% if model_url %}
+                                    <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar></model-viewer>
+                                {% else %}
+                                    <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}">
+                                {% endif %}
+                                <span class="room-tag">{{ h.plan or 'General' }}</span>
+                            </div>
+                            <div class="room-index-title">
+                                <div class="room-index">{{ '%02d'|format(loop.index) }}</div>
+                                <h3 class="room-title mb-0">{{ h.nombre }}</h3>
+                            </div>
+                            <div class="room-meta">
+                                <div>Cupo: {{ h.cupo_personas }}</div>
+                                <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
+                            </div>
+                            <div class="d-flex justify-content-end pt-1">
+                                <a class="room-btn" href="{{ url_for('registro.login', next=url_for('hospedaje_usuario.hospedaje_usuario')) }}">Reservar</a>
+                            </div>
+                        </article>
             {% endfor %}
         </div>
         {% endfor %}
         {% else %}
         {# Fallback por si no pasamos plan_order: usar listado plano sin títulos #}
-        <div class="row" id="habitaciones-publicas">
+                <div class="rooms-grid-2" id="habitaciones-publicas">
             {% for h in habitaciones %}
-            <div class="col-12 mb-5 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
-                <div class="card room-card position-relative">
-                    <span class="room-badge">{{ h.plan or 'General' }}{% if h.numero %} · #{{ '%02d'|format(h.numero) }}{% endif %}</span>
-                    {% set model_url = h.model3d or h.model_url or h.modelo3d %}
-                    {% if model_url %}
-                    <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar style="width:100%;height:520px;background:#f8fafc;border-bottom:1px solid #eef2f7"></model-viewer>
-                    {% else %}
-                    <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}" class="room-img">
-                    {% endif %}
-                    <div class="room-body">
-                        <div class="room-meta mb-1">
-                            <span class="room-sub">Cupo: {{ h.cupo_personas }}</span>
-                        </div>
-                        <h3 class="room-title mb-2">{{ h.nombre }}</h3>
-                        {% if h.descripcion %}
-                        <p class="room-sub mb-2">{{ h.descripcion }}</p>
-                        {% endif %}
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
-                            <a class="btn btn-primary" href="{{ url_for('registro.login', next=url_for('hospedaje_usuario.hospedaje_usuario')) }}">Reservar Ahora</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <article class="room-card-v2 room-block" data-plan="{{ (h.plan or '')|trim or 'Sin plan' }}" data-capacity="{{ h.cupo_personas }}" data-price="{{ h.precio }}">
+                            <div class="room-media">
+                                {% set model_url = h.model3d or h.model_url or h.modelo3d %}
+                                {% if model_url %}
+                                    <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar></model-viewer>
+                                {% else %}
+                                    <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}">
+                                {% endif %}
+                                <span class="room-tag">{{ h.plan or 'General' }}</span>
+                            </div>
+                            <div class="room-index-title">
+                                <div class="room-index">{{ '%02d'|format(loop.index) }}</div>
+                                <h3 class="room-title mb-0">{{ h.nombre }}</h3>
+                            </div>
+                            <div class="room-meta">
+                                <div>Cupo: {{ h.cupo_personas }}</div>
+                                <div class="room-price">Desde ${{ '{:,.0f}'.format(h.precio) }} COP</div>
+                            </div>
+                            <div class="d-flex justify-content-end pt-1">
+                                <a class="room-btn" href="{{ url_for('registro.login', next=url_for('hospedaje_usuario.hospedaje_usuario')) }}">Reservar</a>
+                            </div>
+                        </article>
             {% endfor %}
         </div>
         {% endif %}
@@ -182,7 +184,7 @@ function filterRooms() {
     if (priceOrder) {
         const sections = document.querySelectorAll('[id^="habitaciones-publicas-"]');
         sections.forEach(sec => {
-            const kids = Array.from(sec.querySelectorAll(':scope > .col-12.room-block'));
+            const kids = Array.from(sec.querySelectorAll(':scope > .room-block'));
             kids.sort((a,b) => {
                 const pa = parseFloat(a.getAttribute('data-price')||'0');
                 const pb = parseFloat(b.getAttribute('data-price')||'0');
