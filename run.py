@@ -684,6 +684,38 @@ def media_file(filename):
     # Seguridad básica: normalizar y restringir a carpeta
     return send_from_directory(base, filename, conditional=True)
 
+# Manejador para archivos estáticos faltantes - proveer fallback
+@app.errorhandler(404)
+def handle_not_found(e):
+    """Maneja archivos estáticos faltantes con fallbacks apropiados."""
+    try:
+        # Solo aplicar para rutas estáticas
+        if request.path.startswith('/static/'):
+            # Fallback para imágenes faltantes
+            if any(request.path.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
+                logger.warning(f"Imagen estática faltante: {request.path}")
+                # Redirigir a imagen por defecto
+                return redirect(url_for('static', filename='img/OIP.webp'))
+            
+            # Fallback para iconos faltantes
+            elif request.path.endswith('.ico'):
+                logger.warning(f"Icono faltante: {request.path}")
+                return redirect(url_for('static', filename='favicon.ico'))
+            
+            # Para otros archivos estáticos, registrar el error
+            logger.warning(f"Archivo estático faltante: {request.path}")
+    
+    except Exception:
+        pass
+    
+    # Para todas las demás 404, comportamiento normal
+    return make_response(
+        "<h1>Página no encontrada (404)</h1>"
+        "<p>La página que buscas no existe.</p>"
+        f"<p><a href='{url_for('home')}'>Volver al inicio</a></p>",
+        404
+    )
+
 # ------------------- Manejadores y utilidades de diagnóstico -------------------
 from flask import request, make_response
 
