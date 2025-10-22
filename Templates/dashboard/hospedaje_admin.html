@@ -1,7 +1,7 @@
 {% extends 'dashboard/base.html' %}
 
 {% block content %}
-<div class="container mt-5" id="hospedaje-admin-page">
+<div class="container mt-5">
 	<div class="d-flex justify-content-between align-items-center mb-2">
 		<h2>Hospedaje — Administración</h2>
 		<form class="d-flex align-items-center" method="get" action="{{ url_for('admin.hospedaje_index') }}" style="gap:8px">
@@ -14,52 +14,9 @@
 				<button type="button" class="btn btn-light btn-sm view-btn" data-view="cards"><i class="bi bi-grid-3x3-gap me-1"></i>Tarjetas</button>
 				<button type="button" class="btn btn-outline-light btn-sm view-btn" data-view="table"><i class="bi bi-table me-1"></i>Tabla</button>
 			</div>
-			<button class="btn btn-cta-gradient ms-3" type="button" data-bs-toggle="collapse" data-bs-target="#addRoomCollapse" aria-expanded="false" aria-controls="addRoomCollapse" id="btnToggleAddRoom">
-				<i class="bi bi-plus-lg me-1"></i> Agregar
-			</button>
 		</form>
 	</div>
 	<div class="inv-accent mb-4"></div>
-
-	<!-- Filtros rápidos -->
-	<div class="card p-3 mb-3 form-dark-box form-dark">
-		<div class="row g-2 align-items-end">
-			<div class="col-12 col-md-3">
-				<label class="form-label">Plan</label>
-				<select class="form-select" id="filter-plan">
-					<option value="">Todos</option>
-					{% for p in ['Oro','Plata','Bronce','Sin plan'] %}
-					<option value="{{ p }}">{{ p }}</option>
-					{% endfor %}
-				</select>
-			</div>
-			<div class="col-12 col-md-3">
-				<label class="form-label">Estado</label>
-				<select class="form-select" id="filter-estado">
-					<option value="">Todos</option>
-					{% for st in ['Disponible','Mantenimiento','Ocupada'] %}
-					<option value="{{ st }}">{{ st }}</option>
-					{% endfor %}
-				</select>
-			</div>
-			<div class="col-6 col-md-2">
-				<label class="form-label">Personas ≥</label>
-				<input type="number" class="form-control" id="filter-guests" min="0" placeholder="0">
-			</div>
-			<div class="col-6 col-md-2">
-				<label class="form-label">Precio</label>
-				<select class="form-select" id="filter-price-order">
-					<option value="">Sin orden</option>
-					<option value="asc">Menor a mayor</option>
-					<option value="desc">Mayor a menor</option>
-				</select>
-			</div>
-			<div class="col-12 col-md-2 d-flex gap-2">
-				<button class="btn btn-primary flex-fill" id="btn-apply-filters">Aplicar</button>
-				<button class="btn btn-outline-secondary" id="btn-reset-filters">Limpiar</button>
-			</div>
-		</div>
-	</div>
 
 	<style>
 	/* Cards like the screenshot: clean, soft shadow, chips and action bar */
@@ -80,19 +37,13 @@
 	.hidden{display:none !important}
 	</style>
 
-	<!-- Formulario: Agregar Nueva Habitación (colapsable) -->
-	<div class="collapse" id="addRoomCollapse">
-		<div class="form-card mb-4">
-			<div class="form-header d-flex align-items-center justify-content-between">
-				<div>
-					<h3 class="mb-0">Agregar Nueva Habitación</h3>
-					<div class="sub">Complete los detalles de la habitación</div>
-				</div>
-				<button class="btn btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#addRoomCollapse" aria-expanded="true" aria-controls="addRoomCollapse">
-					<i class="bi bi-x-lg"></i>
-				</button>
-			</div>
-			<div class="form-body">
+	<!-- Formulario: Agregar Nueva Habitación (arriba) -->
+	<div class="form-card mb-5">
+		<div class="form-header">
+			<h3> Agregar Nueva Habitación</h3>
+			<div class="sub">Complete los detalles de la habitación</div>
+		</div>
+		<div class="form-body">
 			<form action="{{ url_for('admin.hospedaje_nueva') }}" method="POST" enctype="multipart/form-data" class="row g-3">
 				<div class="col-md-6">
 					<label for="nombre" class="form-label">Nombre de la Habitación <span class="text-danger">*</span></label>
@@ -156,7 +107,6 @@
 					</button>
 				</div>
 			</form>
-			</div>
 		</div>
 	</div>
 
@@ -168,7 +118,7 @@
 				{% for plan in plan_order %}
 					{% set group = habitaciones_por_plan[plan] %}
 					{% for h in group %}
-					<div class="admin-room-card" data-plan="{{ h.plan or 'Sin plan' }}" data-estado="{{ h.estado }}" data-cupo="{{ h.cupo_personas }}" data-precio="{{ h.precio }}">
+					<div class="admin-room-card">
 						<div class="top">
 							<div class="fw-semibold">{{ h.nombre }} {% if h.numero %}<span class="text-muted">#{{ '%02d'|format(h.numero) }}</span>{% endif %}</div>
 							<div>
@@ -209,7 +159,7 @@
 						{% for plan in plan_order %}
 							{% set group = habitaciones_por_plan[plan] %}
 							{% for h in group %}
-							<tr class="room-row" data-plan="{{ h.plan or 'Sin plan' }}" data-estado="{{ h.estado }}" data-cupo="{{ h.cupo_personas }}" data-precio="{{ h.precio }}">
+							<tr>
 								<td>{{ h.nombre }}</td>
 								<td>{% if h.numero %}#{{ '%02d'|format(h.numero) }}{% else %}—{% endif %}</td>
 								<td>{{ h.plan or '—' }}</td>
@@ -253,23 +203,6 @@
 	  };
 	  btns.forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
 	  try { setView(localStorage.getItem('adminRoomsView') || 'cards'); } catch(e){ setView('cards'); }
-
-	  // Persistir estado del formulario colapsable (+ Agregar)
-	  const addCollapse = document.getElementById('addRoomCollapse');
-	  const addBtn = document.getElementById('btnToggleAddRoom');
-	  const stateKey = 'adminAddRoomOpen';
-	  if (addCollapse) {
-	    const show = () => { try{ localStorage.setItem(stateKey,'1'); }catch(e){} };
-	    const hide = () => { try{ localStorage.setItem(stateKey,'0'); }catch(e){} };
-	    addCollapse.addEventListener('shown.bs.collapse', show);
-	    addCollapse.addEventListener('hidden.bs.collapse', hide);
-	    // Estado inicial
-	    try {
-	      const open = localStorage.getItem(stateKey) === '1';
-	      const inst = bootstrap.Collapse.getOrCreateInstance(addCollapse, { toggle: false });
-	      if (open) inst.show(); else inst.hide();
-	    } catch(e){}
-	  }
 	});
 	</script>
 
