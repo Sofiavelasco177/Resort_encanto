@@ -81,19 +81,96 @@
     {% endif %}
 </div>
 
+<!-- Modales de especificaciones para cada habitación -->
+{% if habitaciones_por_plan %}
+    {% for plan, rooms in habitaciones_por_plan.items() %}
+        {% for h in rooms %}
+            {% include 'usuario/habitacion_modal.html' %}
+        {% endfor %}
+    {% endfor %}
+{% else %}
+    {% for h in habitaciones %}
+        {% include 'usuario/habitacion_modal.html' %}
+    {% endfor %}
+{% endif %}
+
 <!-- JS de Bootstrap ya viene desde el base.html si se usa -->
 <script>
-// Ensure "Especificaciones" buttons always open their modal
-document.addEventListener('click', (e) => {
-    const trigger = e.target.closest('[data-bs-toggle="modal"][data-bs-target]');
-    if (!trigger) return;
-    const targetSel = trigger.getAttribute('data-bs-target');
-    const modalEl = document.querySelector(targetSel);
-    if (modalEl && window.bootstrap && bootstrap.Modal) {
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    // Asegurar que los botones de "Especificaciones" abran sus modales
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-bs-toggle="modal"][data-bs-target]');
+        if (!trigger) return;
+        
+        const targetSel = trigger.getAttribute('data-bs-target');
+        const modalEl = document.querySelector(targetSel);
+        
+        if (modalEl && window.bootstrap && bootstrap.Modal) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    });
+
+    // Añadir animaciones suaves a los modales
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('show.bs.modal', function () {
+            this.classList.add('fade-in');
+        });
+        
+        modal.addEventListener('hide.bs.modal', function () {
+            this.classList.remove('fade-in');
+        });
+    });
+
+    // Cerrar modal al hacer clic en el backdrop
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                const modalInstance = bootstrap.Modal.getInstance(this);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+        });
+    });
 });
 </script>
+
+<style>
+    /* Animaciones adicionales para los modales */
+    .modal.fade-in .modal-dialog {
+        animation: slideUpFadeIn 0.3s ease-out;
+    }
+    
+    @keyframes slideUpFadeIn {
+        from {
+            opacity: 0;
+            transform: translate(0, 30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+        }
+    }
+    
+    /* Mejorar el backdrop del modal */
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+    
+    /* Estilos para las tarjetas de habitación */
+    .room-card-v2 .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+    
+    .room-card-v2 .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        transform: translateY(-1px);
+    }
+</style>
 
 {% endblock %}

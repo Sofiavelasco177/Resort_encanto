@@ -213,28 +213,3 @@ def cambiar_password():
 
     return redirect(url_for('perfil_usuario.perfil'))
 
-
-@perfil_usuario_bp.route('/mis_reservas')
-def mis_reservas():
-    """Vista simple de reservas del usuario (sin calendario)"""
-    user = _current_user()
-    if not user:
-        flash('Inicia sesión para ver tus reservas', 'warning')
-        return redirect(url_for('registro.login'))
-    
-    from models.baseDatos import ReservaRestaurante, TicketHospedaje
-    
-    # Obtener reservas de restaurante del usuario
-    reservas_restaurante = ReservaRestaurante.query.filter_by(usuario_id=user.idUsuario)\
-        .order_by(ReservaRestaurante.fecha_reserva.desc()).all()
-    
-    # Obtener reservas de hospedaje del usuario
-    reservas_hospedaje = Reserva.query.filter_by(usuario_id=user.idUsuario)\
-        .join(nuevaHabitacion, Reserva.habitacion_id == nuevaHabitacion.id)\
-        .order_by(Reserva.check_in.desc()).all()
-    
-    return render_template('usuario/reservas.html',
-                         reservas_restaurante=reservas_restaurante,
-                         reservas_hospedaje=reservas_hospedaje,
-                         user=user)
-

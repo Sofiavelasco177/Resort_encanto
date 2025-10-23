@@ -83,11 +83,11 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label required">Nombre completo</label>
-                                <input type="text" class="form-control" name="nombre" placeholder="Tu nombre y apellidos" required>
+                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre y apellidos" required>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Tipo de documento</label>
-                                <select class="form-select" name="tipoDocumento" required>
+                                <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
                                     <option value="" selected disabled>Selecciona una opción</option>
                                     <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
                                     <option value="Cédula de extranjería">Cédula de extranjería</option>
@@ -96,42 +96,38 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Número de documento</label>
-                                <input type="text" inputmode="numeric" pattern="[0-9A-Za-z\-\.]+" class="form-control" name="numeroDocumento" placeholder="Ej. 1234567890" required>
+                                <input type="text" inputmode="numeric" pattern="[0-9A-Za-z\-\.]+" class="form-control" id="numeroDocumento" name="numeroDocumento" placeholder="Ej. 1234567890" required>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Teléfono</label>
-                                <input type="tel" class="form-control" name="telefono" placeholder="Celular o fijo" required>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Celular o fijo" required>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Correo electrónico</label>
-                                <input type="email" class="form-control" name="correo" placeholder="tucorreo@ejemplo.com" required>
+                                <input type="email" class="form-control" id="correo" name="correo" placeholder="tucorreo@ejemplo.com" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label required">Procedencia</label>
-                                <input type="text" class="form-control" name="procedencia" placeholder="Ciudad / País" required>
+                                <input type="text" class="form-control" id="procedencia" name="procedencia" placeholder="Ciudad / País" required>
                             </div>
                         </div>
 
-                                                <div class="d-grid mt-4">
-                                                    <button id="btn-reservar" class="btn btn-reservar" type="submit">
-                                                        <i class="bi bi-calendar2-check me-2"></i><span id="btn-reservar-text">Confirmar reserva y continuar al pago</span>
-                                                    </button>
-                                                </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
                         <hr class="my-4">
+                        
                         <div class="form-section-title mb-2">Acompañante (opcional)</div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="copyToGuest" onclick="copyCompanionToGuest()">
+                                <i class="bi bi-arrow-up me-1"></i>Usar datos del acompañante como huésped principal
+                            </button>
+                        </div>
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label">Nombre completo</label>
-                                <input type="text" class="form-control" name="nombre2" placeholder="Nombre y apellidos del acompañante">
+                                <input type="text" class="form-control" id="nombre2" name="nombre2" placeholder="Nombre y apellidos del acompañante">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Tipo de documento</label>
-                                <select class="form-select" name="tipoDocumento2">
+                                <select class="form-select" id="tipoDocumento2" name="tipoDocumento2">
                                     <option value="" selected>—</option>
                                     <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
                                     <option value="Cédula de extranjería">Cédula de extranjería</option>
@@ -140,21 +136,31 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Número de documento</label>
-                                <input type="text" inputmode="numeric" pattern="[0-9A-Za-z\-\.]+" class="form-control" name="numeroDocumento2" placeholder="Ej. 9876543210">
+                                <input type="text" inputmode="numeric" pattern="[0-9A-Za-z\-\.]+" class="form-control" id="numeroDocumento2" name="numeroDocumento2" placeholder="Ej. 9876543210">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" name="telefono2" placeholder="Celular o fijo">
+                                <input type="tel" class="form-control" id="telefono2" name="telefono2" placeholder="Celular o fijo">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Correo electrónico</label>
-                                <input type="email" class="form-control" name="correo2" placeholder="correo@ejemplo.com">
+                                <input type="email" class="form-control" id="correo2" name="correo2" placeholder="correo@ejemplo.com">
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Procedencia</label>
-                                <input type="text" class="form-control" name="procedencia2" placeholder="Ciudad / País">
+                                <input type="text" class="form-control" id="procedencia2" name="procedencia2" placeholder="Ciudad / País">
                             </div>
                         </div>
+
+                        <div class="d-grid mt-4">
+                            <button id="btn-reservar" class="btn btn-reservar" type="submit">
+                                <i class="bi bi-calendar2-check me-2"></i><span id="btn-reservar-text">Confirmar reserva y continuar al pago</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -435,6 +441,61 @@
                 update();
             }
         })();
+
+        // Función para copiar datos del acompañante al huésped principal
+        function copyCompanionToGuest() {
+            const companionFields = {
+                nombre2: 'nombre',
+                tipoDocumento2: 'tipoDocumento', 
+                numeroDocumento2: 'numeroDocumento',
+                telefono2: 'telefono',
+                correo2: 'correo',
+                procedencia2: 'procedencia'
+            };
+            
+            let hasData = false;
+            
+            // Verificar si hay datos en el acompañante
+            for (const companionField in companionFields) {
+                const companionElement = document.getElementById(companionField);
+                if (companionElement && companionElement.value.trim() !== '') {
+                    hasData = true;
+                    break;
+                }
+            }
+            
+            if (!hasData) {
+                alert('Por favor, completa primero los datos del acompañante para poder copiarlos.');
+                return;
+            }
+            
+            // Copiar datos
+            let copiedFields = 0;
+            for (const companionField in companionFields) {
+                const companionElement = document.getElementById(companionField);
+                const guestField = companionFields[companionField];
+                const guestElement = document.getElementById(guestField);
+                
+                if (companionElement && guestElement && companionElement.value.trim() !== '') {
+                    guestElement.value = companionElement.value;
+                    copiedFields++;
+                }
+            }
+            
+            if (copiedFields > 0) {
+                // Cambiar temporalmente el texto del botón para confirmar la acción
+                const copyBtn = document.getElementById('copyToGuest');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="bi bi-check2 me-1"></i>¡Datos copiados!';
+                copyBtn.className = 'btn btn-success btn-sm';
+                
+                // Restaurar el botón después de 2 segundos
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.className = 'btn btn-outline-primary btn-sm';
+                }, 2000);
+            }
+        }
     </script>
 
 {% endblock %}
