@@ -1,10 +1,10 @@
 <!-- Modal de especificaciones para habitación {{ h.nombre }} -->
 <div class="modal fade" id="modalHabitacion{{ h.id }}" tabindex="-1" aria-labelledby="modalLabel{{ h.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-2xl" style="border-radius: 1rem; overflow: hidden;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
             <div class="position-relative">
                 <!-- Imagen de la habitación -->
-                <div style="height: 250px; overflow: hidden;">
+                <div style="height: 180px; overflow: hidden;">
                     {% set raw = h.imagen or '' %}
                     {% if raw and (raw[:4]|lower == 'http') %}
                         {% set img_url = raw %}
@@ -23,47 +23,47 @@
                         data-bs-dismiss="modal" aria-label="Close" style="width: 40px; height: 40px;"></button>
                 
                 <!-- Badge de precio -->
-                <div class="position-absolute bottom-0 start-0 m-3">
-                    <div class="bg-white px-3 py-2 rounded-pill shadow-lg">
-                        <span class="fs-4 fw-bold text-primary">${{ '{:,.0f}'.format(h.precio) }}</span>
-                        <span class="text-muted small ms-1">COP por noche</span>
+                <div class="position-absolute bottom-0 start-0 m-2">
+                    <div class="bg-white px-2 py-1 rounded-pill shadow-sm">
+                        <span class="fs-6 fw-bold text-primary">${{ '{:,.0f}'.format(h.precio) }}</span>
+                        <span class="text-muted" style="font-size: 0.75rem;">COP por noche</span>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-body p-4">
+            <div class="modal-body p-3">
                 <!-- Título y descripción -->
-                <h2 class="fw-bold fs-3 text-dark mb-2">{{ h.nombre }}</h2>
-                <p class="text-muted mb-4">
-                    {{ h.descripcion or 'Espaciosa habitación con todas las comodidades para una estadía inolvidable. Diseñada para brindar confort y relajación en un ambiente acogedor.' }}
+                <h2 class="fw-bold fs-4 text-dark mb-2">{{ h.nombre }}</h2>
+                <p class="text-muted mb-3 small">
+                    {{ h.descripcion or 'Espaciosa habitación con todas las comodidades para una estadía inolvidable.' }}
                 </p>
 
                 <!-- Especificaciones -->
-                <div class="mb-4">
-                    <h3 class="fs-5 fw-semibold text-dark mb-3">Especificaciones</h3>
-                    <div class="row g-3">
+                <div class="mb-3">
+                    <h3 class="fs-6 fw-semibold text-dark mb-2">Especificaciones</h3>
+                    <div class="row g-2">
                         <!-- Área -->
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3">
-                                    <i class="bi bi-rulers text-primary" style="font-size: 1.25rem;"></i>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
+                                <div class="bg-primary bg-opacity-10 p-1 rounded-2">
+                                    <i class="bi bi-rulers text-primary" style="font-size: 1rem;"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted small mb-0">Área</p>
-                                    <p class="fw-semibold mb-0">{{ h.area or '35' }} m²</p>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Área</p>
+                                    <p class="fw-semibold mb-0 small">{{ h.area or '35' }} m²</p>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Cama -->
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3">
-                                    <i class="bi bi-house-door text-primary" style="font-size: 1.25rem;"></i>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
+                                <div class="bg-primary bg-opacity-10 p-1 rounded-2">
+                                    <i class="bi bi-house-door text-primary" style="font-size: 1rem;"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted small mb-0">Cama</p>
-                                    <p class="fw-semibold mb-0">
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Cama</p>
+                                    <p class="fw-semibold mb-0 small">
                                         {% if 'suite' in h.nombre.lower() or 'deluxe' in h.nombre.lower() %}
                                             King Size
                                         {% elif h.cupo_personas >= 3 %}
@@ -77,27 +77,27 @@
                         </div>
                         
                         <!-- Capacidad -->
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3">
-                                    <i class="bi bi-people text-primary" style="font-size: 1.25rem;"></i>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
+                                <div class="bg-primary bg-opacity-10 p-1 rounded-2">
+                                    <i class="bi bi-people text-primary" style="font-size: 1rem;"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted small mb-0">Capacidad</p>
-                                    <p class="fw-semibold mb-0">{{ h.cupo_personas }} persona{{ 's' if h.cupo_personas != 1 else '' }}</p>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Capacidad</p>
+                                    <p class="fw-semibold mb-0 small">{{ h.cupo_personas }} persona{{ 's' if h.cupo_personas != 1 else '' }}</p>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Baño -->
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-3">
-                                    <i class="bi bi-droplet text-primary" style="font-size: 1.25rem;"></i>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
+                                <div class="bg-primary bg-opacity-10 p-1 rounded-2">
+                                    <i class="bi bi-droplet text-primary" style="font-size: 1rem;"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted small mb-0">Baño</p>
-                                    <p class="fw-semibold mb-0">
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Baño</p>
+                                    <p class="fw-semibold mb-0 small">
                                         {% if 'suite' in h.nombre.lower() %}
                                             Privado con jacuzzi
                                         {% else %}
@@ -111,32 +111,32 @@
                 </div>
 
                 <!-- Amenidades -->
-                <div class="mb-4">
-                    <h3 class="fs-5 fw-semibold text-dark mb-3">Amenidades</h3>
-                    <div class="row g-2">
+                <div class="mb-3">
+                    <h3 class="fs-6 fw-semibold text-dark mb-2">Amenidades</h3>
+                    <div class="row g-1">
                         <!-- WiFi -->
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-primary bg-opacity-5 rounded-3">
-                                <i class="bi bi-wifi text-primary" style="font-size: 1.25rem;"></i>
-                                <span class="fw-medium text-dark">WiFi gratis</span>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
+                                <i class="bi bi-wifi text-primary" style="font-size: 0.9rem;"></i>
+                                <span class="fw-medium text-dark small">WiFi gratis</span>
                             </div>
                         </div>
                         
                         <!-- Aire acondicionado -->
                         {% if 'suite' in h.nombre.lower() or 'deluxe' in h.nombre.lower() or h.plan in ['oro', 'plata'] %}
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-primary bg-opacity-5 rounded-3">
-                                <i class="bi bi-wind text-primary" style="font-size: 1.25rem;"></i>
-                                <span class="fw-medium text-dark">Aire acondicionado</span>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
+                                <i class="bi bi-wind text-primary" style="font-size: 0.9rem;"></i>
+                                <span class="fw-medium text-dark small">Aire acondicionado</span>
                             </div>
                         </div>
                         {% endif %}
                         
                         <!-- TV -->
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-primary bg-opacity-5 rounded-3">
-                                <i class="bi bi-tv text-primary" style="font-size: 1.25rem;"></i>
-                                <span class="fw-medium text-dark">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
+                                <i class="bi bi-tv text-primary" style="font-size: 0.9rem;"></i>
+                                <span class="fw-medium text-dark small">
                                     {% if 'suite' in h.nombre.lower() %}
                                         TV Smart 55"
                                     {% elif 'deluxe' in h.nombre.lower() %}
@@ -150,30 +150,30 @@
                         
                         <!-- Minibar -->
                         {% if 'suite' in h.nombre.lower() or h.plan == 'oro' %}
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-primary bg-opacity-5 rounded-3">
-                                <i class="bi bi-cup-straw text-primary" style="font-size: 1.25rem;"></i>
-                                <span class="fw-medium text-dark">Minibar</span>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
+                                <i class="bi bi-cup-straw text-primary" style="font-size: 0.9rem;"></i>
+                                <span class="fw-medium text-dark small">Minibar</span>
                             </div>
                         </div>
                         {% endif %}
                         
                         <!-- Balcón -->
                         {% if 'ocean' in h.nombre.lower() or 'vista' in h.nombre.lower() %}
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-primary bg-opacity-5 rounded-3">
-                                <i class="bi bi-eye text-primary" style="font-size: 1.25rem;"></i>
-                                <span class="fw-medium text-dark">Vista al océano</span>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
+                                <i class="bi bi-eye text-primary" style="font-size: 0.9rem;"></i>
+                                <span class="fw-medium text-dark small">Vista al océano</span>
                             </div>
                         </div>
                         {% endif %}
                         
                         <!-- Escritorio -->
                         {% if 'suite' in h.nombre.lower() or 'deluxe' in h.nombre.lower() %}
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 bg-primary bg-opacity-5 rounded-3">
-                                <i class="bi bi-laptop text-primary" style="font-size: 1.25rem;"></i>
-                                <span class="fw-medium text-dark">Área de trabajo</span>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
+                                <i class="bi bi-laptop text-primary" style="font-size: 0.9rem;"></i>
+                                <span class="fw-medium text-dark small">Área de trabajo</span>
                             </div>
                         </div>
                         {% endif %}
@@ -183,7 +183,7 @@
                 <!-- Botón de reservar -->
                 <div class="d-grid">
                     <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" 
-                       class="btn btn-primary btn-lg fw-semibold py-3 rounded-3 shadow-sm">
+                       class="btn btn-primary fw-semibold py-2 rounded-3 shadow-sm">
                         <i class="bi bi-calendar-check me-2"></i>Reservar Ahora
                     </a>
                 </div>
