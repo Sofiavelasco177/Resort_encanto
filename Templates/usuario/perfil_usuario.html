@@ -197,13 +197,12 @@
         <form class="row g-2 g-md-3 mt-3" method="POST" action="{{ url_for('perfil_usuario.mp_nuevo') }}">
           <div class="col-12 col-md-2"><input class="form-control" name="marca" placeholder="Marca (Visa)"></div>
           <div class="col-6 col-md-2"><input class="form-control" name="ultimos4" placeholder="Últimos 4"></div>
-          <div class="col-6 col-md-2"><input class="form-control" name="tipo" placeholder="Tipo"></div>
           <div class="col-6 col-md-2"><input class="form-control" name="exp_mes" placeholder="Mes"></div>
           <div class="col-6 col-md-2"><input class="form-control" name="exp_anio" placeholder="Año"></div>
           <div class="col-12 col-md-2 d-flex align-items-center gap-2 mt-2 mt-md-0">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" name="predeterminado" id="pred">
-              <label class="form-check-label" for="pred">Pred.</label>
+              
             </div>
             <button class="btn btn-outline-success" type="submit">Agregar</button>
           </div>
