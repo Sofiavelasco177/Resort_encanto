@@ -1454,4 +1454,187 @@ body > nav, body > main, body > footer{ position: relative; z-index: 1; }
 .settings-card h5 { font-weight: 600; }
 .profile-avatar { width: 110px; height:110px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 
+/* =======================
+   ESTILOS CALENDARIO
+   ======================= */
+.calendar-widget {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.calendar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    display: flex;
+    gap: 8px;
+}
+
+.calendar-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.calendar-day-name {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    padding: 8px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background-color: #f3f4f6;
+    transform: scale(1.05);
+}
+
+.calendar-day.other-month {
+    color: #d1d5db;
+}
+
+.calendar-day.today {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.calendar-day.selected {
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 700;
+}
+
+.calendar-day.available {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.calendar-day.available:hover {
+    background-color: #a7f3d0;
+}
+
+.calendar-day.reserved {
+    background-color: #fef3c7;
+    color: #92400e;
+    position: relative;
+}
+
+.calendar-day.reserved::after {
+    content: '●';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 0.5rem;
+    color: #d97706;
+}
+
+.calendar-day.disabled {
+    background-color: #f9fafb;
+    color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.calendar-day.disabled:hover {
+    background-color: #f9fafb;
+    transform: none;
+}
+
+/* Responsive design para el calendario */
+@media (max-width: 768px) {
+    .calendar-widget {
+        padding: 15px;
+    }
+    
+    .calendar-day {
+        font-size: 0.75rem;
+    }
+    
+    .calendar-day-name {
+        font-size: 0.625rem;
+        padding: 6px 2px;
+    }
+}
+
+/* Estados adicionales para reservas de hospedaje */
+.calendar-day.checkin {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.calendar-day.checkout {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.calendar-day.stay {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+}
+
+/* Leyenda del calendario */
+.calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.calendar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.calendar-legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.legend-available { background-color: #d1fae5; }
+.legend-reserved { background-color: #fef3c7; }
+.legend-disabled { background-color: #f9fafb; }
+.legend-selected { background-color: #3b82f6; }
+.legend-today { background-color: #dbeafe; }
+
 
