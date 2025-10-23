@@ -248,6 +248,57 @@ body {
     box-shadow: 0 8px 22px rgba(29, 78, 216, 0.5);
 }
 
+/* Botón LOGIN en navegación - estilo outline */
+.btn-login-nav {
+    background: transparent !important;
+    color: #00bcd4 !important;
+    border: 2px solid #00bcd4 !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    padding: 8px 20px !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    display: inline-block !important;
+}
+
+.btn-login-nav:hover {
+    background: #00bcd4 !important;
+    color: white !important;
+    border-color: #00bcd4 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(0, 188, 212, 0.3) !important;
+    text-decoration: none !important;
+}
+
+.btn-login-nav:focus, 
+.btn-login-nav:active {
+    background: #00acc1 !important;
+    color: white !important;
+    border-color: #00acc1 !important;
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4) !important;
+}
+
+/* Responsive para el botón LOGIN */
+@media (max-width: 576px) {
+    .btn-login-nav {
+        font-size: 0.85rem !important;
+        padding: 6px 16px !important;
+        letter-spacing: 0.3px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-login-nav {
+        font-size: 0.8rem !important;
+        padding: 5px 14px !important;
+    }
+}
+
 /* Cuando se usa navbar superior, empuja el contenido hacia abajo */
 main { padding-top: 72px; }
 /* Páginas con sidebar no necesitan offset superior */

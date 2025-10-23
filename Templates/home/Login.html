@@ -43,7 +43,7 @@
                     </div>
                     <a href="{{ url_for('recuperar.recuperar_contrasena') }}" class="link-secondary text-decoration-none">¿Olvidaste tu contraseña?</a>
                 </div>
-                <button type="submit" class="btn btn-login-new w-100 py-3">LOGIN</button>
+                <button type="submit" class="btn btn-main w-100 py-2">Iniciar Sesión</button>
                 <div class="text-center my-3 text-muted small">O CONTINÚA CON</div>
                 <a href="{{ url_for('auth.google_login', next=next) }}" class="btn w-100 border d-flex align-items-center justify-content-center py-2" style="background:#fff;">
                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google" style="width:20px;height:20px;margin-right:8px;">
@@ -129,50 +129,6 @@
         .auth-right .form-control:focus{ background:#fff; border-color:#2563eb; box-shadow:0 0 6px rgba(37,99,235,.35); }
         .auth-right .btn-main{ background:#2563eb; }
         .auth-right .btn-main:hover{ background:#1d4ed8; }
-        
-        /* New Login Button Style */
-        .btn-login-new {
-            background: linear-gradient(135deg, #00bcd4, #0097a7) !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 50px !important;
-            font-weight: 700 !important;
-            font-size: 1.1rem !important;
-            letter-spacing: 1px !important;
-            text-transform: uppercase !important;
-            padding: 15px 40px !important;
-            box-shadow: 0 8px 25px rgba(0, 188, 212, 0.4) !important;
-            transition: all 0.3s ease !important;
-            position: relative !important;
-            overflow: hidden !important;
-        }
-        
-        .btn-login-new:hover {
-            background: linear-gradient(135deg, #00acc1, #00838f) !important;
-            transform: translateY(-3px) !important;
-            box-shadow: 0 12px 35px rgba(0, 188, 212, 0.6) !important;
-            color: white !important;
-        }
-        
-        .btn-login-new:active {
-            transform: translateY(-1px) !important;
-            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4) !important;
-        }
-        
-        .btn-login-new::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .btn-login-new:hover::before {
-            left: 100%;
-        }
     /* Keyframes for slide-in and waves animations */
     @keyframes slideInLeft {
         0% { opacity: 0; transform: translateX(-24px) scale(.98); }
