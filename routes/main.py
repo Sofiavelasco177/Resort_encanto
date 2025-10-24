@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash
 from jinja2 import TemplateNotFound
 from datetime import datetime
 from models.baseDatos import nuevaHabitacion, Post, PlatoRestaurante, ResenaExperiencia
@@ -131,9 +131,59 @@ def restaurante_usuario():
     categorias_final = cat_presentes + extra
     return render_template('usuario/restaurante_usuario.html', grupos=grupos, categorias=categorias_final)
 
-@main_bp.route('/experiencias_usuario')
+@main_bp.route('/experiencias_usuario', methods=['GET', 'POST'])
 def experiencias_usuario():
-    return render_template('usuario/experiencias_usuario.html')
+    comentarios = []
+    # Cargar reseñas aprobadas más recientes
+    try:
+        from models.baseDatos import ResenaExperiencia
+        db_comments = ResenaExperiencia.query.filter_by(aprobado=True).order_by(ResenaExperiencia.creado_en.desc()).limit(50).all()
+        for r in db_comments:
+            comentarios.append({
+                'user': {'username': 'Usuario ' + str(r.usuario_id or ''), 'avatar': None},
+                'contenido': r.contenido,
+                'rating': int(r.calificacion or 0),
+                'created_at': r.creado_en,
+            })
+    except Exception:
+        pass
+
+    if request.method == 'POST':
+        nombre = (request.form.get('nombre') or '').strip()
+        comentario = (request.form.get('comentario') or '').strip()
+        rating = int(request.form.get('rating', 0) or 0)
+        
+        if nombre and comentario and rating > 0:
+            try:
+                from flask_login import current_user
+                from utils.extensions import db
+                from models.baseDatos import ResenaExperiencia
+                from datetime import datetime
+                
+                # Guardar reseña
+                r = ResenaExperiencia(
+                    experiencia_id=None,
+                    usuario_id=getattr(current_user, 'idUsuario', None) if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated else None,
+                    contenido=comentario,
+                    calificacion=max(1, min(5, rating)),
+                    aprobado=True,
+                )
+                db.session.add(r)
+                db.session.commit()
+                
+                # Añadir al contexto actual para reflejarlo al instante
+                comentarios.insert(0, {
+                    'user': {'username': nombre, 'avatar': None},
+                    'contenido': comentario,
+                    'rating': rating,
+                    'created_at': datetime.now()
+                })
+                
+                flash('¡Gracias por compartir tu experiencia!', 'success')
+            except Exception as e:
+                flash('Error al guardar el comentario. Inténtalo de nuevo.', 'error')
+    
+    return render_template('usuario/experiencias_usuario.html', comentarios=comentarios)
 
 #@main_bp.route('/perfil_usuario')
 #def perfil_usuario():
