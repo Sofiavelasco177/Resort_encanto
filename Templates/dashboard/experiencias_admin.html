@@ -4,87 +4,57 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Experiencias</h3>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaExp"><i class="bi bi-plus-lg me-1"></i>Nueva experiencia</button>
+    <div class="text-muted small">Total: {{ experiencias|length }}</div>
   </div>
 
-  <!-- Tabla de experiencias -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Imagen</th>
-              <th>Título</th>
-              <th>Activa</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for e in experiencias %}
-            <tr>
-              <td>{{ e.id }}</td>
-              <td style="width:80px;">
-                {% if e.imagen %}
-                <img src="{{ url_for('media', path=e.imagen) }}" alt="img" class="rounded" style="width:64px;height:48px;object-fit:cover;">
-                {% else %}
-                <span class="text-muted small">Sin imagen</span>
-                {% endif %}
-              </td>
-              <td>{{ e.titulo }}</td>
-              <td>
-                <span class="badge {{ 'bg-success' if e.activo else 'bg-secondary' }}">{{ 'Sí' if e.activo else 'No' }}</span>
-              </td>
-              <td>
-                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditExp{{ e.id }}">Editar</button>
-                <form class="d-inline" method="POST" action="{{ url_for('admin.exp_delete', exp_id=e.id) }}" onsubmit="return confirm('¿Eliminar experiencia?');">
-                  <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+  <!-- Experiencias en Cards -->
+  <div class="row mb-4">
+    {% if experiencias %}
+      {% for e in experiencias %}
+      <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100">
+          {% if e.imagen %}
+          <img src="{{ url_for('media', path=e.imagen) }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ e.titulo }}">
+          {% else %}
+          <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+            <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+          </div>
+          {% endif %}
+          
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="card-title mb-0">{{ e.titulo }}</h5>
+              <span class="badge {{ 'bg-success' if e.activo else 'bg-secondary' }}">
+                {{ 'Activa' if e.activo else 'Inactiva' }}
+              </span>
+            </div>
+            
+            {% if e.descripcion %}
+            <p class="card-text text-muted small flex-grow-1">{{ e.descripcion }}</p>
+            {% endif %}
+            
+            <div class="mt-auto">
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">ID: {{ e.id }}</small>
+                <form method="POST" action="{{ url_for('admin.exp_delete', exp_id=e.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar experiencia {{ e.titulo }}?');">
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash3"></i> Eliminar
+                  </button>
                 </form>
-              </td>
-            </tr>
-
-            <!-- Modal editar -->
-            <div class="modal fade" id="modalEditExp{{ e.id }}" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <form method="POST" action="{{ url_for('admin.exp_update', exp_id=e.id) }}" enctype="multipart/form-data">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Editar experiencia</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                      <div class="mb-2">
-                        <label class="form-label">Título</label>
-                        <input class="form-control" name="titulo" value="{{ e.titulo }}">
-                      </div>
-                      <div class="mb-2">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion" rows="3">{{ e.descripcion or '' }}</textarea>
-                      </div>
-                      <div class="mb-2">
-                        <label class="form-label">Imagen</label>
-                        <input class="form-control" type="file" name="imagen" accept="image/*">
-                        {% if e.imagen %}<div class="small text-muted mt-1">Actual: {{ e.imagen }}</div>{% endif %}
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="activo" id="act{{ e.id }}" {% if e.activo %}checked{% endif %}>
-                        <label class="form-check-label" for="act{{ e.id }}">Activa</label>
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                      <button type="submit" class="btn btn-primary">Guardar</button>
-                    </div>
-                  </form>
-                </div>
               </div>
             </div>
-            {% endfor %}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
-    </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <div class="text-center py-5">
+          <i class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
+          <p class="text-muted mt-3">No hay experiencias registradas</p>
+        </div>
+      </div>
+    {% endif %}
   </div>
 
   <!-- Reseñas -->
@@ -178,39 +148,5 @@
   </div>
 </div>
 
-<!-- Modal nueva experiencia -->
-<div class="modal fade" id="modalNuevaExp" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form method="POST" action="{{ url_for('admin.exp_create') }}" enctype="multipart/form-data">
-        <div class="modal-header">
-          <h5 class="modal-title">Nueva experiencia</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-2">
-            <label class="form-label">Título</label>
-            <input class="form-control" name="titulo" required>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Descripción</label>
-            <textarea class="form-control" name="descripcion" rows="3"></textarea>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Imagen</label>
-            <input class="form-control" type="file" name="imagen" accept="image/*">
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="activo" id="actNew" checked>
-            <label class="form-check-label" for="actNew">Activa</label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Crear</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+
 {% endblock %}
