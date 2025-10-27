@@ -385,47 +385,64 @@
       <div id="cat-{{ c|replace(' ','-')|lower }}" class="category {% if loop.first %}active{% endif %}">
         <h3 class="cat-title">{{ c }}</h3>
 
-        {% for p in items %}
-          <div class="menu-item">
-            <div class="item-image">
-              {# Muestra imagen si existiera en el modelo, si no, un placeholder #}
-              {% set img = p.imagen or p.image or p.foto %}
-              {% if img %}
-                <img src="{{ media_url(img) }}" alt="{{ p.nombre }}" onerror="this.style.display='none'">
-              {% else %}
-                <span class="emoji"></span>
-              {% endif %}
+        <div class="menu-grid">
+          {% for p in items %}
+            <div class="menu-item">
+              <div class="item-image">
+                {# Muestra imagen si existiera en el modelo, si no, un placeholder #}
+                {% set img = p.imagen or p.image or p.foto %}
+                {% if img %}
+                  <img src="{{ media_url(img) }}" alt="{{ p.nombre }}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;placeholder&quot;><i class=&quot;bi bi-image&quot;></i></div>'">
+                {% else %}
+                  <div class="placeholder">
+                    <i class="bi bi-image"></i>
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="item-info">
+                <div class="item-name">{{ p.nombre }}</div>
+                {% if p.descripcion %}
+                  <div class="item-description">{{ p.descripcion }}</div>
+                {% else %}
+                  <div class="item-description">Delicioso platillo preparado con ingredientes frescos y de la mejor calidad.</div>
+                {% endif %}
+              </div>
+              
+              <div class="item-footer">
+                <div class="item-price">${{ '{:,.0f}'.format(p.precio or 0) }}</div>
+                
+                <form method="post" action="{{ url_for('restaurante_cart.cart_add') }}" class="add-form" onsubmit="return onAdd(this)">
+                  <div class="item-actions">
+                    <div class="quantity-control">
+                      <button type="button" class="quantity-btn" onclick="decreaseQuantity(this)">−</button>
+                      <input type="number" class="quantity-input" name="cantidad" value="1" min="1">
+                      <button type="button" class="quantity-btn" onclick="increaseQuantity(this)">+</button>
+                    </div>
+                    <input type="hidden" name="plato_id" value="{{ p.id }}">
+                    <button type="submit" class="add-btn">Añadir</button>
+                  </div>
+                </form>
+              </div>
             </div>
-            <div class="item-info">
-              <div class="item-name">{{ p.nombre }}</div>
-              {% if p.descripcion %}<div class="item-description">{{ p.descripcion }}</div>{% endif %}
-            </div>
-            <div class="item-actions">
-              <div class="item-price">${{ '{:,.0f}'.format(p.precio or 0) }} COP</div>
-              <form method="post" action="{{ url_for('restaurante_cart.cart_add') }}" class="add-form" onsubmit="return onAdd(this)">
-                <div class="quantity-control">
-                  <button type="button" class="quantity-btn" onclick="decreaseQuantity(this)">−</button>
-                  <input type="number" class="quantity-input" name="cantidad" value="1" min="1">
-                  <button type="button" class="quantity-btn" onclick="increaseQuantity(this)">+</button>
-                </div>
-                <input type="hidden" name="plato_id" value="{{ p.id }}">
-                <div class="mt-2 text-center">
-                  <button type="submit" class="add-btn">Añadir</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
       {% endif %}
     {% endfor %}
 
     <div class="cart-cta">
-      <a href="{{ url_for('restaurante_cart.view_cart') }}" class="btn btn-outline-primary">Ver carrito</a>
+      <a href="{{ url_for('restaurante_cart.view_cart') }}" class="btn">
+        <i class="bi bi-cart3 me-2"></i>Ver carrito
+      </a>
     </div>
 
     {% else %}
-      <div class="alert alert-info mb-0">No hay platos disponibles por ahora.</div>
+      <div class="empty-state">
+        <i class="bi bi-house"></i>
+        <h3>No hay platos disponibles por ahora</h3>
+        <p>Pronto tendremos deliciosos platillos para ti</p>
+      </div>
     {% endif %}
 
   </div>
@@ -442,76 +459,62 @@
     if(ev && ev.target) ev.target.classList.add('active');
     // scroll a la cabecera de la categoría
     if(el){
-      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      const y = el.getBoundingClientRect().top + window.scrollY - 100;
       window.scrollTo({top:y, behavior:'smooth'});
     }
   }
+  
   function increaseQuantity(btn){
     const input = btn.parentElement.querySelector('.quantity-input');
     input.value = parseInt(input.value||'1') + 1;
   }
+  
   function decreaseQuantity(btn){
     const input = btn.parentElement.querySelector('.quantity-input');
     const v = parseInt(input.value||'1');
     if(v>1) input.value = v-1;
   }
+  
   function onAdd(form){
     const btn = form.querySelector('.add-btn');
     if(btn){
+      const originalText = btn.textContent;
       btn.textContent = '✓ Añadido';
-      btn.style.background = '#1f618d';
-      setTimeout(()=>{ btn.textContent = 'Añadir'; btn.style.background = '#2980b9'; }, 1200);
+      btn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+      btn.disabled = true;
+      
+      setTimeout(()=>{ 
+        btn.textContent = originalText; 
+        btn.style.background = 'linear-gradient(135deg, #4f7fff 0%, #7b68ee 100%)';
+        btn.disabled = false;
+      }, 1500);
     }
     return true; // permitir submit
   }
 
-  // Bubble animation script
-  function createBubble() {
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
+  // Animación de entrada para los elementos del menú
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
     
-    // Random size between 20px and 100px
-    const size = Math.random() * 80 + 20;
-    bubble.style.width = size + 'px';
-    bubble.style.height = size + 'px';
-    
-    // Random horizontal position
-    bubble.style.left = Math.random() * 100 + '%';
-    
-    // Random color (blue or green)
-    bubble.classList.add(Math.random() > 0.5 ? 'blue' : 'green');
-    
-    // Random animation duration
-    const duration = Math.random() * 10 + 15; // 15-25 seconds
-    bubble.style.animationDuration = duration + 's';
-    
-    // Random horizontal drift
-    const drift = (Math.random() - 0.5) * 200; // -100px to 100px
-    const scale = Math.random() * 0.5 + 0.5; // 0.5 to 1
-    bubble.style.setProperty('--float-x', drift + 'px');
-    bubble.style.setProperty('--float-scale', scale);
-    
-    // Add to bubble layer
-    const bubbleLayer = document.getElementById('bubble-layer');
-    if (bubbleLayer) {
-      bubbleLayer.appendChild(bubble);
-      
-      // Remove bubble after animation
-      setTimeout(() => {
-        if (bubble.parentNode) {
-          bubble.parentNode.removeChild(bubble);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }, index * 100);
         }
-      }, duration * 1000);
-    }
-  }
+      });
+    }, {
+      threshold: 0.1
+    });
 
-  // Create bubbles periodically
-  function startBubbles() {
-    createBubble();
-    setTimeout(startBubbles, Math.random() * 3000 + 1000); // 1-4 seconds
-  }
-
-  // Start bubble animation when page loads
-  document.addEventListener('DOMContentLoaded', startBubbles);
+    menuItems.forEach(item => {
+      item.style.opacity = '0';
+      item.style.transform = 'translateY(20px)';
+      item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(item);
+    });
+  });
 </script>
 {% endblock %}
