@@ -188,6 +188,11 @@ class Reserva(db.Model):
     estado = db.Column(db.String(20), nullable=False, default='Activa')  # Activa, Completada, Cancelada
     total = db.Column(db.Float, nullable=True)
 
+    # Relaciones ORM para facilitar joins en vistas
+    # Cargamos de forma "joined" para poder acceder directamente en plantillas/rutas
+    usuario = db.relationship('Usuario', backref=db.backref('reservas', lazy='dynamic'), lazy='joined')
+    habitacion = db.relationship('nuevaHabitacion', backref=db.backref('reservas', lazy='dynamic'), lazy='joined')
+
 
 # ------------------------------
 # Datos de huéspedes capturados al reservar (antes del pago)
