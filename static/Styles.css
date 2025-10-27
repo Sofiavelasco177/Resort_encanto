@@ -1660,6 +1660,25 @@ body > nav, body > main, body > footer{ position: relative; z-index: 1; }
 .legend-today { background-color: #dbeafe; }
 
 /* =======================
+    CALENDARIO ADMIN (admin_calendar.html)
+    ======================= */
+.calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); }
+.calendar-day{ height:112px; border:1px solid #e5e7eb; padding:8px; cursor:pointer; transition:background-color .2s; background:#fff; }
+.calendar-day:hover{ background-color:#f9fafb; }
+.calendar-day.today{ background-color:#dbeafe; border:2px solid #3b82f6; }
+.calendar-day.other-month{ background-color:#f9fafb; color:#9ca3af; }
+.calendar-day.selected{ background-color:#3b82f6; color:#fff; }
+.calendar-header{ background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:#fff; padding:1rem; }
+.reservation-item{ font-size:.75rem; padding:2px 8px; border-radius:4px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.reservation-restaurant{ background-color:#fed7aa; color:#ea580c; }
+.reservation-hotel{ background-color:#bfdbfe; color:#1d4ed8; }
+.status-badge{ display:inline-block; padding:4px 8px; border-radius:9999px; font-size:.75rem; font-weight:600; }
+.status-confirmada{ background-color:#dcfce7; color:#16a34a; }
+.status-pendiente{ background-color:#fef3c7; color:#d97706; }
+.status-cancelada{ background-color:#fee2e2; color:#dc2626; }
+.status-activa{ background-color:#dbeafe; color:#2563eb; }
+.status-completada{ background-color:#f3f4f6; color:#6b7280; }
+/* =======================
      RESTAURANTE - MENÚ USUARIO
      (Estilos movidos desde la plantilla restaurante_usuario.html)
      ======================= */
@@ -1713,5 +1732,115 @@ body > nav, body > main, body > footer{ position: relative; z-index: 1; }
 }
 .empty-state { text-align: center; padding: 60px 20px; color: #6c757d; }
 .empty-state i { font-size: 4rem; margin-bottom: 20px; opacity: 0.5; }
+
+/* =======================
+    HOSPEDAJE USUARIO
+    (Estilos movidos desde templates/usuario/hospedaje_usuario.html)
+    ======================= */
+.rooms-grid-2{display:grid;grid-template-columns:1fr;gap:32px}
+@media(min-width:768px){.rooms-grid-2{grid-template-columns:repeat(2,1fr)}}
+.room-card-v2{border-radius:20px;background:#fff;box-shadow:0 20px 50px rgba(59,130,246,0.15);padding:18px 20px 16px;transition:transform .25s ease,box-shadow .25s ease;position:relative}
+.room-card-v2:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(59,130,246,0.22)}
+.room-media{position:relative;height:300px;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#e6f1ff 10%,#5c97ff 95%);display:flex;align-items:end}
+.room-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.room-index-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:14px 6px 8px;border-bottom:1px solid #eef2ff}
+.room-index{font-size:2.2rem;font-weight:700;line-height:1;color:#9bb8ff}
+.room-title{font-size:1.2rem;font-weight:700;color:#374151;margin:0}
+.room-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 6px 6px;color:#6b7280;font-size:.95rem}
+.room-price{font-weight:800;color:#0b7285}
+.room-btn{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff;border:none;padding:10px 18px;border-radius:999px;font-weight:800;font-size:.9rem;letter-spacing:.5px;box-shadow:0 10px 24px rgba(59,130,246,.35);transition:transform .15s ease,filter .2s ease,box-shadow .2s ease}
+.room-btn:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 16px 28px rgba(37,99,235,.45)}
+.room-card-v2 .btn-outline-secondary{border-color:#6c757d;color:#6c757d;transition:all .2s ease;cursor:pointer}
+.room-card-v2 .btn-outline-secondary:hover{background-color:#6c757d;border-color:#6c757d;color:#fff;transform:translateY(-1px)}
+
+/* =======================
+    MODAL HABITACIÓN (USUARIO)
+    (Estilos movidos desde templates/usuario/habitacion_modal.html)
+    ======================= */
+.modal{ z-index:1060; padding-top:80px; }
+.modal-backdrop{ background-color:rgba(0,0,0,0.5); z-index:1055; }
+.modal-dialog{ max-width:450px; margin:1rem auto; }
+.modal-content{ max-height:calc(100vh - 120px); overflow-y:auto; border-radius:1rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); }
+.btn-close{ background-size:16px; opacity:.8; transition:opacity .2s ease; }
+.btn-close:hover{ opacity:1; }
+.bg-primary.bg-opacity-5{ background-color:rgba(13,110,253,0.05); }
+.bg-primary.bg-opacity-10{ background-color:rgba(13,110,253,0.1); }
+@media (max-width:576px){ .modal{ padding-top:60px; } .modal-dialog{ max-width:95%; margin:.5rem auto; } .modal-content{ max-height:calc(100vh - 80px); } }
+
+/* =======================
+    PERFIL USUARIO
+    (Estilos movidos desde templates/usuario/perfil_usuario.html)
+    ======================= */
+.perfil-usuario .container{ max-width: 1400px; }
+.perfil-usuario .sidebar{ background:#fff; border-radius:16px; padding:24px; height:fit-content; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+.perfil-layout{ grid-template-columns: 280px 1fr; gap:24px; }
+.perfil-usuario .menu-item{ display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-radius:10px; cursor:pointer; transition:all .2s; color:#4b5563; font-size:14px; margin-bottom:4px; text-decoration:none; }
+.perfil-usuario .menu-item:hover{ background:#f3f4f6; color:#667eea; text-decoration:none; }
+.perfil-usuario .menu-item.active{ background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
+.perfil-usuario .toggle-switch{ width:44px; height:24px; background:#d1d5db; border-radius:12px; position:relative; cursor:pointer; transition:background .3s; }
+.perfil-usuario .toggle-switch.active{ background:#667eea; }
+.perfil-usuario .toggle-switch::after{ content:''; position:absolute; width:18px; height:18px; background:#fff; border-radius:50%; top:3px; left:3px; transition:left .3s; }
+.perfil-usuario .toggle-switch.active::after{ left:23px; }
+.perfil-usuario .card{ background:#fff; border-radius:16px; padding:32px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+.perfil-usuario .profile-header{ display:flex; align-items:center; gap:24px; margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid #e5e7eb; }
+.perfil-usuario .avatar{ width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); display:flex; align-items:center; justify-content:center; color:#fff; font-size:36px; font-weight:600; box-shadow:0 8px 24px rgba(102,126,234,0.3); object-fit:cover; }
+.perfil-usuario .avatar-upload{ position:absolute; bottom:0; right:0; width:32px; height:32px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.15); transition:transform .2s; border:none; }
+.perfil-usuario .avatar-upload:hover{ transform:scale(1.1); }
+.perfil-usuario .profile-badge{ display:inline-block; background:linear-gradient(135deg,#fbbf24 0%, #f59e0b 100%); color:#fff; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; margin-top:8px; }
+.perfil-usuario .form-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; margin-bottom:24px; }
+.perfil-usuario label{ font-size:14px; font-weight:500; color:#374151; margin-bottom:8px; }
+.perfil-usuario input, .perfil-usuario select, .perfil-usuario textarea{ padding:12px 16px; border:2px solid #e5e7eb; border-radius:10px; font-size:15px; transition:all .2s; outline:none; background:#f9fafb; }
+.perfil-usuario input:focus, .perfil-usuario select:focus, .perfil-usuario textarea:focus{ border-color:#667eea; background:#fff; box-shadow:0 0 0 3px rgba(102,126,234,.1); }
+.perfil-usuario .payment-methods{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; margin-bottom:16px; }
+.perfil-usuario .payment-card{ aspect-ratio:1.6; border:2px solid #e5e7eb; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; background:#f9fafb; position:relative; }
+.perfil-usuario .payment-card:hover{ border-color:#667eea; background:#fff; transform:translateY(-2px); }
+.perfil-usuario .payment-card.active{ border-color:#667eea; background:linear-gradient(135deg, rgba(102,126,234,.1) 0%, rgba(118,75,162,.1) 100%); }
+.perfil-usuario .empty-state{ text-align:center; padding:48px 24px; color:#9ca3af; }
+.checkbox-lg{ width:20px; height:20px; cursor:pointer; }
+.muted-desc{ color:#6b7280; font-size:14px; margin-bottom:24px; }
+.empty-icon{ font-size:64px; margin-bottom:16px; opacity:.5; }
+@media (max-width: 1024px){ .perfil-layout{ grid-template-columns:1fr; } .perfil-usuario .sidebar{ order:2; } }
+@media (max-width: 768px){ .perfil-usuario .form-grid{ grid-template-columns:1fr; } .perfil-usuario .payment-methods{ grid-template-columns:repeat(2,1fr); } .perfil-usuario .card{ padding:20px; } }
+
+/* =======================
+    UTILIDADES (helpers reutilizables)
+    ======================= */
+/* Tamaños de fuente granulares usados en modales y chips */
+.fs-070{ font-size: 0.70rem !important; }
+.fs-075{ font-size: 0.75rem !important; }
+.fs-080{ font-size: 0.80rem !important; }
+.fs-085{ font-size: 0.85rem !important; }
+.fs-090{ font-size: 0.90rem !important; }
+
+/* Object-fit helpers */
+.obj-cover{ object-fit: cover !important; }
+
+/* Botón de cierre más grande (cuadrado) */
+.btn-close-40{ width: 40px; height: 40px; }
+
+/* Contenedor hero de imagen en modal */
+.modal-hero-img{ height: 160px; overflow: hidden; }
+
+/* Z-index utility commonly used for toast containers */
+.z-1060 { z-index: 1060 !important; }
+
+/* =======================
+    RESERVAS USUARIO (reserva de habitación)
+    ======================= */
+.reserva-layout { margin-top: 1.5rem; }
+.habitacion-img { width: 100%; height: 260px; object-fit: cover; border-radius: .5rem; }
+.info-chip { display:inline-block; padding: .25rem .5rem; border-radius: 999px; background:#f1f3f5; font-size:.85rem; margin-right:.5rem; }
+#room3d { width: 100%; height: 380px; border-radius: .5rem; overflow: hidden; background: #eef2f7; }
+.btn-reservar { background: linear-gradient(135deg,#ffd166,#fca311); border:none; color:#222; font-weight:700; padding:.75rem 1.25rem; border-radius:.65rem; box-shadow: 0 6px 14px rgba(252,163,17,.25); transition: transform .12s ease, box-shadow .2s ease; }
+.btn-reservar:hover { transform: translateY(-1px); box-shadow:0 10px 18px rgba(252,163,17,.35); color:#111; }
+.card-soft { border:0; box-shadow: 0 6px 20px rgba(0,0,0,.06); border-radius: .75rem; }
+@media (max-width: 991.98px) { #room3d{ height: 320px; } }
+@media (max-width: 575.98px) { .habitacion-img{ height: 200px; } }
+label.required::after{ content:' *'; color:#e03131; }
+.form-section-title{ font-weight:700; font-size:1.05rem; color:#343a40; }
+.mini-muted{ color:#6c757d; font-size:.9rem; }
+.badge-estado{ font-size:.75rem; }
+.precio { font-weight: 800; color:#0b7285; }
+.resumen-item { display:flex; align-items:center; justify-content:space-between; padding:.35rem 0; }
 
 

@@ -4,7 +4,7 @@
         <div class="modal-content border-0 shadow-lg">
             <div class="position-relative">
                 <!-- Imagen de la habitación -->
-                <div style="height: 160px; overflow: hidden;">
+                <div class="modal-hero-img">
                     {% set raw = h.imagen or '' %}
                     {% if raw and (raw[:4]|lower == 'http') %}
                         {% set img_url = raw %}
@@ -14,19 +14,19 @@
                         {% if fn.startswith('static/') %}{% set fn = fn[7:] %}{% endif %}
                         {% set img_url = url_for('static', filename=fn if fn else 'img/default.jpg') %}
                     {% endif %}
-                    <img src="{{ img_url }}" alt="{{ h.nombre }}" class="w-100 h-100" style="object-fit: cover;" 
+                    <img src="{{ img_url }}" alt="{{ h.nombre }}" class="w-100 h-100 obj-cover" 
                          onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                 </div>
                 
                 <!-- Botón de cerrar -->
-                <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white rounded-circle p-2 shadow-sm" 
-                        data-bs-dismiss="modal" aria-label="Close" style="width: 40px; height: 40px;"></button>
+                <button type="button" class="btn-close btn-close-40 position-absolute top-0 end-0 m-3 bg-white rounded-circle p-2 shadow-sm" 
+                        data-bs-dismiss="modal" aria-label="Close"></button>
                 
                 <!-- Badge de precio -->
                 <div class="position-absolute bottom-0 start-0 m-2">
                     <div class="bg-white px-2 py-1 rounded-pill shadow-sm">
                         <span class="fs-6 fw-bold text-primary">${{ '{:,.0f}'.format(h.precio) }}</span>
-                        <span class="text-muted" style="font-size: 0.75rem;">COP por noche</span>
+                        <span class="text-muted fs-075">COP por noche</span>
                     </div>
                 </div>
             </div>
@@ -34,7 +34,7 @@
             <div class="modal-body p-3">
                 <!-- Título y descripción -->
                 <h2 class="fw-bold fs-5 text-dark mb-2">{{ h.nombre }}</h2>
-                <p class="text-muted mb-3" style="font-size: 0.85rem;">
+                <p class="text-muted mb-3 fs-085">
                     {{ h.descripcion or 'Espaciosa habitación con todas las comodidades para una estadía inolvidable.' }}
                 </p>
 
@@ -46,11 +46,11 @@
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
                                 <div class="bg-primary bg-opacity-10 p-1 rounded-2">
-                                    <i class="bi bi-rulers text-primary" style="font-size: 0.9rem;"></i>
+                                    <i class="bi bi-rulers text-primary fs-090"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Área</p>
-                                    <p class="fw-semibold mb-0" style="font-size: 0.8rem;">{{ h.area or '35' }} m²</p>
+                                    <p class="text-muted mb-0 fs-070">Área</p>
+                                    <p class="fw-semibold mb-0 fs-080">{{ h.area or '35' }} m²</p>
                                 </div>
                             </div>
                         </div>
@@ -59,11 +59,11 @@
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
                                 <div class="bg-primary bg-opacity-10 p-1 rounded-2">
-                                    <i class="bi bi-house-door text-primary" style="font-size: 0.9rem;"></i>
+                                    <i class="bi bi-house-door text-primary fs-090"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Cama</p>
-                                    <p class="fw-semibold mb-0" style="font-size: 0.8rem;">
+                                    <p class="text-muted mb-0 fs-070">Cama</p>
+                                    <p class="fw-semibold mb-0 fs-080">
                                         {% if 'suite' in h.nombre.lower() or 'deluxe' in h.nombre.lower() %}
                                             King Size
                                         {% elif h.cupo_personas >= 3 %}
@@ -80,11 +80,11 @@
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
                                 <div class="bg-primary bg-opacity-10 p-1 rounded-2">
-                                    <i class="bi bi-people text-primary" style="font-size: 0.9rem;"></i>
+                                    <i class="bi bi-people text-primary fs-090"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Capacidad</p>
-                                    <p class="fw-semibold mb-0" style="font-size: 0.8rem;">{{ h.cupo_personas }} persona{{ 's' if h.cupo_personas != 1 else '' }}</p>
+                                    <p class="text-muted mb-0 fs-070">Capacidad</p>
+                                    <p class="fw-semibold mb-0 fs-080">{{ h.cupo_personas }} persona{{ 's' if h.cupo_personas != 1 else '' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -93,11 +93,11 @@
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-2">
                                 <div class="bg-primary bg-opacity-10 p-1 rounded-2">
-                                    <i class="bi bi-droplet text-primary" style="font-size: 0.9rem;"></i>
+                                    <i class="bi bi-droplet text-primary fs-090"></i>
                                 </div>
                                 <div>
-                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Baño</p>
-                                    <p class="fw-semibold mb-0" style="font-size: 0.8rem;">
+                                    <p class="text-muted mb-0 fs-070">Baño</p>
+                                    <p class="fw-semibold mb-0 fs-080">
                                         {% if 'suite' in h.nombre.lower() %}
                                             Privado con jacuzzi
                                         {% else %}
@@ -117,8 +117,8 @@
                         <!-- WiFi -->
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-1 bg-primary bg-opacity-5 rounded-2">
-                                <i class="bi bi-wifi text-primary" style="font-size: 0.8rem;"></i>
-                                <span class="fw-medium text-dark" style="font-size: 0.8rem;">WiFi gratis</span>
+                                <i class="bi bi-wifi text-primary fs-080"></i>
+                                <span class="fw-medium text-dark fs-080">WiFi gratis</span>
                             </div>
                         </div>
                         
@@ -126,8 +126,8 @@
                         {% if 'suite' in h.nombre.lower() or 'deluxe' in h.nombre.lower() or h.plan in ['oro', 'plata'] %}
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-1 bg-primary bg-opacity-5 rounded-2">
-                                <i class="bi bi-wind text-primary" style="font-size: 0.8rem;"></i>
-                                <span class="fw-medium text-dark" style="font-size: 0.8rem;">Aire acondicionado</span>
+                                <i class="bi bi-wind text-primary fs-080"></i>
+                                <span class="fw-medium text-dark fs-080">Aire acondicionado</span>
                             </div>
                         </div>
                         {% endif %}
@@ -135,8 +135,8 @@
                         <!-- TV -->
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-1 bg-primary bg-opacity-5 rounded-2">
-                                <i class="bi bi-tv text-primary" style="font-size: 0.8rem;"></i>
-                                <span class="fw-medium text-dark" style="font-size: 0.8rem;">
+                                <i class="bi bi-tv text-primary fs-080"></i>
+                                <span class="fw-medium text-dark fs-080">
                                     {% if 'suite' in h.nombre.lower() %}
                                         TV Smart 55"
                                     {% elif 'deluxe' in h.nombre.lower() %}
@@ -152,7 +152,7 @@
                         {% if 'suite' in h.nombre.lower() or h.plan == 'oro' %}
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
-                                <i class="bi bi-cup-straw text-primary" style="font-size: 0.9rem;"></i>
+                                <i class="bi bi-cup-straw text-primary fs-090"></i>
                                 <span class="fw-medium text-dark small">Minibar</span>
                             </div>
                         </div>
@@ -162,7 +162,7 @@
                         {% if 'ocean' in h.nombre.lower() or 'vista' in h.nombre.lower() %}
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
-                                <i class="bi bi-eye text-primary" style="font-size: 0.9rem;"></i>
+                                <i class="bi bi-eye text-primary fs-090"></i>
                                 <span class="fw-medium text-dark small">Vista al océano</span>
                             </div>
                         </div>
@@ -172,7 +172,7 @@
                         {% if 'suite' in h.nombre.lower() or 'deluxe' in h.nombre.lower() %}
                         <div class="col-6">
                             <div class="d-flex align-items-center gap-2 p-2 bg-primary bg-opacity-5 rounded-2">
-                                <i class="bi bi-laptop text-primary" style="font-size: 0.9rem;"></i>
+                                <i class="bi bi-laptop text-primary fs-090"></i>
                                 <span class="fw-medium text-dark small">Área de trabajo</span>
                             </div>
                         </div>
@@ -183,7 +183,7 @@
                 <!-- Botón de reservar -->
                 <div class="d-grid mt-3">
                     <a href="{{ url_for('hospedaje_usuario.reservar_habitacion', habitacion_id=h.id) }}" 
-                       class="btn btn-primary fw-semibold py-2 rounded-3 shadow-sm" style="font-size: 0.9rem;">
+                       class="btn btn-primary fw-semibold py-2 rounded-3 shadow-sm fs-090">
                         <i class="bi bi-calendar-check me-2"></i>Reservar Ahora
                     </a>
                 </div>
@@ -192,64 +192,6 @@
     </div>
 </div>
 
-<!-- Estilos y JavaScript para este modal -->
-<style>
-    /* Estilos para los modales */
-    .modal {
-        z-index: 1060;
-        padding-top: 80px;
-    }
-    
-    .modal-backdrop {
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1055;
-    }
-    
-    .modal-dialog {
-        max-width: 450px;
-        margin: 1rem auto;
-    }
-    
-    .modal-content {
-        max-height: calc(100vh - 120px);
-        overflow-y: auto;
-        border-radius: 1rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    }
-    
-    .btn-close {
-        background-size: 16px;
-        opacity: 0.8;
-        transition: opacity 0.2s ease;
-    }
-    
-    .btn-close:hover {
-        opacity: 1;
-    }
-    
-    .bg-primary.bg-opacity-5 {
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-    
-    .bg-primary.bg-opacity-10 {
-        background-color: rgba(13, 110, 253, 0.1);
-    }
-    
-    /* Responsividad */
-    @media (max-width: 576px) {
-        .modal {
-            padding-top: 60px;
-        }
-        
-        .modal-dialog {
-            max-width: 95%;
-            margin: 0.5rem auto;
-        }
-        
-        .modal-content {
-            max-height: calc(100vh - 80px);
-        }
-    }
-</style>
+<!-- Estilos movidos a static/Styles.css -->
 
 <!-- Script global movido a hospedaje_usuario.html para evitar duplicados y mejorar la interacción -->

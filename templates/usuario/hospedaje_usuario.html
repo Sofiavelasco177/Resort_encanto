@@ -2,23 +2,6 @@
 
 {% block content %}
 
-<style>
-/* Two-column grid and card style inspired by home hospedaje */
-.rooms-grid-2{display:grid;grid-template-columns:1fr;gap:32px}
-@media(min-width:768px){.rooms-grid-2{grid-template-columns:repeat(2,1fr)}}
-.room-card-v2{border-radius:20px;background:#fff;box-shadow:0 20px 50px rgba(59,130,246,0.15);padding:18px 20px 16px;transition:transform .25s ease,box-shadow .25s ease;position:relative}
-.room-card-v2:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(59,130,246,0.22)}
-.room-media{position:relative;height:300px;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#e6f1ff 10%,#5c97ff 95%);display:flex;align-items:end}
-.room-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.room-index-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:14px 6px 8px;border-bottom:1px solid #eef2ff}
-.room-index{font-size:2.2rem;font-weight:700;line-height:1;color:#9bb8ff}
-.room-title{font-size:1.2rem;font-weight:700;color:#374151;margin:0}
-.room-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 6px 6px;color:#6b7280;font-size:.95rem}
-.room-price{font-weight:800;color:#0b7285}
-.room-btn{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff;border:none;padding:10px 18px;border-radius:999px;font-weight:800;font-size:.9rem;letter-spacing:.5px;box-shadow:0 10px 24px rgba(59,130,246,.35);transition:transform .15s ease,filter .2s ease,box-shadow .2s ease}
-.room-btn:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 16px 28px rgba(37,99,235,.45)}
-</style>
-
 <div class="container mt-4 hospedaje-usuario">
     {% if habitaciones_por_plan %}
         {% for plan, rooms in habitaciones_por_plan.items() %}
@@ -101,22 +84,7 @@
 
 
 
-<style>
-    /* Estilos para las tarjetas de habitación */
-    .room-card-v2 .btn-outline-secondary {
-        border-color: #6c757d;
-        color: #6c757d;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-    
-    .room-card-v2 .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: white;
-        transform: translateY(-1px);
-    }
-</style>
+
 
 <script>
 // Script único para manejar todos los modales de habitaciones de forma consistente
