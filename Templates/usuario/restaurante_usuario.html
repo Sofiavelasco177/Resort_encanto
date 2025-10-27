@@ -2,101 +2,377 @@
 
 {% block content %}
 <style>
-  /* Página estilo referencia */
+  /* Estilo moderno del menú del restaurante */
   .menu-bg {
-    background-color: #f6fbff;
-    padding: 20px 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 40px 20px;
     min-height: 100vh;
   }
+  
   .menu-container {
     max-width: 1200px;
     margin: 0 auto;
     background: #fff;
-    border-radius: 20px;
-    padding: 32px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.1);
   }
-  .menu-title { color:#2c3e50; font-size: 2.2em; text-align:center; font-weight:800; }
-  .tabs { display:flex; gap:10px; margin: 20px auto 28px; flex-wrap:wrap; justify-content:center; }
+  
+  .menu-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .menu-title { 
+    color: #2c3e50; 
+    font-size: 2.5rem; 
+    font-weight: 800; 
+    margin-bottom: 8px;
+  }
+  
+  .menu-subtitle {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+  }
+  
+  .tabs { 
+    display: flex; 
+    gap: 12px; 
+    margin-bottom: 40px; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+  }
+  
   .tab {
-    padding: 10px 20px; background:#fff; border:2px solid #2980b9; color:#2c3e50;
-    border-radius:25px; cursor:pointer; font-size:16px; font-weight:600; transition:.25s;
+    padding: 12px 24px; 
+    background: #f8f9fa; 
+    border: 2px solid #e9ecef; 
+    color: #495057;
+    border-radius: 50px; 
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: 600; 
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
   }
-  .tab:hover { background:#2980b9; color:#fff; transform: translateY(-2px); }
-  .tab.active { background:#2980b9; color:#fff; }
+  
+  .tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+  }
+  
+  .tab:hover::before {
+    left: 100%;
+  }
+  
+  .tab:hover { 
+    background: #4f7fff; 
+    color: #fff; 
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 127, 255, 0.3);
+    border-color: #4f7fff;
+  }
+  
+  .tab.active { 
+    background: #4f7fff; 
+    color: #fff; 
+    border-color: #4f7fff;
+    box-shadow: 0 8px 25px rgba(79, 127, 255, 0.3);
+  }
 
-  .category { display:none; }
-  .category.active { display:block; animation: fadeIn .45s ease; }
-  @keyframes fadeIn { from {opacity:0; transform: translateY(16px);} to {opacity:1; transform:none;} }
+  .category { 
+    display: none; 
+  }
+  
+  .category.active { 
+    display: block; 
+    animation: fadeInUp 0.6s ease; 
+  }
+  
+  @keyframes fadeInUp { 
+    from {
+      opacity: 0; 
+      transform: translateY(30px);
+    } 
+    to {
+      opacity: 1; 
+      transform: translateY(0);
+    } 
+  }
 
-  h3.cat-title { color:#2c3e50; font-size:1.6em; margin: 8px 0 18px; padding-bottom:10px; border-bottom:3px solid #2980b9; font-weight:800; }
+  .cat-title { 
+    color: #2c3e50; 
+    font-size: 1.8rem; 
+    margin: 0 0 30px; 
+    padding-bottom: 15px; 
+    border-bottom: 3px solid #4f7fff; 
+    font-weight: 800;
+    position: relative;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+  }
 
   .menu-item {
-    display:grid; grid-template-columns: 200px 1fr auto; gap:20px; align-items:center;
-    background:#f8f9fa; border-radius:15px; padding:18px; margin-bottom:18px;
-    box-shadow: 0 4px 6px rgba(0,0,0,.1); transition:.25s;
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f1f3f5;
+    position: relative;
+    overflow: hidden;
   }
-  .menu-item:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,.18); }
-  .item-image { width:200px; height:150px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(145deg, #e3f2fd, #ffffff); border:1px solid #edf2f7; }
-  .item-image img { width:100%; height:100%; object-fit:cover; border-radius:12px; display:block; }
-  .item-image .emoji { font-size: 2rem; }
-  .item-info { display:flex; flex-direction:column; gap:6px; }
-  .item-name { font-size:1.25em; font-weight:800; color:#2c3e50; }
-  .item-description { color:#666; font-size:.98em; line-height:1.4; }
-  .item-actions { display:flex; flex-direction:column; align-items:center; gap:12px; min-width: 160px; }
-  .item-price { font-size:1.15em; font-weight:800; color:#2980b9; }
-  .quantity-control { display:flex; align-items:center; gap:8px; justify-content:center; }
-  .quantity-btn { width:28px; height:28px; border:none; background:#2980b9; color:#fff; border-radius:50%; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:.2s; }
-  .quantity-btn:hover { background:#1f618d; transform: scale(1.08); }
-  .quantity-input { width:50px; text-align:center; border:2px solid #ddd; border-radius:6px; padding:3px; font-size:14px; }
-  .add-btn { padding:8px 20px; background:#2980b9; color:#fff; border:none; border-radius:20px; cursor:pointer; font-size:14px; font-weight:700; transition:.2s; white-space: nowrap; }
-  .add-btn:hover { background:#1f618d; transform: scale(1.03); }
-  @media (max-width: 768px){
-    .menu-item { grid-template-columns: 1fr; text-align:center; }
-    .item-image { width:100%; height:200px; justify-self:center; }
-    .item-actions { flex-direction:row; justify-content:center; }
+  
+  .menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4f7fff, #7b68ee);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
   }
-  .cart-cta { display:flex; justify-content:center; margin-top: 10px; }
-  .cart-cta .btn { border-radius:25px; padding:10px 18px; font-weight:700; }
-
-  /* Bubble animated background */
-  .bubble-layer{ position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 0; }
-  .menu-container { position: relative; z-index: 1; }
-
-  .bubble{
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.4);
-      -webkit-backdrop-filter: blur(2px);
-      backdrop-filter: blur(2px);
-      animation-name: float;
-      animation-timing-function: ease-in-out;
-      animation-iteration-count: infinite;
+  
+  .menu-item:hover::before {
+    transform: scaleX(1);
   }
-  .bubble.blue{ box-shadow: 0 0 30px rgba(59,130,246,0.6), 0 0 60px rgba(59,130,246,0.4), inset 0 0 20px rgba(59,130,246,0.3); }
-  .bubble.green{ box-shadow: 0 0 30px rgba(34,197,94,0.6), 0 0 60px rgba(34,197,94,0.4), inset 0 0 20px rgba(34,197,94,0.3); }
-
-  @keyframes float{
-      0%{ transform: translateY(0) translateX(0) scale(1); opacity: 0; }
-      10%{ opacity: 1; }
-      90%{ opacity: 1; }
-      100%{ transform: translateY(-110vh) translateX(var(--float-x)) scale(var(--float-scale)); opacity: 0; }
+  
+  .menu-item:hover { 
+    transform: translateY(-8px); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    border-color: #4f7fff;
+  }
+  
+  .item-image { 
+    width: 100%; 
+    height: 160px; 
+    border-radius: 16px; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .item-image img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-radius: 16px; 
+  }
+  
+  .item-image .placeholder {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .item-image .placeholder i {
+    font-size: 2rem;
+    color: rgba(255,255,255,0.8);
+  }
+  
+  .item-info {
+    flex: 1;
+    margin-bottom: 20px;
+  }
+  
+  .item-name { 
+    font-size: 1.4rem; 
+    font-weight: 700; 
+    color: #2c3e50; 
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  
+  .item-description { 
+    color: #6c757d; 
+    font-size: 0.95rem; 
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  
+  .item-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  
+  .item-price { 
+    font-size: 1.3rem; 
+    font-weight: 800; 
+    color: #4f7fff;
+  }
+  
+  .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .quantity-control { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    background: #f8f9fa;
+    border-radius: 25px;
+    padding: 4px;
+  }
+  
+  .quantity-btn { 
+    width: 32px; 
+    height: 32px; 
+    border: none; 
+    background: #4f7fff; 
+    color: #fff; 
+    border-radius: 50%; 
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: 600;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: all 0.2s ease;
+  }
+  
+  .quantity-btn:hover { 
+    background: #3d64cc; 
+    transform: scale(1.1);
+  }
+  
+  .quantity-input { 
+    width: 50px; 
+    text-align: center; 
+    border: none; 
+    background: transparent;
+    font-size: 16px; 
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  .add-btn { 
+    padding: 10px 20px; 
+    background: linear-gradient(135deg, #4f7fff 0%, #7b68ee 100%);
+    color: #fff; 
+    border: none; 
+    border-radius: 25px; 
+    cursor: pointer; 
+    font-size: 14px; 
+    font-weight: 700; 
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(79, 127, 255, 0.3);
+  }
+  
+  .add-btn:hover { 
+    background: linear-gradient(135deg, #3d64cc 0%, #6a5acd 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 127, 255, 0.4);
+  }
+  
+  .cart-cta { 
+    display: flex; 
+    justify-content: center; 
+    margin-top: 40px; 
+  }
+  
+  .cart-cta .btn { 
+    border-radius: 50px; 
+    padding: 15px 30px; 
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #4f7fff 0%, #7b68ee 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(79, 127, 255, 0.3);
+  }
+  
+  .cart-cta .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(79, 127, 255, 0.4);
   }
 
-  @media (prefers-reduced-motion: reduce){
-      .bubble{ animation: none !important; display: none !important; }
-      .bubble-layer{ display: none !important; }
+  @media (max-width: 768px) {
+    .menu-container {
+      padding: 24px;
+      border-radius: 16px;
+    }
+    
+    .menu-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    
+    .menu-item {
+      padding: 20px;
+    }
+    
+    .item-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+    
+    .item-actions {
+      justify-content: space-between;
+    }
+    
+    .tabs {
+      gap: 8px;
+    }
+    
+    .tab {
+      padding: 10px 18px;
+      font-size: 14px;
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+  }
+  
+  .empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
   }
 </style>
 
 <div class="menu-bg">
-  <!-- Animated bubble background layer -->
-  <div id="bubble-layer" class="bubble-layer"></div>
   <div class="menu-container">
-    <h1 class="menu-title"> Menú del Restaurante</h1>
+    <div class="menu-header">
+      <h1 class="menu-title">Menú del Restaurante</h1>
+      <p class="menu-subtitle">Descubre nuestros deliciosos sabores de platillos</p>
+    </div>
 
     {% if categorias and grupos %}
     <!-- Tabs de categorías -->
+    <div class="tabs">
     <div class="tabs">
       {% for c in categorias %}
         <button class="tab {% if loop.first %}active{% endif %}" onclick="showCategory('cat-{{ c|replace(' ','-')|lower }}', event)">{{ c }}</button>

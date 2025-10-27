@@ -1145,3 +1145,131 @@ def calendar_historial():
                          current_year=current_year,
                          current_month=current_month,
                          reservation_data=reservation_data)
+
+
+# ========================================
+# RUTAS PARA SISTEMA DE NOTIFICACIONES
+# ========================================
+
+@admin_bp.route('/notifications')
+def notifications_panel():
+    """Panel de gestión de notificaciones"""
+    from utils.notifications import get_checkin_reservations_today, get_checkout_reservations_today
+    from datetime import date, timedelta
+    
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
+    
+    # Obtener reservas para hoy
+    checkin_today = get_checkin_reservations_today()
+    checkout_today = get_checkout_reservations_today()
+    
+    # Obtener reservas para mañana (recordatorios)
+    checkin_tomorrow = Reserva.query.filter(
+        Reserva.check_in == tomorrow,
+        Reserva.estado.in_(['Activa', 'Confirmada'])
+    ).count()
+    
+    checkout_tomorrow = Reserva.query.filter(
+        Reserva.check_out == tomorrow,
+        Reserva.estado.in_(['Activa', 'Confirmada'])
+    ).count()
+    
+    # Obtener estadísticas de usuarios con notificaciones activas
+    users_with_checkin_notif = Usuario.query.filter_by(notif_checkin=True).count()
+    users_with_checkout_notif = Usuario.query.filter_by(notif_checkout=True).count()
+    total_users = Usuario.query.count()
+    
+    stats = {
+        'checkin_today': len(checkin_today),
+        'checkout_today': len(checkout_today),
+        'checkin_tomorrow': checkin_tomorrow,
+        'checkout_tomorrow': checkout_tomorrow,
+        'users_checkin_enabled': users_with_checkin_notif,
+        'users_checkout_enabled': users_with_checkout_notif,
+        'total_users': total_users
+    }
+    
+    return render_template('dashboard/notifications_panel.html', stats=stats)
+
+
+@admin_bp.route('/notifications/send-manual', methods=['POST'])
+def send_manual_notifications():
+    """Enviar notificaciones manualmente"""
+    from utils.notifications import send_daily_notifications, send_reminder_notifications
+    
+    notification_type = request.form.get('type', 'daily')
+    
+    try:
+        if notification_type == 'daily':
+            checkins_sent, checkouts_sent = send_daily_notifications()
+            total_sent = checkins_sent + checkouts_sent
+            flash(f'Notificaciones diarias enviadas: {checkins_sent} check-ins, {checkouts_sent} check-outs', 'success')
+            
+        elif notification_type == 'reminders':
+            checkin_reminders, checkout_reminders = send_reminder_notifications()
+            total_sent = checkin_reminders + checkout_reminders
+            flash(f'Recordatorios enviados: {checkin_reminders} check-ins, {checkout_reminders} check-outs', 'success')
+            
+        elif notification_type == 'all':
+            checkins_sent, checkouts_sent = send_daily_notifications()
+            checkin_reminders, checkout_reminders = send_reminder_notifications()
+            total_sent = checkins_sent + checkouts_sent + checkin_reminders + checkout_reminders
+            flash(f'Todas las notificaciones enviadas: {total_sent} emails en total', 'success')
+            
+        else:
+            flash('Tipo de notificación no válido', 'danger')
+            
+    except Exception as e:
+        flash(f'Error al enviar notificaciones: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin.notifications_panel'))
+
+
+@admin_bp.route('/notifications/test/<int:reserva_id>')
+def test_notification(reserva_id):
+    """Enviar notificación de prueba para una reserva específica"""
+    from utils.notifications import send_checkin_notification, send_checkout_notification
+    
+    notification_type = request.args.get('type', 'checkin')
+    
+    try:
+        if notification_type == 'checkin':
+            success = send_checkin_notification(reserva_id)
+            message = f'Notificación de check-in {"enviada" if success else "falló"} para reserva #{reserva_id}'
+        else:
+            success = send_checkout_notification(reserva_id)
+            message = f'Notificación de check-out {"enviada" if success else "falló"} para reserva #{reserva_id}'
+            
+        flash(message, 'success' if success else 'danger')
+        
+    except Exception as e:
+        flash(f'Error enviando notificación de prueba: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin.notifications_panel'))
+
+
+@admin_bp.route('/notifications/settings')
+def notification_settings():
+    """Configuración global de notificaciones"""
+    users = Usuario.query.all()
+    return render_template('dashboard/notification_settings.html', users=users)
+
+
+@admin_bp.route('/notifications/settings/user/<int:user_id>', methods=['POST'])
+def update_user_notification_settings(user_id):
+    """Actualizar configuración de notificaciones de un usuario"""
+    user = Usuario.query.get_or_404(user_id)
+    
+    try:
+        user.notif_checkin = 'notif_checkin' in request.form
+        user.notif_checkout = 'notif_checkout' in request.form
+        
+        db.session.commit()
+        flash(f'Configuración de notificaciones actualizada para {user.usuario}', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error actualizando configuración: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin.notification_settings'))

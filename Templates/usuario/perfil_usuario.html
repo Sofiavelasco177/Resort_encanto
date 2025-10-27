@@ -1,53 +1,865 @@
-{% extends 'usuario/base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.usuario }} - Perfil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block content %}
-<div class="container my-4 perfil-page">
-  <div class="row g-4">
-    <!-- Sidebar de ajustes -->
-    <aside class="col-12 col-lg-4">
-      <div class="p-3 p-md-4 bg-white rounded-4 shadow-sm">
-        <h5 class="mb-3">Settings</h5>
-        <ul class="list-unstyled mb-0">
-          <li class="mb-2"><span class="text-muted small d-block mb-1">Account</span>
-            <a class="d-flex justify-content-between align-items-center text-decoration-none" href="#form-perfil">
-              <span class="text-dark">Edit profile</span>
-              <i class="bi bi-chevron-right"></i>
-            </a>
-          </li>
-          <li class="mb-2">
-            <a class="d-flex justify-content-between align-items-center text-decoration-none" href="#" data-bs-toggle="modal" data-bs-target="#modalPassword">
-              <span class="text-dark">Change password</span>
-              <i class="bi bi-chevron-right"></i>
-            </a>
-          </li>
-          <li class="mb-2"><span class="text-muted small d-block mb-1">Notifications</span>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            height: fit-content;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4b5563;
+            font-size: 14px;
+            margin-bottom: 4px;
+            text-decoration: none;
+        }
+
+        .menu-item:hover {
+            background: #f3f4f6;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .menu-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .menu-item-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 23px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            object-fit: cover;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s;
+            border: none;
+        }
+
+        .avatar-upload:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-upload svg {
+            width: 16px;
+            height: 16px;
+            color: #667eea;
+        }
+
+        .profile-info h2 {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .profile-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s;
+            outline: none;
+            background: #f9fafb;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            width: fit-content;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .payment-card {
+            aspect-ratio: 1.6;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f9fafb;
+            position: relative;
+        }
+
+        .payment-card:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .payment-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .payment-card svg {
+            width: 32px;
+            height: 32px;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .payment-card span {
+            font-size: 13px;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .add-payment {
+            border: 2px dashed #d1d5db;
+            background: transparent;
+        }
+
+        .add-payment:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 16px;
+            font-size: 14px;
+            color: #4b5563;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #9ca3af;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: #f9fafb;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .notification-icon svg {
+            width: 20px;
+            height: 20px;
+            color: #667eea;
+        }
+
+        .notification-text h4 {
+            font-size: 14px;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .notification-text p {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* Navbar personalizada */
+        .custom-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .custom-navbar .navbar-brand {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .custom-navbar .nav-link {
+            color: #4b5563;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .custom-navbar .nav-link:hover {
+            color: #667eea;
+        }
+
+        .page-content {
+            margin-top: 100px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .show {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-methods {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar personalizada -->
+    <nav class="custom-navbar">
+        <div class="container-fluid px-4">
             <div class="d-flex justify-content-between align-items-center">
-              <span class="text-dark">Check-in alerts</span>
-              <div class="form-check form-switch mb-0">
-                <input id="sw-checkin" class="form-check-input" type="checkbox" {% if user.notif_checkin %}checked{% endif %}>
-              </div>
+                <div class="d-flex align-items-center">
+                    <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo" height="40" class="me-2 rounded">
+                    <span class="navbar-brand mb-0">Hotel Isla Encanto</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ url_for('main.home_usuario') }}" class="nav-link">Inicio</a>
+                    <a href="{{ url_for('main.hospedaje_usuario') }}" class="nav-link">Hospedaje</a>
+                    <a href="{{ url_for('main.restaurante_usuario') }}" class="nav-link">Restaurante</a>
+                    <a href="{{ url_for('main.experiencias_usuario') }}" class="nav-link">Experiencias</a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">Cerrar Sesión</a>
+                </div>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <span class="text-dark">Check-out alerts</span>
-              <div class="form-check form-switch mb-0">
-                <input id="sw-checkout" class="form-check-input" type="checkbox" {% if user.notif_checkout %}checked{% endif %}>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </aside>
+        </div>
+    </nav>
 
-    <!-- Contenido principal -->
-    <section class="col-12 col-lg-8">
-      <div class="p-3 p-md-4 bg-white rounded-4 shadow-sm">
-        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-          <div class="position-relative">
-            <img src="{{ url_for('static', filename=(user.avatar or 'img/logo.jpg')) }}" class="rounded-circle border avatar-img" alt="Avatar">
-          </div>
-          <div>
-            <h4 class="mb-0">{{ user.usuario }}</h4>
-            <span class="badge bg-warning text-dark mt-1">Plan: {{ user.plan_tipo or 'Sin plan' }} {% if user.membresia_activa %}(Activo){% else %}(Inactivo){% endif %}</span>
+    <div class="page-content">
+        <div class="container">
+            <aside class="sidebar">
+                <h3>Settings</h3>
+                <div class="menu-item active" data-section="profile">
+                    <div class="menu-item-content">
+                        <i class="bi bi-person"></i>
+                        <span>Mi Perfil</span>
+                    </div>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+                <div class="menu-item" data-section="password">
+                    <div class="menu-item-content">
+                        <i class="bi bi-key"></i>
+                        <span>Cambiar contraseña</span>
+                    </div>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+                <div class="menu-item" data-section="payments">
+                    <div class="menu-item-content">
+                        <i class="bi bi-credit-card"></i>
+                        <span>Métodos de pago</span>
+                    </div>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span>Check-in alerts</span>
+                    </div>
+                    <div class="toggle-switch {{ 'active' if user.notif_checkin else '' }}" data-toggle="checkin"></div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Check-out alerts</span>
+                    </div>
+                    <div class="toggle-switch {{ 'active' if user.notif_checkout else '' }}" data-toggle="checkout"></div>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <!-- Sección de Perfil -->
+                <div class="card" id="profile-section">
+                    <div class="profile-header">
+                        <div class="avatar-container">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar }}" alt="Avatar" class="avatar">
+                            {% else %}
+                                <div class="avatar">{{ user.usuario[0].upper() }}</div>
+                            {% endif %}
+                            <button class="avatar-upload" onclick="document.getElementById('avatar-input').click()">
+                                <i class="bi bi-camera"></i>
+                            </button>
+                            <input type="file" id="avatar-input" style="display: none;" accept="image/*">
+                        </div>
+                        <div class="profile-info">
+                            <h2>{{ user.usuario }}</h2>
+                            <span class="profile-badge">🌟 Plan {{ user.plan_tipo or 'Básico' }}</span>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Información Personal</h3>
+                    <form method="POST" action="{{ url_for('perfil_usuario.editar_perfil') }}">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="username">Nombre de usuario</label>
+                                <input type="text" id="username" name="usuario" value="{{ user.usuario }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="correo" value="{{ user.correo or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Teléfono</label>
+                                <input type="tel" id="phone" name="telefono" value="{{ user.telefono or '' }}" placeholder="+57 300 123 4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Dirección</label>
+                                <input type="text" id="address" name="direccion" value="{{ user.direccion or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="plan">Plan</label>
+                                <select id="plan" name="plan_tipo">
+                                    <option value="Básico" {{ 'selected' if user.plan_tipo == 'Básico' else '' }}>Básico</option>
+                                    <option value="Oro" {{ 'selected' if user.plan_tipo == 'Oro' else '' }}>Oro</option>
+                                    <option value="Plata" {{ 'selected' if user.plan_tipo == 'Plata' else '' }}>Plata</option>
+                                    <option value="Premium" {{ 'selected' if user.plan_tipo == 'Premium' else '' }}>Premium</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="renewal">Membresía activa</label>
+                                <input type="checkbox" id="renewal" name="membresia_activa" {{ 'checked' if user.membresia_activa else '' }} style="width:20px;height:20px;cursor:pointer">
+                            </div>
+                            <div class="form-group">
+                                <label for="expires">Expira</label>
+                                <input type="date" id="expires" name="membresia_expira" value="{{ user.membresia_expira.strftime('%Y-%m-%d') if user.membresia_expira else '' }}">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Guardar cambios</button>
+                    </form>
+                </div>
+
+                <!-- Sección de Cambiar Contraseña -->
+                <div class="card hidden" id="password-section">
+                    <h3 class="section-title">Cambiar Contraseña</h3>
+                    <form method="POST" action="{{ url_for('perfil_usuario.cambiar_contrasena') }}">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="current-password">Contraseña actual</label>
+                                <input type="password" id="current-password" name="contrasena_actual" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">Nueva contraseña</label>
+                                <input type="password" id="new-password" name="nueva_contrasena" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">Confirmar nueva contraseña</label>
+                                <input type="password" id="confirm-password" name="confirmar_contrasena" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Actualizar contraseña</button>
+                    </form>
+                </div>
+
+                <!-- Sección de Métodos de Pago -->
+                <div class="card hidden" id="payments-section">
+                    <h3 class="section-title">Métodos de pago</h3>
+                    <p style="color:#6b7280;font-size:14px;margin-bottom:24px">Gestiona tus métodos de pago</p>
+                    <div class="payment-methods">
+                        <div class="payment-card">
+                            <i class="bi bi-credit-card" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
+                            <span>Tarjeta</span>
+                        </div>
+                        <div class="payment-card">
+                            <i class="bi bi-bank" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
+                            <span>PSE</span>
+                        </div>
+                        <div class="payment-card">
+                            <i class="bi bi-phone" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
+                            <span>Nequi</span>
+                        </div>
+                        <div class="payment-card add-payment">
+                            <i class="bi bi-plus" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
+                            <span>Agregar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de reservas siempre visible -->
+                <div class="card">
+                    <h3 class="section-title">Historial de reservas</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Habitación</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if reservas %}
+                                    {% for reserva in reservas %}
+                                    <tr>
+                                        <td>{{ reserva.id }}</td>
+                                        <td>Habitación {{ reserva.habitacion_id }}</td>
+                                        <td>{{ reserva.check_in.strftime('%d/%m/%Y') if reserva.check_in else '-' }}</td>
+                                        <td>{{ reserva.check_out.strftime('%d/%m/%Y') if reserva.check_out else '-' }}</td>
+                                        <td>{{ reserva.estado }}</td>
+                                        <td>${{ '{:,.0f}'.format(reserva.total or 0) }} COP</td>
+                                        <td>
+                                            {% if reserva.estado == 'Activa' %}
+                                                <a href="{{ url_for('pagos_usuario.checkout_reserva', reserva_id=reserva.id) }}" class="btn btn-sm btn-primary">Pagar</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="empty-state">
+                                                <i class="bi bi-clipboard" style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;"></i>
+                                                <p>Sin reservas</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Notificaciones siempre visible -->
+                <div class="card">
+                    <h3 class="section-title">Notificaciones</h3>
+                    <div class="notification-item">
+                        <div class="notification-content">
+                            <div class="notification-icon">
+                                <i class="bi bi-bell"></i>
+                            </div>
+                            <div class="notification-text">
+                                <h4>Recordatorios de reserva</h4>
+                                <p>Recibe notificaciones antes de tu check-in</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch {{ 'active' if user.notif_checkin else '' }}" data-toggle="checkin"></div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-content">
+                            <div class="notification-icon">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <div class="notification-text">
+                                <h4>Alertas de check-out</h4>
+                                <p>Recibe recordatorios el día de tu salida</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch {{ 'active' if user.notif_checkout else '' }}" data-toggle="checkout"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Gestión de pestañas
+        document.querySelectorAll('.menu-item[data-section]').forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.getAttribute('data-section');
+                
+                // Remover active de todos los menús
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Ocultar todas las secciones
+                document.querySelectorAll('[id$="-section"]').forEach(s => s.classList.add('hidden'));
+                
+                // Mostrar la sección seleccionada
+                const targetSection = document.getElementById(section + '-section');
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Gestión de toggles de notificaciones
+        document.querySelectorAll('.toggle-switch[data-toggle]').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const type = this.getAttribute('data-toggle');
+                const isActive = this.classList.contains('active');
+                
+                // Toggle visual
+                this.classList.toggle('active');
+                
+                // Enviar actualización al servidor
+                fetch(`{{ url_for('perfil_usuario.toggle_notificacion') }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: type,
+                        value: !isActive
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Notificación actualizada');
+                    }
+                })
+                .catch(error => {
+                    // Revertir el toggle si hay error
+                    this.classList.toggle('active');
+                    console.error('Error:', error);
+                });
+            });
+        });
+
+        // Gestión de formularios
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const passwordForm = this.querySelector('#current-password');
+                if (passwordForm) {
+                    const newPass = this.querySelector('#new-password').value;
+                    const confirmPass = this.querySelector('#confirm-password').value;
+                    
+                    if (newPass !== confirmPass) {
+                        e.preventDefault();
+                        alert('Las contraseñas no coinciden');
+                        return;
+                    }
+                }
+            });
+        });
+
+        // Gestión de avatar
+        document.getElementById('avatar-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('avatar', file);
+                
+                fetch(`{{ url_for('perfil_usuario.cambiar_avatar') }}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error al subir el avatar');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al subir el avatar');
+                });
+            }
+        });
+    </script>
+
+    <!-- Toast notifications -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 1060">
+                {% for category, message in messages %}
+                <div class="toast align-items-center text-bg-{{ 'danger' if category=='error' else 'success' if category=='success' else 'info' }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
+                    <div class="d-flex">
+                        <div class="toast-body">{{ message }}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        // Activar toasts
+        document.addEventListener('DOMContentLoaded', function() {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(toast => {
+                new bootstrap.Toast(toast).show();
+            });
+        });
+    </script>
+</body>
+</html>
           </div>
         </div>
 

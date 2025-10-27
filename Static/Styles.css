@@ -816,16 +816,45 @@ main { padding-top: 72px; }
 }
 
 /* =======================
-   ESTILOS MODAL RESTAURANTE
+   ESTILOS MODAL RESTAURANTE Y HABITACIONES
    ======================= */
+.modal {
+    z-index: 1060 !important;
+    pointer-events: auto !important;
+}
+
+.modal-backdrop {
+    z-index: 1055 !important;
+    pointer-events: auto !important;
+}
+
 .modal-dialog {
     max-width: fit-content; /* el modal se ajusta al contenido */
     margin: auto;           /* lo centra en la pantalla */
+    pointer-events: auto !important;
+    z-index: 1061 !important;
 }
+
+.modal-content {
+    pointer-events: auto !important;
+    z-index: 1062 !important;
+}
+
 .modal-body img {
     display: block;
     max-width: 100%;
     height: auto;
+}
+
+/* Asegurar que todos los elementos del modal sean interactivos */
+.modal * {
+    pointer-events: auto !important;
+}
+
+/* Botones dentro de modales */
+.modal .btn {
+    pointer-events: auto !important;
+    cursor: pointer !important;
 }
 
 /* stylos para que se levante las tarjetas del restaurante*/

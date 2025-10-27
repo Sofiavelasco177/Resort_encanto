@@ -213,3 +213,100 @@ def cambiar_password():
 
     return redirect(url_for('perfil_usuario.perfil'))
 
+# =====================
+# Nuevas rutas para el diseño moderno
+# =====================
+@perfil_usuario_bp.route('/perfil_usuario/cambiar_contrasena', methods=['POST'])
+def cambiar_contrasena():
+    user = _current_user()
+    if not user:
+        flash('Inicia sesión para continuar', 'warning')
+        return redirect(url_for('registro.login'))
+
+    actual = request.form.get('contrasena_actual') or ''
+    nueva = request.form.get('nueva_contrasena') or ''
+    confirm = request.form.get('confirmar_contrasena') or ''
+
+    if not actual or not nueva or not confirm:
+        flash('Completa todos los campos de contraseña', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    if nueva != confirm:
+        flash('La nueva contraseña y su confirmación no coinciden', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    if len(nueva) < 6:
+        flash('La nueva contraseña debe tener al menos 6 caracteres', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    # Validar contraseña actual (soporta casos legacy sin hash)
+    valid_actual = False
+    try:
+        valid_actual = check_password_hash(user.contrasena, actual)
+    except Exception:
+        # Si no es un hash válido, comparar en claro
+        valid_actual = (user.contrasena == actual)
+
+    if not valid_actual:
+        flash('La contraseña actual no es correcta', 'danger')
+        return redirect(url_for('perfil_usuario.perfil'))
+
+    try:
+        user.contrasena = generate_password_hash(nueva, method='pbkdf2:sha256')
+        db.session.commit()
+        flash('Contraseña actualizada correctamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error actualizando contraseña: {e}', 'danger')
+
+    return redirect(url_for('perfil_usuario.perfil'))
+
+@perfil_usuario_bp.route('/perfil_usuario/toggle_notificacion', methods=['POST'])
+def toggle_notificacion():
+    user = _current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'not_authenticated'}), 401
+
+    data = request.get_json(silent=True) or {}
+    notification_type = data.get('type')
+    value = data.get('value', False)
+
+    if notification_type == 'checkin':
+        user.notif_checkin = value
+    elif notification_type == 'checkout':
+        user.notif_checkout = value
+    else:
+        return jsonify({'success': False, 'error': 'invalid_type'}), 400
+
+    try:
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@perfil_usuario_bp.route('/perfil_usuario/cambiar_avatar', methods=['POST'])
+def cambiar_avatar():
+    user = _current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'not_authenticated'}), 401
+
+    avatar_file = request.files.get('avatar')
+    if not avatar_file or not avatar_file.filename:
+        return jsonify({'success': False, 'error': 'no_file'}), 400
+
+    try:
+        from uuid import uuid4
+        import time
+        filename = secure_filename(avatar_file.filename)
+        unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
+        dest = os.path.join(current_app.static_folder, 'img', 'avatars')
+        os.makedirs(dest, exist_ok=True)
+        avatar_file.save(os.path.join(dest, unique))
+        user.avatar = f"img/avatars/{unique}"
+        db.session.commit()
+        return jsonify({'success': True, 'avatar_url': url_for('static', filename=user.avatar)})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
