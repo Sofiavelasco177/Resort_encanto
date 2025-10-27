@@ -1,24 +1,15 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.usuario }} - Perfil</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
+{% extends 'usuario/base.html' %}
+
+{% block content %}
+
+<style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f8f9fa;
-            min-height: 100vh;
-            padding: 20px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
 
         .container {
             max-width: 1400px;
@@ -26,6 +17,7 @@
             display: grid;
             grid-template-columns: 280px 1fr;
             gap: 24px;
+            padding: 20px 12px;
         }
 
         .sidebar {
@@ -415,38 +407,6 @@
             color: #6b7280;
         }
 
-        /* Navbar personalizada */
-        .custom-navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e5e7eb;
-            padding: 1rem 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        .custom-navbar .navbar-brand {
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        .custom-navbar .nav-link {
-            color: #4b5563;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .custom-navbar .nav-link:hover {
-            color: #667eea;
-        }
-
-        .page-content {
-            margin-top: 100px;
-        }
-
         .hidden {
             display: none;
         }
@@ -483,29 +443,14 @@
             }
         }
     </style>
-</head>
-<body>
-    <!-- Navbar personalizada -->
-    <nav class="custom-navbar">
-        <div class="container-fluid px-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo" height="40" class="me-2 rounded">
-                    <span class="navbar-brand mb-0">Hotel Isla Encanto</span>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <a href="{{ url_for('main.home_usuario') }}" class="nav-link">Inicio</a>
-                    <a href="{{ url_for('main.hospedaje_usuario') }}" class="nav-link">Hospedaje</a>
-                    <a href="{{ url_for('main.restaurante_usuario') }}" class="nav-link">Restaurante</a>
-                    <a href="{{ url_for('main.experiencias_usuario') }}" class="nav-link">Experiencias</a>
-                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">Cerrar Sesión</a>
-                </div>
-            </div>
+<div class="container">
+        <!-- Botón Volver -->
+        <div class="mb-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
         </div>
-    </nav>
-
-    <div class="page-content">
-        <div class="container">
+        <div class="d-grid" style="grid-template-columns: 280px 1fr; gap:24px;">
             <aside class="sidebar">
                 <h3>Settings</h3>
                 <div class="menu-item active" data-section="profile">
@@ -551,7 +496,8 @@
                     <div class="profile-header">
                         <div class="avatar-container">
                             {% if user.avatar %}
-                                <img src="{{ user.avatar }}" alt="Avatar" class="avatar">
+                                {% set avatar_url = user.avatar if user.avatar.startswith('http') else url_for('static', filename=user.avatar) %}
+                                <img src="{{ avatar_url }}" alt="Avatar" class="avatar" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                             {% else %}
                                 <div class="avatar">{{ user.usuario[0].upper() }}</div>
                             {% endif %}
@@ -633,23 +579,85 @@
                 <div class="card hidden" id="payments-section">
                     <h3 class="section-title">Métodos de pago</h3>
                     <p style="color:#6b7280;font-size:14px;margin-bottom:24px">Gestiona tus métodos de pago</p>
-                    <div class="payment-methods">
-                        <div class="payment-card">
-                            <i class="bi bi-credit-card" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
-                            <span>Tarjeta</span>
+
+                    {% if metodos %}
+                    <div class="row g-3">
+                        {% for mp in metodos %}
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="p-3 border rounded-3 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong>{{ mp.marca or (mp.tipo|capitalize) }}</strong>
+                                    {% if mp.predeterminado %}
+                                        <span class="badge text-bg-primary">Predeterminado</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-muted small">**** {{ mp.ultimos4 or '----' }}</div>
+                                {% if mp.exp_mes and mp.exp_anio %}
+                                    <div class="text-muted small">Vence: {{ '%02d'|format(mp.exp_mes) }}/{{ mp.exp_anio }}</div>
+                                {% endif %}
+                                <div class="d-flex gap-2 mt-3">
+                                    {% if not mp.predeterminado %}
+                                    <form method="POST" action="{{ url_for('perfil_usuario.mp_predeterminado', mid=mp.id) }}">
+                                        <button class="btn btn-sm btn-outline-primary" type="submit">Predeterminar</button>
+                                    </form>
+                                    {% endif %}
+                                    <form method="POST" action="{{ url_for('perfil_usuario.mp_eliminar', mid=mp.id) }}" onsubmit="return confirm('¿Eliminar este método?');">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-                        <div class="payment-card">
-                            <i class="bi bi-bank" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
-                            <span>PSE</span>
-                        </div>
-                        <div class="payment-card">
-                            <i class="bi bi-phone" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
-                            <span>Nequi</span>
-                        </div>
-                        <div class="payment-card add-payment">
-                            <i class="bi bi-plus" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
-                            <span>Agregar</span>
-                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-credit-card" style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;"></i>
+                        <p>Aún no tienes métodos de pago</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Agregar nuevo método -->
+                    <div class="mt-4">
+                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#add-payment-form">
+                            <i class="bi bi-plus-lg"></i> Agregar método
+                        </button>
+                        <form class="collapse mt-3" id="add-payment-form" method="POST" action="{{ url_for('perfil_usuario.mp_nuevo') }}">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Marca</label>
+                                    <input name="marca" class="form-control" placeholder="Visa/MasterCard/Nequi/PSE" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Últimos 4</label>
+                                    <input name="ultimos4" class="form-control" maxlength="4" pattern="\\d{4}" placeholder="1234">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Tipo</label>
+                                    <select name="tipo" class="form-select" required>
+                                        <option value="tarjeta">Tarjeta</option>
+                                        <option value="pse">PSE</option>
+                                        <option value="nequi">Nequi</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Mes</label>
+                                    <input name="exp_mes" class="form-control" type="number" min="1" max="12" placeholder="MM">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Año</label>
+                                    <input name="exp_anio" class="form-control" type="number" placeholder="YYYY">
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="predeterminado" name="predeterminado">
+                                        <label class="form-check-label" for="predeterminado">Predeterminado</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-primary" type="submit">Guardar método</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -733,7 +741,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Gestión de pestañas
         document.querySelectorAll('.menu-item[data-section]').forEach(item => {
@@ -820,7 +827,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        location.reload();
+                        // Actualizar la imagen sin recargar
+                        const img = document.querySelector('.avatar-container img.avatar');
+                        if (img && data.avatar_url) {
+                            img.src = data.avatar_url + '?v=' + Date.now();
+                        } else {
+                            location.reload();
+                        }
                     } else {
                         alert('Error al subir el avatar');
                     }
@@ -833,30 +846,4 @@
         });
     </script>
 
-    <!-- Toast notifications -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="position-fixed top-0 end-0 p-3" style="z-index: 1060">
-                {% for category, message in messages %}
-                <div class="toast align-items-center text-bg-{{ 'danger' if category=='error' else 'success' if category=='success' else 'info' }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
-                    <div class="d-flex">
-                        <div class="toast-body">{{ message }}</div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <script>
-        // Activar toasts
-        document.addEventListener('DOMContentLoaded', function() {
-            const toasts = document.querySelectorAll('.toast');
-            toasts.forEach(toast => {
-                new bootstrap.Toast(toast).show();
-            });
-        });
-    </script>
-</body>
-</html>
+{% endblock %}

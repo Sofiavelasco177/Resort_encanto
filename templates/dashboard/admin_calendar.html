@@ -176,7 +176,7 @@
 let currentViewType = 'restaurant';
 let currentDate = new Date({{ current_year }}, {{ current_month - 1 }}, 1);
 let selectedDate = null;
-let reservationData = {{ reservation_data | tojsonfilter }};
+let reservationData = {{ reservation_data | tojson }};
 
 function setViewType(type) {
     currentViewType = type;

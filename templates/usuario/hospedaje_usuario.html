@@ -118,4 +118,72 @@
     }
 </style>
 
+<script>
+// Script único para manejar todos los modales de habitaciones de forma consistente
+document.addEventListener('DOMContentLoaded', function () {
+    const triggers = document.querySelectorAll('.modal-trigger-btn');
+    let lastTrigger = null;
+
+    triggers.forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = btn.getAttribute('data-bs-target');
+            if (!target) return;
+            const modalEl = document.querySelector(target);
+            if (!modalEl) return;
+
+            lastTrigger = btn;
+
+            // Instanciar (o reutilizar) el modal de Bootstrap
+            let instance = window.bootstrap && window.bootstrap.Modal.getInstance(modalEl);
+            if (!instance && window.bootstrap) {
+                instance = new window.bootstrap.Modal(modalEl, {
+                    backdrop: true,
+                    keyboard: true,
+                    focus: true
+                });
+            }
+
+            if (instance) {
+                instance.show();
+            } else {
+                // Fallback muy básico por si Bootstrap falla
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                document.body.appendChild(backdrop);
+                const close = () => {
+                    modalEl.classList.remove('show');
+                    modalEl.style.display = 'none';
+                    backdrop.remove();
+                };
+                modalEl.querySelectorAll('[data-bs-dismiss="modal"], .btn-close').forEach(x => x.addEventListener('click', close, { once: true }));
+                backdrop.addEventListener('click', close, { once: true });
+                document.addEventListener('keydown', function esc(ev){ if(ev.key==='Escape'){ close(); document.removeEventListener('keydown', esc); } }, { once: true });
+            }
+        });
+    });
+
+    // Ajustes de z-index y retorno de foco cuando se muestran/ocultan
+    document.addEventListener('shown.bs.modal', function (ev) {
+        const modal = ev.target;
+        modal.style.zIndex = '1060';
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.style.zIndex = '1055';
+
+        // Foco inicial
+        const firstInteractive = modal.querySelector('button, [href], input, select, textarea');
+        if (firstInteractive) setTimeout(() => firstInteractive.focus(), 10);
+    });
+
+    document.addEventListener('hidden.bs.modal', function () {
+        if (lastTrigger) {
+            try { lastTrigger.focus(); } catch (e) {}
+            lastTrigger = null;
+        }
+    });
+});
+</script>
+
 {% endblock %}
