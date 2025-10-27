@@ -36,27 +36,35 @@ def admin_historial():
                 'status': reserva.estado
             })
     
-    # Obtener reservas de hospedaje con relaciones
-    reservas_hospedaje = db.session.query(Reserva)\
+    # Obtener reservas de hospedaje de forma robusta (sin depender de relaciones ORM)
+    reservas_hospedaje = db.session.query(Reserva, Usuario, nuevaHabitacion)\
         .join(Usuario, Reserva.usuario_id == Usuario.idUsuario)\
         .join(nuevaHabitacion, Reserva.habitacion_id == nuevaHabitacion.id)\
         .all()
-    
+
     hotel_data = []
-    
-    for reserva in reservas_hospedaje:
+
+    for reserva, usuario, habitacion in reservas_hospedaje:
         # Obtener ticket asociado si existe
         ticket = TicketHospedaje.query.filter_by(reserva_id=reserva.id).first()
-        
+
+        # Calcular noches de estadía de forma segura
+        nights = 1
+        if reserva.check_in and reserva.check_out:
+            try:
+                nights = (reserva.check_out - reserva.check_in).days or 1
+            except Exception:
+                nights = 1
+
         hotel_data.append({
             'id': reserva.id,
-            'checkIn': reserva.check_in.strftime('%Y-%m-%d'),
+            'checkIn': reserva.check_in.strftime('%Y-%m-%d') if reserva.check_in else '',
             'checkOut': reserva.check_out.strftime('%Y-%m-%d') if reserva.check_out else '',
-            'room': reserva.habitacion.numero or reserva.habitacion.nombre,
-            'type': reserva.habitacion.plan or 'Standard',
-            'guest': ticket.nombre1 if ticket else reserva.usuario.usuario,
+            'room': (habitacion.numero or habitacion.nombre),
+            'type': habitacion.plan or 'Standard',
+            'guest': ticket.nombre1 if ticket else (usuario.usuario if usuario else 'Invitado'),
             'status': reserva.estado,
-            'nights': (reserva.check_out - reserva.check_in).days if reserva.check_out else 1
+            'nights': nights
         })
     
     # Preparar datos para el template
