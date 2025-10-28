@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
-from models.baseDatos import db, nuevaHabitacion, Huesped, Reserva, ReservaDatosHospedaje
+from models.baseDatos import db, nuevaHabitacion, Huesped, Reserva, ReservaDatosHospedaje, Usuario
 from datetime import datetime, date, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -125,7 +125,42 @@ def reservar_habitacion(habitacion_id):
     # Redirigir a checkout del proveedor configurado
         return redirect(url_for('pagos_usuario.checkout_reserva', reserva_id=reserva.id))
 
-    return render_template('usuario/reservas.html', habitacion=habitacion)
+    # Prefill de datos del huésped con información del usuario/log y último uso
+    prefill = {
+        'nombre': '', 'tipoDocumento': '', 'numeroDocumento': '',
+        'telefono': '', 'correo': '', 'procedencia': ''
+    }
+    try:
+        uid = session.get('user', {}).get('id')
+        if uid:
+            u = Usuario.query.get(uid)
+            if u:
+                prefill['nombre'] = u.usuario or prefill['nombre']
+                prefill['correo'] = u.correo or prefill['correo']
+                prefill['telefono'] = u.telefono or prefill['telefono']
+                # Mapear direccion -> procedencia si existe
+                prefill['procedencia'] = (u.direccion or '') or prefill['procedencia']
+
+            # Reutilizar últimos datos de reserva si existen (para documento, etc.)
+            ult = (
+                Reserva.query
+                .filter(Reserva.usuario_id == uid)
+                .order_by(Reserva.id.desc())
+                .first()
+            )
+            if ult:
+                datos_prev = ReservaDatosHospedaje.query.filter_by(reserva_id=ult.id).first()
+                if datos_prev:
+                    prefill['nombre'] = datos_prev.nombre1 or prefill['nombre']
+                    prefill['tipoDocumento'] = datos_prev.tipo_doc1 or prefill['tipoDocumento']
+                    prefill['numeroDocumento'] = datos_prev.num_doc1 or prefill['numeroDocumento']
+                    prefill['telefono'] = datos_prev.telefono1 or prefill['telefono']
+                    prefill['correo'] = datos_prev.correo1 or prefill['correo']
+                    prefill['procedencia'] = datos_prev.procedencia1 or prefill['procedencia']
+    except Exception:
+        pass
+
+    return render_template('usuario/reservas.html', habitacion=habitacion, prefill=prefill)
 
 
 def _habitacion_disponible(habitacion_id: int, check_in, check_out) -> bool:

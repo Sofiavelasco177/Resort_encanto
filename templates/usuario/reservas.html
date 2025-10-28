@@ -63,35 +63,40 @@
                         <hr class="my-4">
 
                         <div class="form-section-title mb-2">Datos del huésped</div>
+                        <div class="alert alert-info py-2 mb-3">
+                            Estos datos se cargan de tu perfil. Para cambiar algo, usa el botón <strong>Editar mis datos</strong>.
+                            <a href="{{ url_for('perfil_usuario.perfil', next=request.full_path) }}" class="btn btn-sm btn-primary ms-2">Editar mis datos</a>
+                        </div>
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label required">Nombre completo</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre y apellidos" required>
+                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre y apellidos" value="{{ prefill.nombre or '' }}" readonly required>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Tipo de documento</label>
-                                <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
-                                    <option value="" selected disabled>Selecciona una opción</option>
-                                    <option value="Cédula de ciudadanía">Cédula de ciudadanía</option>
-                                    <option value="Cédula de extranjería">Cédula de extranjería</option>
-                                    <option value="Pasaporte">Pasaporte</option>
+                                <select class="form-select" id="tipoDocumento" name="tipoDocumento_dummy" disabled required>
+                                    <option value="" {{ not prefill.tipoDocumento and 'selected' or '' }}>Defínelo en tu perfil</option>
+                                    <option value="Cédula de ciudadanía" {{ 'Cédula de ciudadanía' == (prefill.tipoDocumento or '') and 'selected' or '' }}>Cédula de ciudadanía</option>
+                                    <option value="Cédula de extranjería" {{ 'Cédula de extranjería' == (prefill.tipoDocumento or '') and 'selected' or '' }}>Cédula de extranjería</option>
+                                    <option value="Pasaporte" {{ 'Pasaporte' == (prefill.tipoDocumento or '') and 'selected' or '' }}>Pasaporte</option>
                                 </select>
+                                <input type="hidden" name="tipoDocumento" value="{{ prefill.tipoDocumento or '' }}">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Número de documento</label>
-                                <input type="text" inputmode="numeric" pattern="[0-9A-Za-z\-\.]+" class="form-control" id="numeroDocumento" name="numeroDocumento" placeholder="Ej. 1234567890" required>
+                                <input type="text" inputmode="numeric" pattern="[0-9A-Za-z\-\.]+" class="form-control" id="numeroDocumento" name="numeroDocumento" placeholder="Ej. 1234567890" value="{{ prefill.numeroDocumento or '' }}" readonly required>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Teléfono</label>
-                                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Celular o fijo" required>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Celular o fijo" value="{{ prefill.telefono or '' }}" readonly required>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">Correo electrónico</label>
-                                <input type="email" class="form-control" id="correo" name="correo" placeholder="tucorreo@ejemplo.com" required>
+                                <input type="email" class="form-control" id="correo" name="correo" placeholder="tucorreo@ejemplo.com" value="{{ prefill.correo or '' }}" readonly required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label required">Procedencia</label>
-                                <input type="text" class="form-control" id="procedencia" name="procedencia" placeholder="Ciudad / País" required>
+                                <input type="text" class="form-control" id="procedencia" name="procedencia" placeholder="Ciudad / País" value="{{ prefill.procedencia or '' }}" readonly required>
                             </div>
                         </div>
 
@@ -423,6 +428,36 @@
                 });
                 update();
             }
+            // Deshabilitar envío si faltan datos en solo-lectura
+            (function(){
+                const submitBtn = document.getElementById('btn-reservar');
+                function validateProfileFields(){
+                    const req = ['nombre','tipoDocumento','numeroDocumento','telefono','correo','procedencia'];
+                    let ok = true;
+                    for(const id of req){
+                        const el = document.getElementById(id);
+                        const val = el ? (el.value||'').trim() : '';
+                        if(!val) { ok = false; break; }
+                    }
+                    submitBtn.disabled = !ok;
+                    const text = document.getElementById('btn-reservar-text');
+                    if(text){
+                        text.textContent = ok ? text.textContent : 'Completa tus datos en Perfil para continuar';
+                    }
+                    const warnId = 'profile-missing-warn';
+                    let warn = document.getElementById(warnId);
+                    if(!ok){
+                        if(!warn){
+                            warn = document.createElement('div');
+                            warn.className = 'alert alert-warning mt-3';
+                            warn.id = warnId;
+                            warn.innerHTML = 'Faltan datos del huésped. Ve a <a href="{{ url_for('perfil_usuario.perfil', next=request.full_path) }}" class="alert-link">Editar mis datos</a> y vuelve a esta página.';
+                            submitBtn.closest('.d-grid').prepend(warn);
+                        }
+                    } else if (warn){ warn.remove(); }
+                }
+                validateProfileFields();
+            })();
         })();
 
         // Función para copiar datos del acompañante al huésped principal

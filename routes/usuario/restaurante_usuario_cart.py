@@ -38,7 +38,20 @@ def view_cart():
     categorias_final = cat_presentes + extra
     # Evitar conflicto Jinja con cart.items (método). Pasar lista explícita.
     cart_items = cart.get('items', [])
-    return render_template('usuario/restaurante_cart.html', cart=cart, cart_items=cart_items, grupos=grupos, categorias=categorias_final)
+
+    # Prefill datos de usuario para formulario de confirmación
+    user_prefill = {'nombre': '', 'telefono': ''}
+    try:
+        uid = session.get('user', {}).get('id') or session.get('user', {}).get('idUsuario')
+        if uid:
+            u = Usuario.query.get(uid)
+            if u:
+                user_prefill['nombre'] = u.usuario or ''
+                user_prefill['telefono'] = u.telefono or ''
+    except Exception:
+        pass
+
+    return render_template('usuario/restaurante_cart.html', cart=cart, cart_items=cart_items, grupos=grupos, categorias=categorias_final, user_prefill=user_prefill)
 
 
 @restaurante_cart_bp.route('/restaurante/cart/add', methods=['POST'])

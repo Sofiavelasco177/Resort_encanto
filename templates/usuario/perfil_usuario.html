@@ -67,6 +67,7 @@
 
                     <h3 class="section-title">Información Personal</h3>
                     <form method="POST" action="{{ url_for('perfil_usuario.editar_perfil') }}">
+                        <input type="hidden" name="next" value="{{ request.args.get('next') or '' }}">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="username">Nombre de usuario</label>

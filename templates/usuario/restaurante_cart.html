@@ -60,19 +60,23 @@
     <div class="col-lg-5">
       <div class="card p-3">
         <h5 class="mb-3">Confirmar Reserva</h5>
+        <div class="alert alert-info py-2">
+          Tus datos vienen de tu perfil.
+          <a href="{{ url_for('perfil_usuario.perfil', next=request.full_path) }}" class="btn btn-sm btn-primary ms-2">Editar mis datos</a>
+        </div>
         <div class="d-flex justify-content-between">
           <div>Total</div>
           <div class="fw-bold">${{ '{:,.0f}'.format(cart.total or 0) }} COP</div>
         </div>
         <hr />
-        <form method="post" action="{{ url_for('restaurante_cart.reservar_restaurante') }}">
+        <form method="post" action="{{ url_for('restaurante_cart.reservar_restaurante') }}" onsubmit="return window.__checkRestData && window.__checkRestData()">
           <div class="mb-2">
             <label class="form-label">Nombre</label>
-            <input type="text" name="nombre" class="form-control" placeholder="Tu nombre" />
+            <input id="rest-nombre" type="text" name="nombre" class="form-control" placeholder="Tu nombre" value="{{ (user_prefill.nombre or '') if user_prefill is defined else '' }}" readonly />
           </div>
           <div class="mb-2">
             <label class="form-label">Teléfono</label>
-            <input type="text" name="telefono" class="form-control" placeholder="Tu teléfono" />
+            <input id="rest-telefono" type="text" name="telefono" class="form-control" placeholder="Tu teléfono" value="{{ (user_prefill.telefono or '') if user_prefill is defined else '' }}" readonly />
           </div>
           <div class="mb-3">
             <label class="form-label">Cupo de personas</label>
@@ -81,6 +85,17 @@
           <button type="submit" class="btn btn-success w-100">Generar ticket PDF</button>
           <div class="form-text mt-2">Pagas en el lugar al presentar el ticket.</div>
         </form>
+        <script>
+          window.__checkRestData = function(){
+            var n = (document.getElementById('rest-nombre')?.value||'').trim();
+            var t = (document.getElementById('rest-telefono')?.value||'').trim();
+            if(!n || !t){
+              alert('Completa tus datos en tu Perfil antes de generar el ticket.');
+              return false;
+            }
+            return true;
+          };
+        </script>
       </div>
     </div>
   </div>

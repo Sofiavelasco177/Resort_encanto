@@ -12,6 +12,16 @@ def _current_user():
     uid = session.get('user', {}).get('id')
     return Usuario.query.get(uid) if uid else None
 
+# Helper para validar redirecciones internas seguras
+def _is_safe_next(target: str) -> bool:
+    try:
+        if not target:
+            return False
+        # Solo permitir rutas relativas internas
+        return target.startswith('/') and not target.startswith('//')
+    except Exception:
+        return False
+
 # Vista principal de perfil
 @perfil_usuario_bp.route("/perfil_usuario")
 def perfil():
@@ -77,6 +87,13 @@ def editar_perfil():
     except Exception as e:
         db.session.rollback()
         flash(f'Error: {e}', 'danger')
+    # Redirigir de vuelta si se proporcionó un "next" seguro
+    next_url = request.args.get('next') or request.form.get('next')
+    if _is_safe_next(next_url):
+        # Evitar dobles '?' al final (p.ej. full_path puede terminar en '?')
+        if next_url.endswith('?'):
+            next_url = next_url[:-1]
+        return redirect(next_url)
     return redirect(url_for('perfil_usuario.perfil'))
 
 # Métodos de pago CRUD
