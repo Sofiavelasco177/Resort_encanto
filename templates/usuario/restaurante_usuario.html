@@ -10,11 +10,19 @@
     </div>
 
     {% if categorias and grupos %}
-    <!-- Tabs de categorías -->
-    <div class="tabs">
-      {% for c in categorias %}
-        <button class="tab {% if loop.first %}active{% endif %}" onclick="showCategory('cat-{{ c|replace(' ','-')|lower }}', event)">{{ c }}</button>
-      {% endfor %}
+    <!-- Tabs de categorías + Ver carrito -->
+    <div class="tabs-row">
+      <div class="tabs">
+        {% for c in categorias %}
+          <button class="tab {% if loop.first %}active{% endif %}" onclick="showCategory('cat-{{ c|replace(' ','-')|lower }}', event)">{{ c }}</button>
+        {% endfor %}
+      </div>
+      <div class="tabs-actions">
+        <a href="{{ url_for('restaurante_cart.view_cart') }}" class="btn btn-outline-primary btn-pill">
+          <i class="bi bi-cart3 me-1"></i>
+          Ver carrito
+        </a>
+      </div>
     </div>
 
     {% for c in categorias %}
@@ -69,11 +77,7 @@
       {% endif %}
     {% endfor %}
 
-    <div class="cart-cta">
-      <a href="{{ url_for('restaurante_cart.view_cart') }}" class="btn">
-        <i class="bi bi-cart3 me-2"></i>Ver carrito
-      </a>
-    </div>
+    {# Botón movido arriba junto a las pestañas #}
 
     {% else %}
       <div class="empty-state">

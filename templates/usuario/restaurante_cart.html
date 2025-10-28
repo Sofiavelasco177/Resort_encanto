@@ -58,7 +58,7 @@
     </div>
 
     <div class="col-lg-5">
-      <div class="card p-3">
+      <div class="card p-3 cart-aside">
         <h5 class="mb-3">Confirmar Reserva</h5>
         <div class="alert alert-info py-2">
           Tus datos vienen de tu perfil.
@@ -66,7 +66,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <div>Total</div>
-          <div class="fw-bold">${{ '{:,.0f}'.format(cart.total or 0) }} COP</div>
+          <div class="fw-bold text-primary fs-4">${{ '{:,.0f}'.format(cart.total or 0) }} COP</div>
         </div>
         <hr />
         <form method="post" action="{{ url_for('restaurante_cart.reservar_restaurante') }}" onsubmit="return window.__checkRestData && window.__checkRestData()">
@@ -82,7 +82,7 @@
             <label class="form-label">Cupo de personas</label>
             <input type="number" min="1" name="cupo" class="form-control" value="{{ cart.people }}" />
           </div>
-          <button type="submit" class="btn btn-success w-100">Generar ticket PDF</button>
+          <button type="submit" class="btn btn-success w-100 py-2">Generar ticket PDF</button>
           <div class="form-text mt-2">Pagas en el lugar al presentar el ticket.</div>
         </form>
         <script>

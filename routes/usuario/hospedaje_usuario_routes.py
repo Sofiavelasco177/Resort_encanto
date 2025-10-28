@@ -151,12 +151,19 @@ def reservar_habitacion(habitacion_id):
             if ult:
                 datos_prev = ReservaDatosHospedaje.query.filter_by(reserva_id=ult.id).first()
                 if datos_prev:
-                    prefill['nombre'] = datos_prev.nombre1 or prefill['nombre']
-                    prefill['tipoDocumento'] = datos_prev.tipo_doc1 or prefill['tipoDocumento']
-                    prefill['numeroDocumento'] = datos_prev.num_doc1 or prefill['numeroDocumento']
-                    prefill['telefono'] = datos_prev.telefono1 or prefill['telefono']
-                    prefill['correo'] = datos_prev.correo1 or prefill['correo']
-                    prefill['procedencia'] = datos_prev.procedencia1 or prefill['procedencia']
+                    # Solo completar lo que falte, para no pisar datos recién actualizados del perfil
+                    if not prefill['tipoDocumento']:
+                        prefill['tipoDocumento'] = datos_prev.tipo_doc1 or prefill['tipoDocumento']
+                    if not prefill['numeroDocumento']:
+                        prefill['numeroDocumento'] = datos_prev.num_doc1 or prefill['numeroDocumento']
+                    if not prefill['nombre']:
+                        prefill['nombre'] = datos_prev.nombre1 or prefill['nombre']
+                    if not prefill['telefono']:
+                        prefill['telefono'] = datos_prev.telefono1 or prefill['telefono']
+                    if not prefill['correo']:
+                        prefill['correo'] = datos_prev.correo1 or prefill['correo']
+                    if not prefill['procedencia']:
+                        prefill['procedencia'] = datos_prev.procedencia1 or prefill['procedencia']
     except Exception:
         pass
 

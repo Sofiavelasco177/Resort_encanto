@@ -1768,7 +1768,7 @@ body > nav, body > main, body > footer{ position: relative; z-index: auto; }
 .category.active { display: block; animation: fadeInUp 0.6s ease; }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px);} to { opacity: 1; transform: translateY(0);} }
 .cat-title { color: #2c3e50; font-size: 1.8rem; margin: 0 0 30px; padding-bottom: 15px; border-bottom: 3px solid #4f7fff; font-weight: 800; position: relative; }
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-bottom: 30px; }
+.menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 30px; }
 .menu-item { background: #fff; border-radius: 20px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 1px solid #f1f3f5; position: relative; overflow: hidden; }
 .menu-item::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #4f7fff, #7b68ee); transform: scaleX(0); transition: transform 0.3s ease; }
 .menu-item:hover::before { transform: scaleX(1); }
@@ -1801,6 +1801,42 @@ body > nav, body > main, body > footer{ position: relative; z-index: auto; }
     .tabs { gap: 8px; }
     .tab { padding: 10px 18px; font-size: 14px; }
 }
+
+/* Tabs row with actions (Ver carrito) */
+.tabs-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom: 30px; }
+.tabs{ flex:1 1 auto; display:flex; gap:12px; flex-wrap:wrap; }
+.tabs-actions{ flex:0 0 auto; }
+.btn-pill{ border-radius: 999px; padding: 10px 16px; font-weight: 700; }
+
+/* Ensure only two columns even on very wide screens */
+@media (min-width: 1400px){
+    .menu-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Improve Back button visibility in light navbar */
+.navbar .btn.btn-outline-light{ color:#0d6efd !important; border-color:#cfe2ff !important; background: #ffffff !important; box-shadow: 0 2px 8px rgba(13,110,253,0.12); }
+.navbar .btn.btn-outline-light:hover{ color:#ffffff !important; background:#0d6efd !important; border-color:#0d6efd !important; }
+
+/* Add breathing room above profile pages */
+.perfil-usuario{ padding-top: 24px; }
+
+/* ========= Checkout payment page ========= */
+.checkout-page{ max-width: 1000px; }
+.checkout-header .title{ font-weight: 800; margin: 0; }
+.checkout-header .chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.checkout-header .chip{ background:#eef2ff; color:#1d4ed8; border:1px solid #c7d2fe; padding:6px 10px; border-radius:999px; font-weight:600; font-size:.9rem; }
+.checkout-card{ background:#fff; border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.08); padding:20px; border:1px solid #eef2ff; }
+.checkout-card .summary .label{ color:#6b7280; font-size:.9rem; }
+.checkout-card .summary .value{ font-size:1.25rem; font-weight:700; color:#111827; }
+.checkout-card .gateway-note{ color:#6b7280; font-size:.9rem; margin-top:6px; }
+.checkout-card .total-label{ color:#6b7280; font-size:.95rem; }
+.checkout-card .total-amount{ font-size:2rem; font-weight:800; color:#2563eb; }
+.pay-method{ display:flex; align-items:center; gap:12px; padding:14px; background:#e7f1ff; border:1px solid #cfe2ff; border-radius:12px; }
+.pay-method .icon{ width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#2563eb; color:#fff; font-size:1.2rem; }
+.pay-method .name{ font-weight:700; }
+.pay-method .desc{ color:#6b7280; font-size:.9rem; }
+.pay-actions{ display:flex; gap:12px; justify-content:flex-end; margin-top:14px; }
+.sandbox-note{ margin-top:8px; color:#0c5460; background:#d1ecf1; border:1px solid #bee5eb; padding:8px 12px; border-radius:10px; }
 .empty-state { text-align: center; padding: 60px 20px; color: #6c757d; }
 .empty-state i { font-size: 4rem; margin-bottom: 20px; opacity: 0.5; }
 
