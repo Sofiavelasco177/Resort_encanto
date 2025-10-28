@@ -31,6 +31,12 @@
     .section{background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
     .chart-title{font-weight:700;margin-bottom:12px}
     .table-metrics th,.table-metrics td{vertical-align:middle}
+    /* Tamaño compacto pero responsive para todas las gráficas */
+  .chart-fixed{width:min(100%, 360px);aspect-ratio:16/10;position:relative;margin:0 auto}
+  .chart-fixed-sm{width:min(100%, 220px);aspect-ratio:1/1;position:relative;margin:0 auto}
+    .chart-fixed canvas,.chart-fixed-sm canvas{width:100% !important;height:100% !important}
+    /* Centrar contenido auxiliar junto a pie */
+    .chart-row-center{align-items:center}
   </style>
 
   <!-- KPIs -->
@@ -68,15 +74,19 @@
   <!-- Ganancias Mensuales (Bar) -->
   <div class="section mb-3">
     <div class="chart-title">Ganancias Mensuales</div>
-    <canvas id="chartIncome" height="110"></canvas>
+    <div class="chart-fixed">
+      <canvas id="chartIncome"></canvas>
+    </div>
   </div>
 
   <!-- Distribución de Ingresos (Pie) -->
   <div class="section mb-3">
     <div class="chart-title">Distribución de Ingresos</div>
-    <div class="row align-items-center">
-      <div class="col-md-5">
-        <canvas id="chartPie" height="140"></canvas>
+    <div class="row chart-row-center">
+      <div class="col-md-5 d-flex justify-content-center">
+        <div class="chart-fixed-sm">
+          <canvas id="chartPie"></canvas>
+        </div>
       </div>
       <div class="col-md-7">
         <ul class="list-unstyled mb-0">
@@ -93,7 +103,9 @@
   <!-- Flujo de Clientes y Reservas (Line) -->
   <div class="section mb-3">
     <div class="chart-title">Flujo de Clientes y Reservas</div>
-    <canvas id="chartFlow" height="110"></canvas>
+    <div class="chart-fixed">
+      <canvas id="chartFlow"></canvas>
+    </div>
   </div>
 
   <!-- Tabla mensual detallada -->
@@ -129,6 +141,19 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+// Preferir un DPR bajo y sin animaciones para evitar lag
+if (window.Chart && Chart.defaults) {
+  Chart.defaults.animation = false;
+  Chart.defaults.responsive = true;
+  Chart.defaults.font = Chart.defaults.font || {};
+  Chart.defaults.font.size = 11; // tipografía más pequeña
+  Chart.defaults.plugins = Chart.defaults.plugins || {};
+  Chart.defaults.plugins.legend = Chart.defaults.plugins.legend || {};
+  Chart.defaults.plugins.legend.labels = Chart.defaults.plugins.legend.labels || {};
+  Chart.defaults.plugins.legend.labels.boxWidth = 10;
+  Chart.defaults.plugins.legend.labels.font = { size: 11 };
+}
+
 const monthLabels = {{ month_labels|tojson }};
 const hotelIncome = {{ hotel_income|tojson }};
 const restIncome = {{ rest_income|tojson }};
@@ -149,7 +174,12 @@ new Chart(document.getElementById('chartIncome'), {
   options: {
     responsive: true,
     maintainAspectRatio: false,
-    scales: { y: { beginAtZero: true } }
+    animation: false,
+    scales: {
+      y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+      x: { ticks: { font: { size: 10 } } }
+    },
+    plugins: { legend: { position: 'bottom' } }
   }
 });
 
@@ -163,7 +193,7 @@ new Chart(document.getElementById('chartPie'), {
       backgroundColor: ['#3b82f6','#10b981'{% if dist_extras %},'#f59e0b'{% endif %}]
     }]
   },
-  options: { responsive: true, maintainAspectRatio: false }
+  options: { responsive: true, maintainAspectRatio: false, animation: false }
 });
 
 // Línea: Flujo de Clientes y Reservas
@@ -172,15 +202,19 @@ new Chart(document.getElementById('chartFlow'), {
   data: {
     labels: monthLabels,
     datasets: [
-      { label: 'Total Clientes', data: clients, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.15)', tension:.35, fill:true },
-      { label: 'Reservas Hospedaje', data: hotelRes, borderColor:'#9333ea', backgroundColor:'rgba(147,51,234,.15)', tension:.35, fill:false },
-      { label: 'Reservas Restaurante', data: restRes, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.15)', tension:.35, fill:false }
+      { label: 'Total Clientes', data: clients, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.15)', tension:.35, fill:true, pointRadius:2, pointHoverRadius:3 },
+      { label: 'Reservas Hospedaje', data: hotelRes, borderColor:'#9333ea', backgroundColor:'rgba(147,51,234,.15)', tension:.35, fill:false, pointRadius:2, pointHoverRadius:3 },
+      { label: 'Reservas Restaurante', data: restRes, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.15)', tension:.35, fill:false, pointRadius:2, pointHoverRadius:3 }
     ]
   },
   options: {
     responsive: true,
     maintainAspectRatio: false,
-    scales: { y: { beginAtZero: true } },
+    animation: false,
+    scales: {
+      y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+      x: { ticks: { font: { size: 10 } } }
+    },
     plugins: { legend: { position: 'bottom' } }
   }
 });

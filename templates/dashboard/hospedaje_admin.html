@@ -35,6 +35,13 @@
 	.card-actions{display:flex;gap:8px;justify-content:center;margin-top:10px}
 	.card-actions .btn{border-radius:10px}
 	.hidden{display:none !important}
+
+	/* Mini calendario anual dentro del modal */
+	.calendar-month{margin-bottom:10px}
+	.calendar-month .mon-title{font-weight:600;font-size:.9rem;margin-bottom:6px}
+	.calendar-grid{display:grid;grid-template-columns:repeat(14, 12px);gap:2px;align-items:center}
+	.cal-cell{width:12px;height:12px;border-radius:2px;border:1px solid #e5e7eb}
+	.cal-legend{font-size:.85rem;margin-top:6px}
 	</style>
 
 	<!-- Formulario: Agregar Nueva Habitación (arriba) -->
@@ -204,6 +211,115 @@
 	  btns.forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
 	  try { setView(localStorage.getItem('adminRoomsView') || 'cards'); } catch(e){ setView('cards'); }
 	});
+
+	// Renderizador ligero para el calendario en los modales
+	(function(){
+	  function renderCalendar(modal, payload){
+	    const body = modal.querySelector('.calendar-body');
+	    if(!body || !payload || !Array.isArray(payload.days)) return;
+	    body.innerHTML = '';
+	    const byMonth = Array.from({length:12},()=>[]);
+	    payload.days.forEach(d=>{
+	      const m = new Date(d.date).getMonth();
+	      byMonth[m].push(d);
+	    });
+	    const monthNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+	    byMonth.forEach((days, idx)=>{
+	      const wrap = document.createElement('div');
+	      wrap.className = 'calendar-month';
+	      const title = document.createElement('div');
+	      title.className = 'mon-title';
+	      title.textContent = monthNames[idx];
+	      const grid = document.createElement('div');
+	      grid.className = 'calendar-grid';
+	      // encabezado simple con números de semana (cada 7 días)
+	      const weeks = Math.ceil(days.length/7);
+	      for(let i=0;i<weeks;i++){
+	        const w = document.createElement('div');
+	        w.style.width = '12px';
+	        w.style.height = '12px';
+	        w.style.fontSize = '10px';
+	        w.style.color = '#9ca3af';
+	        w.style.textAlign = 'center';
+	        w.textContent = String(i+1);
+	        grid.appendChild(w);
+	        // separador de columna
+	        const sep = document.createElement('div');
+	        sep.style.width = '2px';
+	        sep.style.height = '12px';
+	        sep.style.background = 'transparent';
+	        grid.appendChild(sep);
+	        // 7 días de la semana i
+	        for(let d=0; d<7; d++){
+	          const idxDay = i*7 + d;
+	          const cell = document.createElement('div');
+	          cell.className = 'cal-cell';
+	          const day = days[idxDay];
+	          if(day){
+	            if(day.status==='ocupada') cell.classList.add('bg-occupied');
+	            else if(day.status==='mantenimiento') cell.classList.add('bg-maintenance');
+	            else cell.classList.add('bg-available');
+	          }
+	          grid.appendChild(cell);
+	        }
+	      }
+	      wrap.appendChild(title);
+	      wrap.appendChild(grid);
+	      body.appendChild(wrap);
+	    });
+	  }
+
+	  // Cargar datos al abrir modal si no se han cargado
+	  document.addEventListener('shown.bs.modal', async function(ev){
+	    const modal = ev.target;
+	    if(!modal.classList.contains('hab-calendar-modal')) return;
+	    const container = modal.querySelector('.calendar-body');
+	    if(!container) return;
+	    // Evitar recarga si ya existe contenido
+	    if(container.getAttribute('data-loaded')==='1') return;
+	    const url = modal.getAttribute('data-url');
+	    const year = modal.getAttribute('data-year');
+	    if(!url) return;
+	    try{
+	      const res = await fetch(url + (url.includes('?')?'&':'?') + 'year=' + encodeURIComponent(year||''));
+	      const data = await res.json();
+	      if(data && data.ok){
+	        renderCalendar(modal, data);
+	        container.setAttribute('data-loaded','1');
+	        const yearEl = modal.querySelector('.calendar-year');
+	        if(yearEl) yearEl.textContent = data.year;
+	      } else {
+	        container.innerHTML = '<div class="text-muted">No se pudo cargar el calendario.</div>';
+	      }
+	    }catch(err){
+	      container.innerHTML = '<div class="text-muted">Error cargando calendario.</div>';
+	    }
+	  });
+
+	  // Controles de año
+	  document.addEventListener('click', async function(ev){
+	    const btnPrev = ev.target.closest('.cal-prev');
+	    const btnNext = ev.target.closest('.cal-next');
+	    if(!btnPrev && !btnNext) return;
+	    const modal = ev.target.closest('.modal');
+	    if(!modal) return;
+	    const container = modal.querySelector('.calendar-body');
+	    const urlBase = modal.getAttribute('data-url');
+	    const yearEl = modal.querySelector('.calendar-year');
+	    let year = parseInt(yearEl && yearEl.textContent || modal.getAttribute('data-year')) || new Date().getFullYear();
+	    year += btnNext ? 1 : -1;
+	    try{
+	      const res = await fetch(urlBase + (urlBase.includes('?')?'&':'?') + 'year=' + year);
+
+	      const data = await res.json();
+	      if(data && data.ok){
+	        container.removeAttribute('data-loaded');
+	        renderCalendar(modal, data);
+	        if(yearEl) yearEl.textContent = data.year;
+	      }
+	    }catch(e){ /* noop */ }
+	  });
+	})();
 	</script>
 
 	<!-- Modales renderizados fuera del grid (usar misma agrupación) -->
