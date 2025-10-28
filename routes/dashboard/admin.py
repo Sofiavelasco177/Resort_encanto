@@ -60,18 +60,10 @@ def hospedaje_actualizar(habitacion_id):
         habitacion.precio = float(request.form["precio"])
         habitacion.cupo_personas = int(request.form.get("cupo_personas", 1))
         habitacion.estado = request.form.get("estado", "Disponible")
-        imagen_file = request.files.get("imagen")
-        if imagen_file and imagen_file.filename:
-            import os, time
-            from uuid import uuid4
-            from werkzeug.utils import secure_filename
-            filename = secure_filename(imagen_file.filename)
-            unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
-            img_folder = os.path.join(current_app.static_folder, "img", "uploads")
-            os.makedirs(img_folder, exist_ok=True)
-            save_path = os.path.join(img_folder, unique)
-            imagen_file.save(save_path)
-            habitacion.imagen = f"img/uploads/{unique}"
+        # Guardado unificado de imágenes en instance/uploads
+        imagen_path = _save_uploaded_image('imagen')
+        if imagen_path:
+            habitacion.imagen = imagen_path
         db.session.commit()
         flash("✅ Habitación actualizada correctamente", "success")
     except Exception as e:
@@ -872,19 +864,8 @@ def hospedaje_nueva():
         except Exception:
             numero = None
         caracteristicas = request.form.get("caracteristicas") or None
-        imagen_file = request.files.get("imagen")
-        imagen_path = None
-        if imagen_file and imagen_file.filename:
-            import os, time
-            from uuid import uuid4
-            from werkzeug.utils import secure_filename
-            filename = secure_filename(imagen_file.filename)
-            unique = f"{int(time.time())}_{uuid4().hex[:8]}_{filename}"
-            img_folder = os.path.join(current_app.static_folder, "img", "uploads")
-            os.makedirs(img_folder, exist_ok=True)
-            save_path = os.path.join(img_folder, unique)
-            imagen_file.save(save_path)
-            imagen_path = f"img/uploads/{unique}"
+        # Guardar imagen usando helper unificado (instance/uploads)
+        imagen_path = _save_uploaded_image('imagen')
 
         habitacion = nuevaHabitacion(
             nombre=nombre,

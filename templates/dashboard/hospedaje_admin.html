@@ -223,8 +223,11 @@
 						{% if model_url %}
 						<model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar style="width:100%;height:320px;background:#f8fafc;border-bottom:1px solid #eef2f7" class="mb-3"></model-viewer>
 						{% else %}
-						{% set imgpath2 = h.imagen if h.imagen else 'img/default.jpg' %}
-						<img src="{{ url_for('static', filename=imgpath2) }}" class="img-fluid mb-3" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+						{% if h.imagen %}
+						<img src="{{ media_url(h.imagen) }}" class="img-fluid mb-3" alt="{{ h.nombre }}" onerror="this.style.display='none'">
+						{% else %}
+						<img src="{{ url_for('static', filename='img/default.jpg') }}" class="img-fluid mb-3" alt="{{ h.nombre }}">
+						{% endif %}
 						{% endif %}
 						<p><strong>Plan:</strong> {{ h.plan or '—' }}</p>
 						<p><strong>Número:</strong> {{ h.numero or '—' }}</p>

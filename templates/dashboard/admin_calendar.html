@@ -4,92 +4,60 @@
 <!-- Agregar Font Awesome para iconos -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<div class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4 md:p-6">
-    <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                📅 Calendario de Gestión
-            </h1>
-            <p class="text-gray-600">Sistema integral de reservas y hospedajes</p>
-        </div>
+<div class="container my-3">
+    <!-- Header -->
+    <div class="mb-3">
+        <h1 class="h3 mb-1">📅 Calendario de Gestión</h1>
+        <p class="text-muted">Sistema integral de reservas y hospedajes</p>
+    </div>
 
-        <!-- Controles -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-            <div class="flex flex-wrap gap-3 items-center justify-between">
-                <div class="flex gap-2">
-                    <button
-                        id="btn-restaurant"
-                        onclick="setViewType('restaurant')"
-                        class="px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 bg-orange-600 text-white shadow-lg"
-                    >
-                        <i class="fas fa-utensils"></i>
-                        Restaurante
-                    </button>
-                    <button
-                        id="btn-hotel"
-                        onclick="setViewType('hotel')"
-                        class="px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    >
-                        <i class="fas fa-bed"></i>
-                        Hotel
-                    </button>
-                </div>
-                
-                <button
-                    onclick="showHistory()"
-                    class="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition flex items-center gap-2 shadow-lg"
-                >
-                    <i class="fas fa-history"></i>
-                    Ver Historial
+    <!-- Controles -->
+    <div class="p-3 bg-white rounded-3 shadow-sm mb-3">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="btn-group" role="group" aria-label="Tipo de vista">
+                <button id="btn-restaurant" type="button" class="btn btn-warning text-white" onclick="setViewType('restaurant')">
+                    <i class="fas fa-utensils me-1"></i> Restaurante
+                </button>
+                <button id="btn-hotel" type="button" class="btn btn-outline-secondary" onclick="setViewType('hotel')">
+                    <i class="fas fa-bed me-1"></i> Hotel
                 </button>
             </div>
+            <button type="button" class="btn btn-primary" onclick="showHistory()">
+                <i class="fas fa-history me-1"></i> Ver Historial
+            </button>
         </div>
+    </div>
 
-        <!-- Grid Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2">
-                <div id="calendar-container" class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <!-- El calendario se carga aquí -->
-                </div>
-            </div>
-            <div>
-                <div id="day-detail-container">
-                    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
-                        <i class="fas fa-calendar text-gray-400 text-6xl mb-4"></i>
-                        <h3 class="text-xl font-bold text-gray-700 mb-2">
-                            Selecciona un día
-                        </h3>
-                        <p class="text-gray-500">
-                            Haz clic en cualquier día del calendario para ver los detalles
-                        </p>
-                    </div>
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div id="calendar-container" class="bg-white rounded-3 shadow-sm overflow-hidden"></div>
+        </div>
+        <div class="col-lg-4">
+            <div id="day-detail-container">
+                <div class="bg-white rounded-3 shadow-sm p-4 text-center">
+                    <i class="fas fa-calendar text-muted" style="font-size:54px"></i>
+                    <h3 class="h5 mt-2 mb-1">Selecciona un día</h3>
+                    <p class="text-muted mb-0">Haz clic en cualquier día del calendario para ver los detalles</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal de Historial -->
-        <div id="history-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6">
-                    <div class="flex justify-between items-center">
+    <!-- Modal de Historial -->
+    <div id="history-modal" class="d-none position-fixed top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.5); z-index:1055;">
+        <div class="d-flex align-items-center justify-content-center h-100 p-3">
+            <div class="bg-white rounded-3 shadow-lg" style="max-width:980px; width:100%; max-height:90vh; overflow:hidden; display:flex; flex-direction:column;">
+                <div class="p-3 text-white" style="background:linear-gradient(90deg, #8b5cf6, #3b82f6)">
+                    <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <h2 class="text-2xl font-bold">Historial de <span id="history-title">Reservas</span></h2>
-                            <p class="text-sm opacity-90 mt-1"><span id="history-count">0</span> registros completados</p>
+                            <h2 class="h5 mb-0">Historial de <span id="history-title">Reservas</span></h2>
+                            <small class="opacity-75"><span id="history-count">0</span> registros completados</small>
                         </div>
-                        <button
-                            onclick="hideHistory()"
-                            class="p-2 hover:bg-white/20 rounded-lg transition"
-                        >
-                            <i class="fas fa-times text-2xl"></i>
-                        </button>
+                        <button class="btn btn-sm btn-light" onclick="hideHistory()"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
-
-                <div class="overflow-y-auto p-6 flex-1">
-                    <div id="history-content" class="space-y-3">
-                        <!-- El contenido del historial se carga aquí -->
-                    </div>
+                <div class="p-3 overflow-auto" style="flex:1">
+                    <div id="history-content" class="vstack gap-2"></div>
                 </div>
             </div>
         </div>
@@ -108,13 +76,20 @@ function setViewType(type) {
     currentViewType = type;
     
     // Update button styles
-    document.getElementById('btn-restaurant').className = type === 'restaurant' 
-        ? 'px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 bg-orange-600 text-white shadow-lg'
-        : 'px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300';
-    
-    document.getElementById('btn-hotel').className = type === 'hotel'
-        ? 'px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 bg-blue-600 text-white shadow-lg'
-        : 'px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300';
+    // Toggle Bootstrap button styles
+    const btnRest = document.getElementById('btn-restaurant');
+    const btnHotel = document.getElementById('btn-hotel');
+    if (type === 'restaurant') {
+        btnRest.classList.add('btn-warning','text-white');
+        btnRest.classList.remove('btn-outline-secondary');
+        btnHotel.classList.add('btn-outline-secondary');
+        btnHotel.classList.remove('btn-primary','text-white');
+    } else {
+        btnHotel.classList.remove('btn-outline-secondary');
+        btnHotel.classList.add('btn-primary','text-white');
+        btnRest.classList.remove('btn-warning','text-white');
+        btnRest.classList.add('btn-outline-secondary');
+    }
     
     renderCalendar();
 }
@@ -135,16 +110,12 @@ function renderCalendar() {
     
     let calendarHTML = `
         <div class="calendar-header">
-            <div class="flex items-center justify-between mb-4">
-                <button onclick="previousMonth()" class="p-2 hover:bg-white/20 rounded-lg transition">
-                    <i class="fas fa-chevron-left text-2xl"></i>
-                </button>
-                <h2 class="text-2xl font-bold capitalize">${monthNames[month]} ${year}</h2>
-                <button onclick="nextMonth()" class="p-2 hover:bg-white/20 rounded-lg transition">
-                    <i class="fas fa-chevron-right text-2xl"></i>
-                </button>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <button onclick="previousMonth()" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i></button>
+                <h2 class="h4 m-0 text-capitalize">${monthNames[month]} ${year}</h2>
+                <button onclick="nextMonth()" class="btn btn-light btn-sm"><i class="fas fa-chevron-right"></i></button>
             </div>
-            <div class="grid grid-cols-7 gap-2 text-center text-sm font-semibold">
+            <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: .25rem; text-align:center; font-weight:600;">
                 <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
             </div>
         </div>
@@ -367,11 +338,11 @@ function showHistory() {
     });
     
     contentElement.innerHTML = historyHTML;
-    modal.classList.remove('hidden');
+    modal.classList.remove('d-none');
 }
 
 function hideHistory() {
-    document.getElementById('history-modal').classList.add('hidden');
+    document.getElementById('history-modal').classList.add('d-none');
 }
 
 function getHistoryData() {
