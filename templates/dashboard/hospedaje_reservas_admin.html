@@ -8,7 +8,7 @@
       <form method="get" class="d-flex align-items-center gap-2">
         <select name="estado" class="form-select">
           <option value="">Todos</option>
-          {% for st in ['Pendiente','Confirmada','Pagada','Cancelada','Finalizada'] %}
+          {% for st in ['Activa','Completada','Cancelada'] %}
             <option value="{{ st }}" {% if estado==st %}selected{% endif %}>{{ st }}</option>
           {% endfor %}
         </select>
@@ -38,6 +38,10 @@
     .meta .label{font-size:.8rem;color:#9ca3af}
     .actions{display:flex;gap:8px;justify-content:end;margin-top:8px}
     .hidden{display:none!important}
+    .res-details{background:#f9fafb;border:1px dashed #e5e7eb;border-radius:12px;margin-top:10px;padding:12px}
+    .res-details .title{font-weight:600;color:#374151;margin-bottom:6px}
+    .res-details .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px}
+    @media(min-width:1200px){.res-details .grid{grid-template-columns:repeat(3,1fr)}}
   </style>
 
   <!-- Cards view -->
@@ -55,29 +59,46 @@
         <span class="chip chip-{{ r.estado|lower|replace(' ','-') }}">{{ r.estado }}</span>
       </div>
       <div class="meta">
-        <div><div class="label">Fecha Creación</div>{{ r.creado_en.strftime('%Y-%m-%d %H:%M') if r.creado_en else '—' }}</div>
-        <div><div class="label">Check-in</div>{{ r.fecha_checkin.strftime('%Y-%m-%d') if r.fecha_checkin else '—' }}</div>
-        <div><div class="label">Check-out</div>{{ r.fecha_checkout.strftime('%Y-%m-%d') if r.fecha_checkout else '—' }}</div>
-        <div><div class="label">Huéspedes</div>{{ r.numero_huespedes or '—' }}</div>
-        <div><div class="label">Habitación</div>{{ r.habitacion.nombre if r.habitacion else '—' }}</div>
-        <div><div class="label">Precio Total</div>${{ '{:,.0f}'.format(r.precio_total) if r.precio_total else '0' }} COP</div>
+        <div><div class="label">Check-in</div>{{ r.check_in.strftime('%Y-%m-%d') if r.check_in else '—' }}</div>
+        <div><div class="label">Check-out</div>{{ r.check_out.strftime('%Y-%m-%d') if r.check_out else '—' }}</div>
+        <div><div class="label">Noches</div>{% if r.check_in and r.check_out %}{{ (r.check_out - r.check_in).days }}{% else %}—{% endif %}</div>
+        <div><div class="label">Habitación</div>{{ r.habitacion.nombre if r.habitacion else '—' }}{% if r.habitacion and r.habitacion.numero %} · #{{ r.habitacion.numero }}{% endif %}{% if r.habitacion and r.habitacion.plan %} · {{ r.habitacion.plan }}{% endif %}</div>
+        <div><div class="label">Capacidad</div>{{ r.habitacion.cupo_personas if r.habitacion and r.habitacion.cupo_personas else '—' }}</div>
+        <div><div class="label">Total</div>${{ '{:,.0f}'.format(r.total or 0) }} COP</div>
       </div>
       {% if r.usuario %}
       <div class="mt-2 pt-2 border-top">
         <div class="label">Cliente</div>
         <div class="fw-medium">{{ r.usuario.usuario }}</div>
-        {% if r.usuario.correo %}
-        <div class="text-muted small">{{ r.usuario.correo }}</div>
-        {% endif %}
+        <div class="text-muted small">{% if r.usuario.correo %}{{ r.usuario.correo }}{% else %}—{% endif %}{% if r.usuario.telefono %} · {{ r.usuario.telefono }}{% endif %}</div>
       </div>
       {% endif %}
       <div class="actions">
         <button class="btn btn-sm btn-outline-primary" onclick="viewReservation({{ r.id }})">Ver</button>
-        {% if r.estado == 'Pendiente' %}
-        <button class="btn btn-sm btn-success" onclick="confirmReservation({{ r.id }})">Confirmar</button>
+        {% if r.estado in ['Activa'] %}
+        <button class="btn btn-sm btn-success" onclick="confirmReservation({{ r.id }})">Marcar como Completada</button>
         {% endif %}
-        {% if r.estado in ['Pendiente', 'Confirmada'] %}
+        {% if r.estado in ['Activa','Completada'] %}
         <button class="btn btn-sm btn-outline-danger" onclick="cancelReservation({{ r.id }})">Cancelar</button>
+        {% endif %}
+      </div>
+      <!-- Detalles expandibles -->
+      <div id="details-card-{{ r.id }}" class="res-details hidden">
+        <div class="title">Detalles de la reserva</div>
+        <div class="grid">
+          <div><div class="label">Reserva</div>#{{ r.id }}</div>
+          <div><div class="label">Estado</div>{{ r.estado }}</div>
+          <div><div class="label">Ticket</div>{% if tickets and tickets.get(r.id) %}#{{ tickets[r.id].ticket_numero }}{% else %}—{% endif %}</div>
+          <div><div class="label">Habitación</div>{{ r.habitacion.nombre if r.habitacion else '—' }}{% if r.habitacion and r.habitacion.numero %} · #{{ r.habitacion.numero }}{% endif %}{% if r.habitacion and r.habitacion.plan %} · {{ r.habitacion.plan }}{% endif %}</div>
+          <div><div class="label">Check-in</div>{{ r.check_in.strftime('%d/%m/%Y') if r.check_in else '—' }}</div>
+          <div><div class="label">Check-out</div>{{ r.check_out.strftime('%d/%m/%Y') if r.check_out else '—' }}</div>
+          <div><div class="label">Noches</div>{% if r.check_in and r.check_out %}{{ (r.check_out - r.check_in).days }}{% else %}—{% endif %}</div>
+          <div><div class="label">Total</div>${{ '{:,.0f}'.format(r.total or 0) }} COP</div>
+          <div><div class="label">Cliente</div>{{ r.usuario.usuario if r.usuario else '—' }}</div>
+          <div><div class="label">Contacto</div>{% if r.usuario and (r.usuario.correo or r.usuario.telefono) %}{{ r.usuario.correo or '' }}{% if r.usuario.telefono %}{% if r.usuario.correo %} · {% endif %}{{ r.usuario.telefono }}{% endif %}{% else %}—{% endif %}</div>
+        </div>
+        {% if tickets and tickets.get(r.id) %}
+        <div class="mt-2"><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.hospedaje_reserva_ticket', reserva_id=r.id) }}" target="_blank"><i class="bi bi-file-earmark-arrow-down me-1"></i>Descargar ticket</a></div>
         {% endif %}
       </div>
     </div>
@@ -121,20 +142,43 @@
                 —
               {% endif %}
             </td>
-            <td>{{ r.habitacion.nombre if r.habitacion else '—' }}</td>
-            <td>{{ r.fecha_checkin.strftime('%Y-%m-%d') if r.fecha_checkin else '—' }}</td>
-            <td>{{ r.fecha_checkout.strftime('%Y-%m-%d') if r.fecha_checkout else '—' }}</td>
-            <td>{{ r.numero_huespedes or '—' }}</td>
-            <td>${{ '{:,.0f}'.format(r.precio_total) if r.precio_total else '0' }} COP</td>
+            <td>{{ r.habitacion.nombre if r.habitacion else '—' }}{% if r.habitacion and r.habitacion.numero %}<br><small class="text-muted">#{{ r.habitacion.numero }} · {{ r.habitacion.plan }}</small>{% endif %}</td>
+            <td>{{ r.check_in.strftime('%Y-%m-%d') if r.check_in else '—' }}</td>
+            <td>{{ r.check_out.strftime('%Y-%m-%d') if r.check_out else '—' }}</td>
+            <td>{{ r.habitacion.cupo_personas if r.habitacion and r.habitacion.cupo_personas else '—' }}</td>
+            <td>${{ '{:,.0f}'.format(r.total or 0) }} COP</td>
             <td><span class="chip chip-{{ r.estado|lower|replace(' ','-') }}">{{ r.estado }}</span></td>
             <td>
               <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-primary" onclick="viewReservation({{ r.id }})">Ver</button>
-                {% if r.estado == 'Pendiente' %}
-                <button class="btn btn-success" onclick="confirmReservation({{ r.id }})">Confirmar</button>
+                {% if r.estado in ['Activa'] %}
+                <button class="btn btn-success" onclick="confirmReservation({{ r.id }})">Marcar como Completada</button>
                 {% endif %}
-                {% if r.estado in ['Pendiente', 'Confirmada'] %}
+                {% if r.estado in ['Activa','Completada'] %}
                 <button class="btn btn-outline-danger" onclick="cancelReservation({{ r.id }})">Cancelar</button>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          <!-- Fila de detalles -->
+          <tr id="details-row-{{ r.id }}" class="hidden">
+            <td colspan="9">
+              <div class="res-details">
+                <div class="title">Detalles de la reserva #{{ r.id }}</div>
+                <div class="grid">
+                  <div><div class="label">Estado</div>{{ r.estado }}</div>
+                  <div><div class="label">Ticket</div>{% if tickets and tickets.get(r.id) %}#{{ tickets[r.id].ticket_numero }}{% else %}—{% endif %}</div>
+                  <div><div class="label">Habitación</div>{{ r.habitacion.nombre if r.habitacion else '—' }}{% if r.habitacion and r.habitacion.numero %} · #{{ r.habitacion.numero }}{% endif %}{% if r.habitacion and r.habitacion.plan %} · {{ r.habitacion.plan }}{% endif %}</div>
+                  <div><div class="label">Check-in</div>{{ r.check_in.strftime('%d/%m/%Y') if r.check_in else '—' }}</div>
+                  <div><div class="label">Check-out</div>{{ r.check_out.strftime('%d/%m/%Y') if r.check_out else '—' }}</div>
+                  <div><div class="label">Noches</div>{% if r.check_in and r.check_out %}{{ (r.check_out - r.check_in).days }}{% else %}—{% endif %}</div>
+                  <div><div class="label">Capacidad</div>{{ r.habitacion.cupo_personas if r.habitacion and r.habitacion.cupo_personas else '—' }}</div>
+                  <div><div class="label">Total</div>${{ '{:,.0f}'.format(r.total or 0) }} COP</div>
+                  <div><div class="label">Cliente</div>{{ r.usuario.usuario if r.usuario else '—' }}</div>
+                  <div><div class="label">Contacto</div>{% if r.usuario and (r.usuario.correo or r.usuario.telefono) %}{{ r.usuario.correo or '' }}{% if r.usuario.telefono %}{% if r.usuario.correo %} · {% endif %}{{ r.usuario.telefono }}{% endif %}{% else %}—{% endif %}</div>
+                </div>
+                {% if tickets and tickets.get(r.id) %}
+                <div class="mt-2"><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.hospedaje_reserva_ticket', reserva_id=r.id) }}" target="_blank"><i class="bi bi-file-earmark-arrow-down me-1"></i>Descargar ticket</a></div>
                 {% endif %}
               </div>
             </td>
@@ -189,43 +233,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Reservation actions
 function viewReservation(id) {
-    // Implement view reservation details
-    alert('Ver detalles de la reserva #' + id);
+  const cardDetails = document.getElementById(`details-card-${id}`);
+  if (cardDetails) {
+    cardDetails.classList.toggle('hidden');
+  }
+  const rowDetails = document.getElementById(`details-row-${id}`);
+  if (rowDetails) {
+    rowDetails.classList.toggle('hidden');
+  }
 }
 
 function confirmReservation(id) {
     if (confirm('¿Confirmar esta reserva?')) {
-        // Implement confirm reservation
-        fetch(`/admin/hospedaje/reservas/${id}/confirm`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }).then(response => {
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('Error al confirmar la reserva');
-            }
-        });
+    const formData = new URLSearchParams();
+    formData.append('estado', 'Completada');
+    fetch(`/admin/hospedaje/reservas/${id}/estado`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    }).then(response => {
+      if (response.ok) {
+        location.reload();
+      } else {
+        alert('Error al actualizar la reserva');
+      }
+    });
     }
 }
 
 function cancelReservation(id) {
     if (confirm('¿Cancelar esta reserva?')) {
-        // Implement cancel reservation
-        fetch(`/admin/hospedaje/reservas/${id}/cancel`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }).then(response => {
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('Error al cancelar la reserva');
-            }
-        });
+    const formData = new URLSearchParams();
+    formData.append('estado', 'Cancelada');
+    fetch(`/admin/hospedaje/reservas/${id}/estado`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    }).then(response => {
+      if (response.ok) {
+        location.reload();
+      } else {
+        alert('Error al cancelar la reserva');
+      }
+    });
     }
 }
 </script>

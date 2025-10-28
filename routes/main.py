@@ -87,7 +87,7 @@ def experiencias():
                     usuario_id=getattr(current_user, 'idUsuario', None) or session.get('user', {}).get('idUsuario'),
                     contenido=contenido,
                     calificacion=max(0, min(5, rating)),
-                    aprobado=True,
+                    aprobado=False,  # ahora requiere aprobación del admin
                 )
                 from utils.extensions import db
                 db.session.add(r)
@@ -160,13 +160,13 @@ def experiencias_usuario():
                 from models.baseDatos import ResenaExperiencia
                 from datetime import datetime
                 
-                # Guardar reseña
+                # Guardar reseña (pendiente hasta aprobación)
                 r = ResenaExperiencia(
                     experiencia_id=None,
                     usuario_id=getattr(current_user, 'idUsuario', None) if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated else None,
                     contenido=comentario,
                     calificacion=max(1, min(5, rating)),
-                    aprobado=True,
+                    aprobado=False,
                 )
                 db.session.add(r)
                 db.session.commit()
@@ -179,7 +179,7 @@ def experiencias_usuario():
                     'created_at': datetime.now()
                 })
                 
-                flash('¡Gracias por compartir tu experiencia!', 'success')
+                flash('¡Gracias por compartir tu experiencia! Un administrador la revisará pronto.', 'success')
             except Exception as e:
                 flash('Error al guardar el comentario. Inténtalo de nuevo.', 'error')
     
@@ -205,11 +205,30 @@ def hospedaje_admin():
 
 @main_bp.route('/restaurante_admin')
 def restaurante_admin():
-    return render_template('dashboard/restaurante_admin.html')
+    # Mostrar los platos ya registrados también cuando se entra por esta ruta
+    # (algunos accesos del menú apuntan aquí en lugar del blueprint admin)
+    try:
+        platos = PlatoRestaurante.query.order_by(
+            PlatoRestaurante.categoria.asc(),
+            PlatoRestaurante.orden.asc(),
+            PlatoRestaurante.creado_en.desc()
+        ).all()
+    except Exception:
+        # Si algo falla al consultar, no rompemos la vista; mostramos vacío
+        platos = []
+    return render_template('dashboard/restaurante_admin.html', platos=platos)
 
 @main_bp.route('/experiencias_admin')
 def experiencias_admin():
-    return render_template('dashboard/experiencias_admin.html')
+    # Cargar datos para la vista incluso si se entra por esta ruta
+    try:
+        from models.baseDatos import Experiencia, ResenaExperiencia
+        exps = Experiencia.query.order_by(Experiencia.creado_en.desc()).all()
+        resenas = ResenaExperiencia.query.order_by(ResenaExperiencia.creado_en.desc()).limit(300).all()
+    except Exception:
+        exps = []
+        resenas = []
+    return render_template('dashboard/experiencias_admin.html', experiencias=exps, resenas=resenas)
 
 @main_bp.route('/nosotros_admin')
 def nosotros_admin():

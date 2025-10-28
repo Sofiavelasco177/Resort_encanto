@@ -38,6 +38,10 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center ms-auto gap-2">
+                    <a href="javascript:history.back()" class="btn btn-outline-light" title="Volver">
+                        <i class="bi bi-arrow-left"></i>
+                        <span class="d-none d-sm-inline ms-1">Volver</span>
+                    </a>
                     {% if session.get('user') %}
                         <a href="{{ url_for('perfil_usuario.perfil') }}" class="btn btn-login" title="Perfil">
                             <i class="bi bi-person-circle fs-4"></i>

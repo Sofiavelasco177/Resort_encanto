@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante, ReservaRestaurante, Reserva, TicketHospedaje, Experiencia, ResenaExperiencia
+from models.baseDatos import db, nuevaHabitacion, Usuario, InventarioHabitacion, InventarioItem, Post, PlatoRestaurante, ReservaRestaurante, Reserva, TicketHospedaje, Experiencia, ResenaExperiencia, ReservaDatosHospedaje
 from datetime import datetime
 from flask import session
 from flask import send_file, make_response
@@ -181,7 +181,207 @@ def hospedaje_reserva_estado(reserva_id: int):
     return redirect(url_for('admin.hospedaje_reservas_list'))
 
 # ==========================
-# 📌 SECCIÓN EXPERIENCIAS (CRUD + reseñas)
+# � SECCIÓN ESTADÍSTICAS (Dashboard)
+# ==========================
+@admin_bp.route('/estadisticas')
+def estadisticas_dashboard():
+    # Año actual o seleccionado
+    today = date.today()
+    try:
+        year = int(request.args.get('year')) if request.args.get('year') else today.year
+    except Exception:
+        year = today.year
+    start = date(year, 1, 1)
+    end = date(year, 12, 31)
+
+    # Obtener reservas de hospedaje del año (por check_in)
+    reservas_hotel = Reserva.query.filter(Reserva.check_in >= start, Reserva.check_in <= end).all()
+    # Obtener reservas de restaurante del año (por fecha_reserva o creado_en)
+    reservas_rest = ReservaRestaurante.query.filter(
+        ((ReservaRestaurante.fecha_reserva >= datetime(year,1,1)) & (ReservaRestaurante.fecha_reserva <= datetime(year,12,31))) |
+        (ReservaRestaurante.fecha_reserva.is_(None) & (ReservaRestaurante.creado_en >= datetime(year,1,1)) & (ReservaRestaurante.creado_en <= datetime(year,12,31)))
+    ).all()
+
+    # Mapear datos de hospedaje (huéspedes estimados)
+    hotel_res_ids = [r.id for r in reservas_hotel]
+    datos_map = {}
+    if hotel_res_ids:
+        datos_list = ReservaDatosHospedaje.query.filter(ReservaDatosHospedaje.reserva_id.in_(hotel_res_ids)).all()
+        for d in datos_list:
+            datos_map[d.reserva_id] = d
+
+    # Estructuras mensuales
+    months = [1,2,3,4,5,6,7,8,9,10,11,12]
+    month_labels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    hotel_income = [0]*12
+    rest_income = [0]*12
+    hotel_res_counts = [0]*12
+    rest_res_counts = [0]*12
+    total_clients_month = [0]*12
+
+    # Conjuntos de clientes únicos por mes
+    clients_sets = [set() for _ in range(12)]
+
+    # Procesar hospedaje
+    for r in reservas_hotel:
+        if not r.check_in:
+            continue
+        m = r.check_in.month - 1
+        hotel_income[m] += (r.total or 0)
+        hotel_res_counts[m] += 1
+        if r.usuario_id:
+            clients_sets[m].add(r.usuario_id)
+
+    # Procesar restaurante
+    for rr in reservas_rest:
+        dt = rr.fecha_reserva or rr.creado_en
+        if not dt:
+            continue
+        m = dt.month - 1
+        rest_income[m] += (rr.total or 0)
+        rest_res_counts[m] += 1
+        if rr.usuario_id:
+            clients_sets[m].add(rr.usuario_id)
+
+    # Calcular clientes por mes
+    for i in range(12):
+        total_clients_month[i] = len(clients_sets[i])
+
+    # Totales anuales
+    total_income_year = sum(hotel_income) + sum(rest_income)
+    hotel_res_year = sum(hotel_res_counts)
+    rest_res_year = sum(rest_res_counts)
+    annual_clients = len(set().union(*clients_sets))
+
+    # Estimar "personas que ingresan anual": huéspedes hotel + personas en restaurante
+    people_hotel = 0
+    for r in reservas_hotel:
+        d = datos_map.get(r.id)
+        if d:
+            people_hotel += 1 + (1 if d.nombre2 else 0)
+        else:
+            people_hotel += 1  # al menos el titular
+    people_rest = sum((rr.cupo_personas or 0) for rr in reservas_rest)
+    total_people_year = people_hotel + people_rest
+
+    # Variaciones vs mes anterior (ingresos y clientes)
+    cur_month_idx = today.month - 1
+    prev_idx = cur_month_idx - 1 if cur_month_idx > 0 else None
+    income_this_month = (hotel_income[cur_month_idx] + rest_income[cur_month_idx]) if cur_month_idx is not None else 0
+    income_prev_month = (hotel_income[prev_idx] + rest_income[prev_idx]) if prev_idx is not None else 0
+    clients_this_month = total_clients_month[cur_month_idx] if cur_month_idx is not None else 0
+    clients_prev_month = total_clients_month[prev_idx] if prev_idx is not None else 0
+
+    def pct_change(cur, prev):
+        if prev and prev != 0:
+            return round((cur - prev) * 100.0 / prev, 1)
+        return None
+
+    pct_income = pct_change(income_this_month, income_prev_month)
+    pct_clients = pct_change(clients_this_month, clients_prev_month)
+
+    # Tabla resumida mensual
+    monthly_rows = []
+    for i in range(12):
+        ganancias = hotel_income[i] + rest_income[i]
+        monthly_rows.append({
+            'mes': month_labels[i],
+            'ganancias': ganancias,
+            'clientes': total_clients_month[i],
+            'hospedaje': hotel_res_counts[i],
+            'restaurante': rest_res_counts[i]
+        })
+
+    # Distribución de ingresos (pie)
+    dist_hotel = sum(hotel_income)
+    dist_rest = sum(rest_income)
+    dist_extras = 0
+
+    return render_template('dashboard/admin_stats.html',
+                           year=year,
+                           month_labels=month_labels,
+                           hotel_income=hotel_income,
+                           rest_income=rest_income,
+                           total_income_year=total_income_year,
+                           hotel_res_year=hotel_res_year,
+                           rest_res_year=rest_res_year,
+                           annual_clients=annual_clients,
+                           total_people_year=total_people_year,
+                           total_clients_month=total_clients_month,
+                           hotel_res_counts=hotel_res_counts,
+                           rest_res_counts=rest_res_counts,
+                           pct_income=pct_income,
+                           pct_clients=pct_clients,
+                           monthly_rows=monthly_rows,
+                           dist_hotel=dist_hotel,
+                           dist_rest=dist_rest,
+                           dist_extras=dist_extras)
+
+
+@admin_bp.route('/estadisticas/export')
+def estadisticas_export_csv():
+    # Exporta el resumen mensual detallado como CSV
+    try:
+        year = int(request.args.get('year')) if request.args.get('year') else date.today().year
+    except Exception:
+        year = date.today().year
+
+    # Reutilizar la lógica creando una petición interna mínima
+    with current_app.test_request_context(f"/admin/estadisticas?year={year}"):
+        resp = estadisticas_dashboard()
+        # La función anterior devuelve un render_template; volvemos a construir datos para CSV
+    # Duplicamos el cálculo mínimo aquí para mantener independencia
+    start = date(year, 1, 1)
+    end = date(year, 12, 31)
+    reservas_hotel = Reserva.query.filter(Reserva.check_in >= start, Reserva.check_in <= end).all()
+    reservas_rest = ReservaRestaurante.query.filter(
+        ((ReservaRestaurante.fecha_reserva >= datetime(year,1,1)) & (ReservaRestaurante.fecha_reserva <= datetime(year,12,31))) |
+        (ReservaRestaurante.fecha_reserva.is_(None) & (ReservaRestaurante.creado_en >= datetime(year,1,1)) & (ReservaRestaurante.creado_en <= datetime(year,12,31)))
+    ).all()
+
+    month_labels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    hotel_income = [0]*12
+    rest_income = [0]*12
+    hotel_res_counts = [0]*12
+    rest_res_counts = [0]*12
+    clients_sets = [set() for _ in range(12)]
+
+    for r in reservas_hotel:
+        if r.check_in:
+            m = r.check_in.month - 1
+            hotel_income[m] += (r.total or 0)
+            hotel_res_counts[m] += 1
+            if r.usuario_id:
+                clients_sets[m].add(r.usuario_id)
+
+    for rr in reservas_rest:
+        dt = rr.fecha_reserva or rr.creado_en
+        if dt:
+            m = dt.month - 1
+            rest_income[m] += (rr.total or 0)
+            rest_res_counts[m] += 1
+            if rr.usuario_id:
+                clients_sets[m].add(rr.usuario_id)
+
+    total_clients_month = [len(s) for s in clients_sets]
+
+    # Generar CSV
+    import io, csv
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Mes','Ganancias','Clientes','Hospedaje','Restaurante','Año'])
+    for i, mes in enumerate(month_labels):
+        ganancias = hotel_income[i] + rest_income[i]
+        writer.writerow([mes, int(ganancias), int(total_clients_month[i]), int(hotel_res_counts[i]), int(rest_res_counts[i]), year])
+    csv_data = output.getvalue()
+    output.close()
+    response = make_response(csv_data)
+    response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+    response.headers['Content-Disposition'] = f'attachment; filename="estadisticas_{year}.csv"'
+    return response
+
+# ==========================
+# �📌 SECCIÓN EXPERIENCIAS (CRUD + reseñas)
 # ==========================
 @admin_bp.route('/experiencias')
 def experiencias_list():
@@ -247,6 +447,30 @@ def resena_toggle(rid):
     except Exception as ex:
         db.session.rollback()
         flash(f'No se pudo actualizar: {ex}', 'danger')
+    return redirect(url_for('admin.experiencias_list'))
+
+@admin_bp.route('/experiencias/resenas/<int:rid>/approve', methods=['POST'])
+def resena_approve(rid):
+    r = ResenaExperiencia.query.get_or_404(rid)
+    try:
+        r.aprobado = True
+        db.session.commit()
+        flash('Reseña aprobada', 'success')
+    except Exception as ex:
+        db.session.rollback()
+        flash(f'No se pudo aprobar: {ex}', 'danger')
+    return redirect(url_for('admin.experiencias_list'))
+
+@admin_bp.route('/experiencias/resenas/<int:rid>/reject', methods=['POST'])
+def resena_reject(rid):
+    r = ResenaExperiencia.query.get_or_404(rid)
+    try:
+        r.aprobado = False
+        db.session.commit()
+        flash('Reseña rechazada', 'warning')
+    except Exception as ex:
+        db.session.rollback()
+        flash(f'No se pudo rechazar: {ex}', 'danger')
     return redirect(url_for('admin.experiencias_list'))
 
 @admin_bp.route('/experiencias/resenas/<int:rid>/delete', methods=['POST'])

@@ -1,0 +1,188 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-end mb-2">
+    <div>
+      <h2 class="mb-1">Estadísticas del Hotel</h2>
+      <p class="text-muted mb-0">Panel de control y análisis de datos</p>
+    </div>
+    <form method="get" class="d-flex align-items-center gap-2">
+      <label class="text-muted">Año</label>
+      <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+        {% for y in range(year-3, year+1) %}
+          <option value="{{ y }}" {% if y==year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+      <a href="{{ url_for('admin.estadisticas_export_csv', year=year) }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-download me-1"></i> Exportar CSV
+      </a>
+    </form>
+  </div>
+
+  <style>
+    .kpi-grid{display:grid;grid-template-columns:1fr;gap:14px}
+    @media(min-width:768px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1200px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+    .kpi{background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
+    .kpi .title{font-size:.8rem;color:#6b7280}
+    .kpi .value{font-size:1.4rem;font-weight:700}
+    .kpi .delta{font-size:.8rem;color:#059669}
+    .section{background:#fff;border:1px solid #eef2f7;border-radius:14px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
+    .chart-title{font-weight:700;margin-bottom:12px}
+    .table-metrics th,.table-metrics td{vertical-align:middle}
+  </style>
+
+  <!-- KPIs -->
+  <div class="kpi-grid mb-3">
+    <div class="kpi">
+      <div class="title">Ganancias Anuales</div>
+      <div class="value">${{ '%.0f'|format(total_income_year or 0) }} COP</div>
+      <div class="delta">{% if pct_income is not none %}
+        <i class="bi bi-arrow-up-right"></i> +{{ '%.1f'|format(pct_income) }}% vs mes anterior
+      {% else %}
+        <span class="text-muted">—</span>
+      {% endif %}</div>
+    </div>
+    <div class="kpi">
+      <div class="title">Clientes Anuales (únicos)</div>
+      <div class="value">{{ annual_clients }}</div>
+      <div class="delta">{% if pct_clients is not none %}
+        <i class="bi bi-arrow-up-right"></i> +{{ '%.1f'|format(pct_clients) }}% este mes
+      {% else %}
+        <span class="text-muted">—</span>
+      {% endif %}</div>
+    </div>
+    <div class="kpi">
+      <div class="title">Reservas Hospedaje</div>
+      <div class="value">{{ hotel_res_year }}</div>
+      <div class="delta text-muted">Total anual</div>
+    </div>
+    <div class="kpi">
+      <div class="title">Reservas Restaurante</div>
+      <div class="value">{{ rest_res_year }}</div>
+      <div class="delta text-muted">Total anual</div>
+    </div>
+  </div>
+
+  <!-- Ganancias Mensuales (Bar) -->
+  <div class="section mb-3">
+    <div class="chart-title">Ganancias Mensuales</div>
+    <canvas id="chartIncome" height="110"></canvas>
+  </div>
+
+  <!-- Distribución de Ingresos (Pie) -->
+  <div class="section mb-3">
+    <div class="chart-title">Distribución de Ingresos</div>
+    <div class="row align-items-center">
+      <div class="col-md-5">
+        <canvas id="chartPie" height="140"></canvas>
+      </div>
+      <div class="col-md-7">
+        <ul class="list-unstyled mb-0">
+          <li><span class="badge" style="background:#3b82f6">&nbsp;</span> Hospedaje: ${{ '%.0f'|format(dist_hotel or 0) }} COP</li>
+          <li><span class="badge" style="background:#10b981">&nbsp;</span> Restaurante: ${{ '%.0f'|format(dist_rest or 0) }} COP</li>
+          {% if dist_extras %}
+          <li><span class="badge" style="background:#f59e0b">&nbsp;</span> Servicios Adicionales: ${{ '%.0f'|format(dist_extras or 0) }} COP</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flujo de Clientes y Reservas (Line) -->
+  <div class="section mb-3">
+    <div class="chart-title">Flujo de Clientes y Reservas</div>
+    <canvas id="chartFlow" height="110"></canvas>
+  </div>
+
+  <!-- Tabla mensual detallada -->
+  <div class="section mb-4">
+    <div class="chart-title">Resumen Mensual Detallado</div>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover table-metrics">
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th>Ganancias</th>
+            <th>Clientes</th>
+            <th>Hospedaje</th>
+            <th>Restaurante</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in monthly_rows %}
+          <tr>
+            <td>{{ row.mes }}</td>
+            <td>${{ '%.0f'|format(row.ganancias or 0) }} COP</td>
+            <td>{{ row.clientes }}</td>
+            <td>{{ row.hospedaje }}</td>
+            <td>{{ row.restaurante }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const monthLabels = {{ month_labels|tojson }};
+const hotelIncome = {{ hotel_income|tojson }};
+const restIncome = {{ rest_income|tojson }};
+const clients = {{ total_clients_month|tojson }};
+const hotelRes = {{ hotel_res_counts|tojson }};
+const restRes = {{ rest_res_counts|tojson }};
+
+// Ganancias Mensuales (barras)
+new Chart(document.getElementById('chartIncome'), {
+  type: 'bar',
+  data: {
+    labels: monthLabels,
+    datasets: [
+      {label:'Hospedaje', data: hotelIncome, backgroundColor:'#3b82f6'},
+      {label:'Restaurante', data: restIncome, backgroundColor:'#10b981'}
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true } }
+  }
+});
+
+// Pie de distribución
+new Chart(document.getElementById('chartPie'), {
+  type: 'pie',
+  data: {
+    labels: ['Hospedaje','Restaurante' {% if dist_extras %}, 'Servicios Adicionales'{% endif %}],
+    datasets: [{
+      data: [{{ dist_hotel|default(0) }}, {{ dist_rest|default(0) }} {% if dist_extras %}, {{ dist_extras|default(0) }}{% endif %}],
+      backgroundColor: ['#3b82f6','#10b981'{% if dist_extras %},'#f59e0b'{% endif %}]
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+
+// Línea: Flujo de Clientes y Reservas
+new Chart(document.getElementById('chartFlow'), {
+  type: 'line',
+  data: {
+    labels: monthLabels,
+    datasets: [
+      { label: 'Total Clientes', data: clients, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.15)', tension:.35, fill:true },
+      { label: 'Reservas Hospedaje', data: hotelRes, borderColor:'#9333ea', backgroundColor:'rgba(147,51,234,.15)', tension:.35, fill:false },
+      { label: 'Reservas Restaurante', data: restRes, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.15)', tension:.35, fill:false }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true } },
+    plugins: { legend: { position: 'bottom' } }
+  }
+});
+</script>
+{% endblock %}
