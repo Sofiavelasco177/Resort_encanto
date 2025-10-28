@@ -1272,8 +1272,8 @@ body {
    ======================= */
 /* Bubble animated background (applied globally via base templates) */
 .bubble-layer{ position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 0; }
-/* Ensure page content is above the background */
-body > nav, body > main, body > footer{ position: relative; z-index: 1; }
+/* Ensure normal stacking context for page content (avoid blocking modals) */
+body > nav, body > main, body > footer{ position: relative; z-index: auto; }
 
 .bubble{
     position: absolute;
