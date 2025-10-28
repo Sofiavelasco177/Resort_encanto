@@ -686,6 +686,29 @@ def media_file(filename):
     # Seguridad básica: normalizar y restringir a carpeta
     return send_from_directory(base, filename, conditional=True)
 
+# Favicon alias (algunos navegadores piden /favicon.ico directamente)
+@app.route('/favicon.ico')
+def favicon_alias():
+    try:
+        # Si existe favicon.ico en static/, servirlo como .ico
+        fav_path = os.path.join(app.static_folder, 'favicon.ico')
+        if os.path.isfile(fav_path):
+            return send_from_directory(app.static_folder, 'favicon.ico', mimetype='image/x-icon')
+        # Fallback a un logo existente (PNG/JPG), el navegador lo aceptará como icono
+        logo_rel_candidates = ['img/logo.jpg', 'img/OIP.webp']
+        for rel in logo_rel_candidates:
+            cand = os.path.join(app.static_folder, rel)
+            if os.path.isfile(cand):
+                # Dejar al servidor elegir el mimetype correcto
+                dirname = os.path.dirname(cand)
+                filename = os.path.basename(cand)
+                return send_from_directory(dirname, filename)
+    except Exception:
+        pass
+    # Sin recurso: 204 (sin contenido) para evitar 404 ruidoso
+    from flask import Response
+    return Response(status=204)
+
 # Manejador para archivos estáticos faltantes - proveer fallback
 @app.errorhandler(404)
 def handle_not_found(e):
