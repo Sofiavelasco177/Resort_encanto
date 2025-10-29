@@ -2,9 +2,12 @@
 
 {% block content %}
 <div class="container my-4">
-	<div class="p-3 p-md-4 rounded-4 shadow-sm form-dark-box form-dark">
-		<h3 class="mb-2">Nosotros — Gestión de contenido</h3>
-		<div class="inv-accent mb-3"></div>
+	<button class="toggle-gradient w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#nosotrosCreateForm" aria-expanded="false">
+		<span class="label">Nosotros — Gestión de contenido</span>
+		<i class="bi bi-caret-down-fill chev"></i>
+	</button>
+	<div id="nosotrosCreateForm" class="collapse">
+		<div class="toggle-panel">
 		<form class="row g-3" action="{{ url_for('admin.admin_nosotros_nuevo') }}" method="POST" enctype="multipart/form-data">
 			<div class="col-md-6">
 				<label class="form-label">Título</label>
@@ -36,6 +39,7 @@
 				<button class="btn btn-main" type="submit">Publicar</button>
 			</div>
 		</form>
+		</div>
 	</div>
 
 	<div class="row g-3 g-md-4 mt-3">

@@ -1262,6 +1262,7 @@ def admin_restaurante_nuevo():
 
 @admin_bp.route("/restaurante/editar/<int:plato_id>", methods=["GET", "POST"])
 def admin_restaurante_editar(plato_id):
+    """Editar plato — vista dedicada como en hospedaje (GET muestra formulario, POST guarda)."""
     plato = PlatoRestaurante.query.get_or_404(plato_id)
     if request.method == "POST":
         try:
@@ -1279,9 +1280,8 @@ def admin_restaurante_editar(plato_id):
         except Exception as e:
             db.session.rollback()
             flash(f'Error al actualizar: {e}', 'danger')
-    # recargar lista
-    platos = PlatoRestaurante.query.order_by(PlatoRestaurante.categoria.asc(), PlatoRestaurante.orden.asc()).all()
-    return render_template("dashboard/restaurante_admin.html", platos=platos, plato=plato)
+    # GET -> formulario dedicado
+    return render_template("dashboard/editar_plato.html", plato=plato)
 
 #eliminar plato ----------------------------------------------------------
 

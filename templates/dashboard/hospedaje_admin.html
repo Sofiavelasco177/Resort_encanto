@@ -44,13 +44,13 @@
 	.cal-legend{font-size:.85rem;margin-top:6px}
 	</style>
 
-	<!-- Formulario: Agregar Nueva Habitación (arriba) -->
-	<div class="form-card mb-5">
-		<div class="form-header">
-			<h3> Agregar Nueva Habitación</h3>
-			<div class="sub">Complete los detalles de la habitación</div>
-		</div>
-		<div class="form-body">
+	<!-- Formulario: Agregar Nueva Habitación (colapsable) -->
+	<button class="toggle-gradient w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#addRoomForm" aria-expanded="false">
+		<span class="label">+ Agregar nueva habitación</span>
+		<i class="bi bi-caret-down-fill chev"></i>
+	</button>
+	<div id="addRoomForm" class="collapse">
+		<div class="toggle-panel mb-4">
 			<form action="{{ url_for('admin.hospedaje_nueva') }}" method="POST" enctype="multipart/form-data" class="row g-3">
 				<div class="col-md-6">
 					<label for="nombre" class="form-label">Nombre de la Habitación <span class="text-danger">*</span></label>
