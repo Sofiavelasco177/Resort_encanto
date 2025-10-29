@@ -205,41 +205,33 @@ body {
 }
 .btn-login {
     margin-left: auto;
-    background: linear-gradient(135deg, #60a5fa, #3b82f6); /* softer blue */
-    border-radius: 999px;
-    padding: 8px 12px;
-    color: #fff !important;
-    font-size: 1rem;
-    font-weight: 700;
+    width: 40px; /* igual que el avatar */
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
     border: none;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: none;
 }
-.btn-login:hover {
-    filter: brightness(1.06);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 22px rgba(29, 78, 216, 0.5);
-}
+.btn-login:hover { filter: brightness(1.05); }
 
 /* Botón de cerrar sesión (alto contraste) */
 .btn-logout {
-    background: linear-gradient(135deg, #60a5fa, #3b82f6); /* azul */
-    color: #fff !important;
-    border: none;
-    border-radius: 999px;
-    padding: 8px 12px;
-    font-weight: 700;
+    width: 40px; /* igual que el avatar */
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
-.btn-logout:hover {
-    filter: brightness(1.06);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 22px rgba(29, 78, 216, 0.5);
-}
+.btn-logout:hover { filter: brightness(1.05); }
 
 /* Botón de avatar (navbar usuario): sin borde ni caja, solo la imagen circular */
 .profile-avatar-btn {
@@ -264,6 +256,11 @@ body {
     font-size: 1.85rem;
     color: #111827;
 }
+
+/* Icono personalizado de logout */
+.icon-logout { width: 22px; height: 22px; display: inline-block; border-radius: 50%; }
+/* Icono personalizado de login */
+.icon-login { width: 22px; height: 22px; display: inline-block; border-radius: 50%; }
 
 /* Cuando se usa navbar superior, empuja el contenido hacia abajo */
 main { padding-top: 72px; }
