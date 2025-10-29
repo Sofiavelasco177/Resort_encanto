@@ -205,7 +205,7 @@ body {
 }
 .btn-login {
     margin-left: auto;
-    background: linear-gradient(135deg, #60a5fa, #3b82f6); /* softer blue */
+    background: linear-gradient(135deg, #60a5fa, #a9b7cd); /* softer blue */
     border-radius: 999px;
     padding: 8px 12px;
     color: #fff !important;
