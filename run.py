@@ -266,8 +266,13 @@ def init_database():
                         db.session.commit()
                         app.logger.info('Migración aplicada: %s', s)
                     except Exception as e:
+                        # Evitar ruido si otra hebra/worker ya aplicó la misma migración
                         db.session.rollback()
-                        app.logger.exception('No se pudo aplicar la migración %s: %s', s, e)
+                        msg = str(e)
+                        if 'Duplicate column name' in msg or '1060' in msg:
+                            app.logger.info('Migración ya aplicada anteriormente (idempotente): %s', s)
+                        else:
+                            app.logger.warning('No se pudo aplicar la migración %s: %s', s, e)
 
                 # Migraciones para tabla post (agregar columna 'orden')
                 try:

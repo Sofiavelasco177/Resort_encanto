@@ -65,7 +65,14 @@ def google_authorize():
 
     # Obtener token y datos del usuario desde Google
     try:
-        token = oauth.google.authorize_access_token()
+        # Forzar endpoints explícitos para entornos donde el discovery falle
+        TOKEN_URL = "https://oauth2.googleapis.com/token"
+        redirect_uri = _build_google_redirect_uri(next_param)
+        # Si no viene 'code' en la URL, no intentes intercambiar token
+        if not request.args.get('code'):
+            current_app.logger.warning('Google authorize sin parámetro code; redirigiendo al login de Google')
+            return redirect(url_for('auth.google_login', next=next_param))
+        token = oauth.google.authorize_access_token(token_endpoint=TOKEN_URL, redirect_uri=redirect_uri)
         current_app.logger.info('Token de Google recibido correctamente')
         user_info = oauth.google.get('https://www.googleapis.com/oauth2/v3/userinfo').json()
         current_app.logger.info(f"Usuario Google: email={user_info.get('email')}")
