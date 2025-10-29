@@ -44,12 +44,11 @@
                             <i class="bi bi-person-circle fs-4"></i>
                         </a>
                         <a href="{{ url_for('auth.logout') }}" class="btn btn-logout" title="Cerrar sesión">
-                            <i class="bi bi-box-arrow-right fs-5"></i>
-                            <span class="d-none d-sm-inline ms-1">Cerrar sesión</span>
+                            <img src="{{ url_for('static', filename='img/icons/logout.svg') }}" alt="Salir" class="icon-logout">
                         </a>
                     {% else %}
                         <a href="{{ url_for('registro.login') }}" class="btn btn-login" title="Iniciar sesión">
-                            <i class="bi bi-box-arrow-right fs-4"></i>
+                            <img src="{{ url_for('static', filename='img/icons/login.svg') }}" alt="Iniciar sesión" class="icon-login">
                         </a>
                     {% endif %}
                 </div>
