@@ -150,6 +150,7 @@
         </div>
         <div class="card-actions">
           <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}" title="Editar"><i class="bi bi-pencil"></i></a>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('admin.ver_inventario', id=r.id) }}" title="Inspeccionar"><i class="bi bi-clipboard-check"></i></a>
           <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.inventario_export_pdf') }}?rec_id={{ r.id }}" title="PDF"><i class="bi bi-file-earmark-pdf"></i></a>
           <a class="btn btn-outline-success btn-sm" href="{{ url_for('admin.inventario_export_xlsx') }}?rec_id={{ r.id }}" title="Excel"><i class="bi bi-file-earmark-spreadsheet"></i></a>
         </div>
@@ -196,6 +197,7 @@
               <td class="text-end">
                 <div class="d-inline-flex gap-2">
                   <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.inventario_view') }}?rec_id={{ r.id }}">Editar</a>
+                  <a class="btn btn-primary btn-sm" href="{{ url_for('admin.ver_inventario', id=r.id) }}">Inspeccionar</a>
                   <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.inventario_export_pdf') }}?rec_id={{ r.id }}" title="Exportar a PDF">PDF</a>
                   <a class="btn btn-outline-success btn-sm" href="{{ url_for('admin.inventario_export_xlsx') }}?rec_id={{ r.id }}" title="Exportar a Excel (.xlsx)">Excel</a>
                 </div>

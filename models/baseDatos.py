@@ -77,6 +77,8 @@ class InventarioHabitacion(db.Model):
     inspector_date = db.Column(db.Date, nullable=True)
     supervisor_signature = db.Column(db.String(120), nullable=True)
     supervisor_date = db.Column(db.Date, nullable=True)
+    # Estado general del inventario: Pendiente, Incompleto, Completo
+    estado = db.Column(db.String(20), nullable=False, default='Pendiente')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     items = db.relationship('InventarioItem', backref='record', cascade='all, delete-orphan', lazy=True)

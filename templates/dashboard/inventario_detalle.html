@@ -1,0 +1,79 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="mb-0">Inspección de Inventario</h3>
+      <div class="text-muted">ID {{ rec.id }} • Estado: <span class="badge {{ 'text-bg-success' if rec.estado=='Completo' else ('text-bg-warning' if rec.estado=='Pendiente' else 'text-bg-secondary') }}">{{ rec.estado or 'Pendiente' }}</span></div>
+    </div>
+    <a href="{{ url_for('admin.inventarios_list') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Volver</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-4">
+      <div class="card p-3 h-100">
+        <h6 class="mb-3">Información del Inventario</h6>
+        <dl class="row mb-0 small">
+          <dt class="col-5">Hotel</dt><dd class="col-7">{{ rec.hotel or '-' }}</dd>
+          <dt class="col-5">Habitación</dt><dd class="col-7">{{ rec.room_number or '-' }}</dd>
+          <dt class="col-5">Tipo</dt><dd class="col-7">{{ rec.room_type or '-' }}</dd>
+          <dt class="col-5">Inspector</dt><dd class="col-7">{{ rec.inspector or '-' }}</dd>
+          <dt class="col-5">Fecha inspección</dt><dd class="col-7">{{ rec.inspection_date or '-' }}</dd>
+        </dl>
+        {% if rec.observations %}
+        <div class="mt-3">
+          <div class="fw-semibold small mb-1">Observaciones</div>
+          <div class="border rounded p-2 small bg-light">{{ rec.observations }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <form method="POST" action="{{ url_for('admin.ver_inventario', id=rec.id) }}">
+        <div class="card p-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0">Items</h6>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i> Guardar cambios</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 14rem;">Categoría</th>
+                  <th>Elemento</th>
+                  <th style="width: 8rem;">Cantidad</th>
+                  <th style="width: 8rem;">¿Completo?</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for it in rec.items %}
+                <tr>
+                  <td class="text-muted small">{{ it.category or '-' }}</td>
+                  <td class="fw-semibold">{{ it.label or it.key }}</td>
+                  <td>
+                    <input type="number" name="qty_{{ it.id }}" class="form-control form-control-sm" value="{{ it.quantity if it.quantity is not none else '' }}" min="0">
+                  </td>
+                  <td>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="item_{{ it.id }}" id="chk_{{ it.id }}" {% if it.checked %}checked{% endif %}>
+                      <label class="form-check-label small" for="chk_{{ it.id }}">Completado</label>
+                    </div>
+                  </td>
+                </tr>
+              {% else %}
+                <tr><td colspan="4" class="text-center text-muted py-4">Sin ítems</td></tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i> Guardar cambios</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

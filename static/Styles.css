@@ -4,7 +4,7 @@
 body {
     background-color: #f6fbff; /* Lighter background */
     color: #111827; /* dark text for readability */
-    font-family: Arial, sans-serif;
+    font-family: 'Cinzel', serif;
 }
 
 /* Layout para vistas con sidebar (admin y futuro usuario) */
@@ -291,9 +291,10 @@ main { padding-top: 72px; }
 .user-shell.collapsed .user-content { padding-left: 1rem; }
 
 /* =======================
-   PERFIL USUARIO (scoped en .perfil-usuario)
-   ======================= */
-.perfil-usuario .perfil-layout { display:grid; grid-template-columns:280px 1fr; gap:24px; }
+    PERFIL USUARIO (scoped en .perfil-usuario)
+    ======================= */
+/* 2 columnas: izquierda fija 380px + derecha flexible */
+.perfil-usuario .perfil-layout { display:grid; grid-template-columns:380px minmax(0,1fr); gap:24px; align-items:start; }
 .perfil-usuario .sidebar { background:#fff; border-radius:16px; padding:24px; height:fit-content; box-shadow:0 4px 20px rgba(0,0,0,.1); }
 .perfil-usuario .sidebar h3 { font-size:18px; color:#1f2937; margin-bottom:20px; font-weight:600; }
 .perfil-usuario .menu-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-radius:10px; cursor:pointer; transition:all .2s; color:#4b5563; font-size:14px; margin-bottom:4px; text-decoration:none; }
@@ -353,7 +354,8 @@ main { padding-top: 72px; }
 
 @media (max-width: 1024px) {
     .perfil-usuario .perfil-layout { grid-template-columns:1fr; }
-    .perfil-usuario .sidebar { order:2; }
+    /* En pantallas pequeñas apilar verticalmente */
+    .perfil-usuario .sidebar { order:1; }
 }
 @media (max-width: 768px) {
     .perfil-usuario .form-grid { grid-template-columns:1fr; }
@@ -402,7 +404,7 @@ main { padding-top: 72px; }
    Collapsible gradient headers (admin forms)
    ======================= */
 .toggle-gradient {
-    background: linear-gradient(90deg, #6659f5, #ccbfda);
+    background: linear-gradient(90deg, #301ef3, #362ae8);
     color: #fff;
     padding: 12px 16px;
     border-radius: 12px;
@@ -411,7 +413,7 @@ main { padding-top: 72px; }
     justify-content: space-between;
     cursor: pointer;
     user-select: none;
-    box-shadow: 0 8px 18px rgba(248, 248, 249, 0.25);
+    box-shadow: 0 8px 18px rgba(248, 248, 249, 0.845);
 }
 .toggle-gradient .label { font-weight: 600; }
 .toggle-gradient .chev { transition: transform .2s ease; }
@@ -437,6 +439,23 @@ main { padding-top: 72px; }
     .perfil-usuario #payments-section .section-title,
     .perfil-usuario .card .notification-item { margin-left: 0; }
 }
+
+/* =======================
+   EXPERIENCIAS — Tarjeta unificada
+   ======================= */
+.reviews-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 992px) { .reviews-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 576px) { .reviews-grid { grid-template-columns: 1fr; } }
+
+.review-card { background:#fff; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,.08); overflow:hidden; display:flex; flex-direction:column; min-height: 220px; }
+.review-card .rc-body { padding:16px 16px 0 16px; }
+.review-card .rc-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.review-card .rating-badge { background:#111827; color:#fff; font-weight:700; border-radius:10px; padding:4px 10px; font-size:0.95rem; }
+.review-card .stars { color:#f5b301; letter-spacing:2px; }
+.review-card .rc-text { color:#374151; font-size:0.95rem; }
+.review-card .rc-footer { padding:12px 16px 16px 16px; display:flex; align-items:center; gap:12px; border-top:1px solid #eef2f7; }
+.review-card .avatar { width:40px; height:40px; border-radius:50%; background:#6b7280; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.review-card .meta { font-size:0.85rem; color:#6b7280; }
 
 /* =======================
    ESTILOS HOSPEDAJE

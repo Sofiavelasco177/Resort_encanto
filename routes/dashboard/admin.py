@@ -637,6 +637,48 @@ def inventario_view():
         auto_pdf=auto_pdf,
     )
 
+# ==========================
+# 🔍 Inspección de Inventario existente (detalle)
+# ==========================
+@admin_bp.route('/inventario/<int:id>', methods=['GET', 'POST'])
+def ver_inventario(id: int):
+    """Vista simple para marcar ítems de un inventario ya creado.
+
+    GET: muestra cabecera + tabla de ítems con checkbox de completado.
+    POST: actualiza checked/cantidad y estado general (Completo/Incompleto) y redirige.
+    """
+    rec = InventarioHabitacion.query.get_or_404(id)
+    if request.method == 'POST':
+        try:
+            # Actualizar cada item desde el formulario
+            for it in rec.items or []:
+                it.checked = (request.form.get(f'item_{it.id}') == 'on')
+                if f'qty_{it.id}' in request.form:
+                    raw = request.form.get(f'qty_{it.id}')
+                    it.quantity = int(raw) if raw not in (None, '',) else None
+            # Registrar fecha de inspección al guardar
+            from datetime import date as _date
+            rec.inspection_date = _date.today()
+            # Determinar estado global
+            total = len(rec.items or [])
+            completos = sum(1 for it in rec.items if it.checked)
+            if total and completos == total:
+                rec.estado = 'Completo'
+                # Adjuntar observación interna opcional
+                note = (rec.observations or '').strip()
+                if 'Inventario marcado como completo' not in (note or ''):
+                    rec.observations = (note + '\n' if note else '') + 'Inventario marcado como completo'
+            else:
+                rec.estado = 'Incompleto'
+            db.session.commit()
+            flash('Inventario actualizado correctamente ✅', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'No se pudo actualizar el inventario: {e}', 'danger')
+        return redirect(url_for('admin.ver_inventario', id=rec.id))
+
+    return render_template('dashboard/inventario_detalle.html', rec=rec)
+
 @admin_bp.route("/inventario", methods=["POST"])
 def inventario_save():
     form = request.form

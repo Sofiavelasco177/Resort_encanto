@@ -60,42 +60,38 @@
     <!-- Recent Experiences -->
     <div class="p-3 p-md-4 bg-white rounded-4 shadow-sm">
         <h5 class="mb-4">Experiencias recientes</h5>
-
         {% if comentarios %}
+        <div class="reviews-grid">
             {% for comentario in comentarios %}
-                <div class="experience-card mb-4 p-3 border rounded-3">
-                    <div class="d-flex align-items-start">
-                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" 
-                             style="width: 50px; height: 50px; min-width: 50px;">
-                            <span class="text-white fw-bold">{{ comentario.user.username[0] if comentario.user.username else 'U' }}</span>
-                        </div>
-                        
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h6 class="mb-1">{{ comentario.user.username }}</h6>
-                                    {% if comentario.created_at %}
-                                        <small class="text-muted">{{ comentario.created_at.strftime('%d %b %Y') }}</small>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="rating-display">
-                                    {% set rating = comentario.rating|int %}
-                                    {% for i in range(1, 6) %}
-                                        {% if i <= rating %}
-                                            <span class="text-warning">★</span>
-                                        {% else %}
-                                            <span class="text-muted">☆</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
+                {% set rating = comentario.rating|default(comentario.puntuacion|default(0))|int %}
+                <div class="review-card">
+                    <div class="rc-body">
+                        <div class="rc-top">
+                            <span class="rating-badge">{{ '%.1f' % (rating|float) if rating is number else rating }}</span>
+                            <div class="stars">
+                                {% for i in range(1,6) %}
+                                    {% if i <= rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
                             </div>
-                            
-                            <p class="mb-0">{{ comentario.contenido }}</p>
+                        </div>
+                        <p class="rc-text">{{ comentario.contenido }}</p>
+                    </div>
+                    <div class="rc-footer">
+                        {% if comentario.user and comentario.user.avatar %}
+                            <img src="{{ comentario.user.avatar }}" class="avatar" alt="avatar" onerror="this.style.display='none'">
+                        {% else %}
+                            <div class="avatar">{{ (comentario.user.username[0] if comentario.user and comentario.user.username else 'U') }}</div>
+                        {% endif %}
+                        <div>
+                            <div class="fw-semibold small">{{ comentario.user.username if comentario.user else 'Usuario' }}</div>
+                            {% if comentario.created_at %}
+                                <div class="meta">{{ comentario.created_at.strftime('%b %Y') }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             {% endfor %}
+        </div>
         {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-comments fa-3x text-muted mb-3"></i>
@@ -129,18 +125,7 @@
     color: #ffc107;
 }
 
-.experience-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.experience-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-}
-
-.rating-display {
-    font-size: 1.2rem;
-}
+/* Tarjetas de reseñas reutilizan estilos globales de Styles.css */
 </style>
 
 {% endblock %}
