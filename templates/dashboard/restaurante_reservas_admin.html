@@ -48,6 +48,8 @@
         <div><div class="label">Cupo</div>{{ r.cupo_personas }}</div>
         <div><div class="label">Cliente</div>{{ r.nombre_cliente or '—' }}</div>
         <div><div class="label">Teléfono</div>{{ r.telefono_cliente or '—' }}</div>
+        {% set mesa = r.ticket_numero.split('-M')[-1] if ('-M' in r.ticket_numero) else '' %}
+        <div><div class="label">Mesa</div>{{ mesa if mesa else '—' }}</div>
         <div><div class="label">Total</div>${{ '{:,.0f}'.format(r.total or 0) }} COP</div>
         <div><div class="label">Ticket PDF</div>
           {% if r.file_ticket %}<a href="{{ media_url(r.file_ticket) }}" target="_blank">Descargar</a>{% else %}—{% endif %}
@@ -77,6 +79,7 @@
           <tr>
             <th>Fecha</th>
             <th>Ticket</th>
+            <th>Mesa</th>
             <th>Cliente</th>
             <th>Teléfono</th>
             <th>Cupo</th>
@@ -91,6 +94,8 @@
           <tr>
             <td>{{ r.creado_en.strftime('%Y-%m-%d %H:%M') if r.creado_en else '' }}</td>
             <td>{{ r.ticket_numero }}</td>
+            {% set mesa = r.ticket_numero.split('-M')[-1] if ('-M' in r.ticket_numero) else '' %}
+            <td>{{ mesa if mesa else '—' }}</td>
             <td>{{ r.nombre_cliente or '—' }}</td>
             <td>{{ r.telefono_cliente or '—' }}</td>
             <td>{{ r.cupo_personas }}</td>

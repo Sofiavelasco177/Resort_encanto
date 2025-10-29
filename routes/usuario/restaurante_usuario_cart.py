@@ -142,6 +142,21 @@ def reservar_restaurante():
         subtotal = float(it['precio']) * int(it['cantidad'])
         total += subtotal
 
+    # Mesa (opcional): si viene, la codificamos en el sufijo del ticket para no tocar el esquema
+    mesa_raw = (request.form.get('mesa') or '').strip()
+    mesa_num = None
+    try:
+        if mesa_raw:
+            mesa_num = int(mesa_raw)
+    except Exception:
+        mesa_num = None
+
+    base_ticket = _gen_ticket_number()
+    if mesa_num and mesa_num > 0:
+        ticket_with_mesa = f"{base_ticket}-M{mesa_num:02d}"
+    else:
+        ticket_with_mesa = base_ticket
+
     reserva = ReservaRestaurante(
         usuario_id=uid,
         nombre_cliente=nombre,
@@ -149,11 +164,18 @@ def reservar_restaurante():
         cupo_personas=cupo,
         fecha_reserva=datetime.utcnow(),
         estado='Pendiente',
-        ticket_numero=_gen_ticket_number(),
+        ticket_numero=ticket_with_mesa,
         total=round(total, 2)
     )
     db.session.add(reserva)
     db.session.flush()  # obtener id
+
+    # Guardar mesa en un atributo efímero para el PDF (no persistente)
+    try:
+        if mesa_num and mesa_num > 0:
+            setattr(reserva, '_mesa_num', mesa_num)
+    except Exception:
+        pass
 
     # Detalle
     for it in cart['items']:
@@ -210,6 +232,21 @@ def _build_ticket_pdf(reserva: ReservaRestaurante):
     c.drawString(40, y, f"Teléfono: {reserva.telefono_cliente or '-'}")
     y -= 18
     c.drawString(40, y, f"Cupo de personas: {reserva.cupo_personas}")
+    # Mostrar mesa si viene en el ticket o como atributo efímero
+    try:
+        mesa_txt = None
+        if hasattr(reserva, '_mesa_num') and getattr(reserva, '_mesa_num'):
+            mesa_txt = f"{int(getattr(reserva, '_mesa_num')):02d}"
+        else:
+            # Parsear de ticket_numero con sufijo -MXX
+            tn = str(reserva.ticket_numero or '')
+            if '-M' in tn:
+                mesa_txt = tn.split('-M')[-1]
+        if mesa_txt:
+            y -= 18
+            c.drawString(40, y, f"Mesa: {mesa_txt}")
+    except Exception:
+        pass
 
     y -= 28
     c.setFont('Helvetica-Bold', 12)

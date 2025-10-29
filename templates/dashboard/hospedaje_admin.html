@@ -104,6 +104,11 @@
 					<textarea class="form-control" id="caracteristicas" name="caracteristicas" rows="4" placeholder='Ej: {"area_interior": ["Cama King"], "servicios": ["Room service 24h"]}'></textarea>
 				</div>
 				<div class="col-12">
+					<label for="objetos_inventario" class="form-label">Objetos para Inventario (opcional)</label>
+					<textarea class="form-control" id="objetos_inventario" name="objetos_inventario" rows="4" placeholder="Una línea por objeto. Formato: Categoria | Nombre del objeto | Cantidad\nEjemplos:\nMobiliario | Silla ejecutiva | 1\nElectrónicos | Smart TV 50'' | 1\nBaño | Toalla de mano | 2"></textarea>
+					<small class="text-muted">Se generará automáticamente un inventario inicial para esta habitación con estos objetos. Luego podrás chequear su estado.</small>
+				</div>
+				<div class="col-12">
 					<label for="model3d" class="form-label">URL del modelo 3D (GLB, USDZ, etc)</label>
 					<input type="url" class="form-control" id="model3d" name="model3d" placeholder="https://.../modelo.glb">
 					<small class="text-muted">Opcional. Si se proporciona, se mostrará el modelado 3D en la vista pública.</small>
@@ -139,6 +144,14 @@
 							<div><div class="label">Modelo 3D</div>{{ 'Sí' if h.model3d else '—' }}</div>
 							<div><div class="label">Descripción</div>{{ (h.descripcion[:30] ~ '…') if h.descripcion and (h.descripcion|length>30) else (h.descripcion or '—') }}</div>
 						</div>
+							{% if inv_summary and inv_summary.get(h.id) %}
+							{% set inv = inv_summary.get(h.id) %}
+							<div class="mt-2 d-flex flex-wrap gap-2">
+								<span class="badge rounded-pill text-bg-success">Completo {{ inv.completos }}/{{ inv.total }}</span>
+								<span class="badge rounded-pill text-bg-danger">Faltantes {{ inv.faltantes }}</span>
+								<span class="badge rounded-pill text-bg-warning text-dark">Pendientes {{ inv.pendientes }}</span>
+							</div>
+							{% endif %}
 						<div class="card-actions">
 							<button type="button" class="btn btn-outline-secondary btn-sm" title="Ver detalles" data-bs-toggle="modal" data-bs-target="#modalHabitacion{{ h.id }}"><i class="bi bi-eye"></i></button>
 							<button type="button" class="btn btn-outline-secondary btn-sm" title="Historial" data-bs-toggle="modal" data-bs-target="#calHabitacion{{ h.id }}"><i class="bi bi-clock-history"></i></button>

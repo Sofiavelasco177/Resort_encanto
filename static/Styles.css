@@ -1818,7 +1818,7 @@ body > nav, body > main, body > footer{ position: relative; z-index: auto; }
 .navbar .btn.btn-outline-light:hover{ color:#ffffff !important; background:#0d6efd !important; border-color:#0d6efd !important; }
 
 /* Add breathing room above profile pages */
-.perfil-usuario{ padding-top: 24px; }
+.perfil-usuario{ padding-top: 32px; }
 
 /* ========= Checkout payment page ========= */
 .checkout-page{ max-width: 1000px; }

@@ -78,6 +78,15 @@
             <label class="form-label">Teléfono</label>
             <input id="rest-telefono" type="text" name="telefono" class="form-control" placeholder="Tu teléfono" value="{{ (user_prefill.telefono or '') if user_prefill is defined else '' }}" readonly />
           </div>
+          <div class="mb-2">
+            <label class="form-label">Número de mesa (opcional)</label>
+            <select name="mesa" class="form-select">
+              <option value="">Selecciona…</option>
+              {% for n in range(1, 21) %}
+                <option value="{{ n }}">Mesa {{ '%02d'|format(n) }}</option>
+              {% endfor %}
+            </select>
+          </div>
           <div class="mb-3">
             <label class="form-label">Cupo de personas</label>
             <input type="number" min="1" name="cupo" class="form-control" value="{{ cart.people }}" />

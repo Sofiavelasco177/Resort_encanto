@@ -100,6 +100,28 @@ def hospedaje_index():
     extras = [p for p in habitaciones_por_plan.keys() if p not in base_order]
     plan_order = [p for p in base_order if p in habitaciones_por_plan] + sorted(extras)
     current_year = datetime.utcnow().year
+    # Resumen rápido de inventario por habitación (último registro)
+    inv_summary = {}
+    try:
+        for h in habitaciones:
+            rec = (InventarioHabitacion.query
+                   .filter_by(habitacion_id=h.id)
+                   .order_by(InventarioHabitacion.created_at.desc())
+                   .first())
+            if not rec:
+                continue
+            total = len(rec.items or [])
+            completos = sum(1 for it in rec.items if getattr(it, 'checked', False))
+            faltantes = sum(1 for it in rec.items if (it.quantity is not None and int(it.quantity or 0) <= 0))
+            pendientes = max(total - completos - faltantes, 0)
+            inv_summary[h.id] = {
+                'total': total,
+                'completos': completos,
+                'faltantes': faltantes,
+                'pendientes': pendientes,
+            }
+    except Exception:
+        pass
     return render_template(
         "dashboard/hospedaje_admin.html",
         habitaciones=habitaciones,
@@ -107,6 +129,7 @@ def hospedaje_index():
         plan_order=plan_order,
         q=q,
         current_year=current_year,
+        inv_summary=inv_summary,
     )
 
 
@@ -782,6 +805,27 @@ def inventarios_list():
     total_count = q.count()
     activos_count = q.filter(InventarioHabitacion.inspection_date.isnot(None)).count()
 
+    # Métricas de gestión (completas/faltantes/pendientes) a partir de items
+    completas = 0
+    faltantes_reg = 0
+    pendientes_reg = 0
+    for rec in registros:
+        items = rec.items or []
+        if not items:
+            pendientes_reg += 1
+            continue
+        total_i = len(items)
+        comp_i = sum(1 for it in items if getattr(it, 'checked', False))
+        falt_i = sum(1 for it in items if (it.quantity is not None and int(it.quantity or 0) <= 0))
+        pend_i = max(total_i - comp_i - falt_i, 0)
+        if falt_i == 0 and pend_i == 0 and comp_i == total_i:
+            completas += 1
+        else:
+            if falt_i > 0:
+                faltantes_reg += 1
+            if pend_i > 0:
+                pendientes_reg += 1
+
     # Listas distintas para selects
     # Nota: usamos todo el conjunto (sin aplicar filtros) para opciones completas
     all_types = [row[0] for row in db.session.query(InventarioHabitacion.room_type).filter(InventarioHabitacion.room_type.isnot(None)).distinct().order_by(InventarioHabitacion.room_type.asc()).all()]
@@ -801,6 +845,9 @@ def inventarios_list():
         registros=registros,
         total_count=total_count,
         activos_count=activos_count,
+        completas=completas,
+        faltantes=faltantes_reg,
+        pendientes=pendientes_reg,
         room=room,
         rtype=rtype,
         inspector=inspector,
@@ -1104,6 +1151,48 @@ def hospedaje_nueva():
         )
         db.session.add(habitacion)
         db.session.commit()
+
+        # Si se especificaron objetos para inventario, creamos un registro inicial
+        objs_raw = (request.form.get('objetos_inventario') or '').strip()
+        if objs_raw:
+            try:
+                # Crear cabecera de inventario asociada a la nueva habitación
+                rec = InventarioHabitacion(
+                    habitacion_id=habitacion.id,
+                    room_number=str(numero or habitacion.id),
+                    room_type=(nombre or '').strip() or None,
+                    inspection_date=None,
+                    inspector=None
+                )
+                db.session.add(rec)
+                db.session.flush()
+
+                # Parsear líneas: Categoria | Nombre | Cantidad
+                for line in objs_raw.splitlines():
+                    parts = [p.strip() for p in line.split('|')]
+                    if not parts or not parts[0]:
+                        continue
+                    cat = parts[0]
+                    label = parts[1] if len(parts) > 1 else parts[0]
+                    qty = None
+                    try:
+                        qty = int(parts[2]) if len(parts) > 2 and parts[2] != '' else None
+                    except Exception:
+                        qty = None
+                    item = InventarioItem(
+                        record_id=rec.id,
+                        category=cat or None,
+                        key=(label.lower().replace(' ', '_')[:60] if label else 'item'),
+                        label=label,
+                        checked=False,
+                        quantity=qty
+                    )
+                    db.session.add(item)
+                db.session.commit()
+                flash("🧾 Inventario inicial generado para la habitación", "info")
+            except Exception as e:
+                db.session.rollback()
+                flash(f"⚠️ No se pudo generar el inventario inicial: {e}", "warning")
 
         flash("✅ Habitación creada correctamente", "success")
     except Exception as e:

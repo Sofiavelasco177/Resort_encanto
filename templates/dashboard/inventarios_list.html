@@ -2,6 +2,46 @@
 {% block content %}
 <div class="container my-4">
 
+  <!-- Gestión de inventarios header -->
+  <div class="card shadow-sm border-0 mb-3" style="background: linear-gradient(135deg, #0f172a, #111827); color: #e5e7eb;">
+    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <div class="text-uppercase small" style="letter-spacing:.08em; color:#9ca3af;">Panel</div>
+        <h3 class="mb-0">Gestión de inventarios</h3>
+      </div>
+      <div class="d-flex align-items-center flex-wrap gap-3">
+        <div class="text-center">
+          <div class="fw-bold" style="font-size:1.25rem">{{ completas or 0 }}</div>
+          <div class="small text-success">Completos</div>
+        </div>
+        <div class="vr" style="height:32px; opacity:.15"></div>
+        <div class="text-center">
+          <div class="fw-bold" style="font-size:1.25rem">{{ faltantes or 0 }}</div>
+          <div class="small text-warning">Faltantes</div>
+        </div>
+        <div class="vr" style="height:32px; opacity:.15"></div>
+        <div class="text-center">
+          <div class="fw-bold" style="font-size:1.25rem">{{ pendientes or 0 }}</div>
+          <div class="small text-info">Pendientes</div>
+        </div>
+        <div class="vr" style="height:32px; opacity:.15"></div>
+        <div class="text-center">
+          <div class="fw-bold" style="font-size:1.25rem">{{ total_count or registros|length }}</div>
+          <div class="small text-muted">Total</div>
+        </div>
+        <div class="text-center">
+          <div class="fw-bold" style="font-size:1.25rem">{{ activos_count or 0 }}</div>
+          <div class="small text-muted">Activos</div>
+        </div>
+      </div>
+      <div>
+        <a href="{{ url_for('admin.inventario_view') }}" class="btn btn-success">
+          <i class="bi bi-plus-lg me-1"></i> Nuevo inventario
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="table-responsive">
     <div class="inv-header-card p-3 p-md-4 mb-2 d-flex align-items-center justify-content-between flex-wrap gap-3">
       <h2 class="mb-0">Inventarios recientes</h2>
