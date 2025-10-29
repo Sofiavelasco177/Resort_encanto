@@ -43,7 +43,7 @@ def google_login():
 
     try:
         # Respetar esquema preferido (https en prod) si está configurado
-    redirect_uri = _build_google_redirect_uri(next_param)
+        redirect_uri = _build_google_redirect_uri(next_param)
         current_app.logger.info(f"Iniciando login con Google. redirect_uri={redirect_uri}")
         return oauth.google.authorize_redirect(redirect_uri)
     except Exception as e:
