@@ -544,6 +544,9 @@ client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
 # Endpoints explícitos de Google para evitar fallos de descubrimiento
 GOOGLE_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_ISSUER = "https://accounts.google.com"
+GOOGLE_JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
+GOOGLE_USERINFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo"
 
 if client_id and client_secret:
     app.logger.info(f'Google OAuth configurado con Client ID: {client_id[:10]}...')
@@ -556,6 +559,13 @@ if client_id and client_secret:
             authorize_url=GOOGLE_AUTHORIZE_URL,
             token_url=GOOGLE_TOKEN_URL,            # Authlib >=1.x
             access_token_url=GOOGLE_TOKEN_URL,     # Compat con nombres antiguos
+            server_metadata={
+                "issuer": GOOGLE_ISSUER,
+                "authorization_endpoint": GOOGLE_AUTHORIZE_URL,
+                "token_endpoint": GOOGLE_TOKEN_URL,
+                "jwks_uri": GOOGLE_JWKS_URI,
+                "userinfo_endpoint": GOOGLE_USERINFO_ENDPOINT,
+            },
             client_kwargs={"scope": "openid email profile", "timeout": 10}
         )
         app.logger.info('Google OAuth registrado exitosamente')
@@ -570,6 +580,13 @@ if client_id and client_secret:
             authorize_url=GOOGLE_AUTHORIZE_URL,
             token_url=GOOGLE_TOKEN_URL,
             access_token_url=GOOGLE_TOKEN_URL,
+            server_metadata={
+                "issuer": GOOGLE_ISSUER,
+                "authorization_endpoint": GOOGLE_AUTHORIZE_URL,
+                "token_endpoint": GOOGLE_TOKEN_URL,
+                "jwks_uri": GOOGLE_JWKS_URI,
+                "userinfo_endpoint": GOOGLE_USERINFO_ENDPOINT,
+            },
             client_kwargs={"scope": "openid email profile"}
         )
 else:
@@ -583,6 +600,13 @@ else:
         authorize_url=GOOGLE_AUTHORIZE_URL,
         token_url=GOOGLE_TOKEN_URL,
         access_token_url=GOOGLE_TOKEN_URL,
+        server_metadata={
+            "issuer": GOOGLE_ISSUER,
+            "authorization_endpoint": GOOGLE_AUTHORIZE_URL,
+            "token_endpoint": GOOGLE_TOKEN_URL,
+            "jwks_uri": GOOGLE_JWKS_URI,
+            "userinfo_endpoint": GOOGLE_USERINFO_ENDPOINT,
+        },
         client_kwargs={"scope": "openid email profile"}
     )
 
