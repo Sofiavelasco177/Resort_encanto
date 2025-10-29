@@ -614,8 +614,8 @@ app.add_url_rule('/nosotros', endpoint='nosotros', view_func=_main.nosotros)
 app.add_url_rule('/Experiencias', endpoint='experiencias', view_func=_main.experiencias, methods=['GET', 'POST'])
 app.add_url_rule('/login', endpoint='login', view_func=_registro.login, methods=['GET', 'POST'])
 
-#Ruta de autenticación con Google (implementada en auth.py)
-app.add_url_rule('/google-login', endpoint='google_login', view_func=_auth.google_login)
+# La ruta de Google Login ya está registrada en el blueprint `auth_bp` como '/google-login'.
+# Evitamos registrar un alias duplicado que podría causar conflictos al iniciar.
 
 
 # Health check y verificación de entorno (sin filtrar secretos)
