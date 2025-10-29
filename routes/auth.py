@@ -78,7 +78,10 @@ def google_authorize():
         if not request.args.get('code'):
             current_app.logger.warning('Google authorize sin parámetro code; redirigiendo al login de Google')
             return redirect(url_for('auth.google_login', next=next_param))
-        token = oauth.google.authorize_access_token(token_endpoint=TOKEN_URL, redirect_uri=redirect_uri)
+
+        # No pasar redirect_uri aquí: Authlib ya la infiere de la solicitud de autorización,
+        # y pasarla de nuevo causa 'multiple values for keyword argument redirect_uri'.
+        token = oauth.google.authorize_access_token(token_endpoint=TOKEN_URL)
         current_app.logger.info('Token de Google recibido correctamente')
         user_info = oauth.google.get('https://www.googleapis.com/oauth2/v3/userinfo').json()
         current_app.logger.info(f"Usuario Google: email={user_info.get('email')}")
