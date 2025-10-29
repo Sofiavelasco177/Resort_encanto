@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="page-header-card mb-3">
         <div>
-            <h1 class="h3 mb-0">Panel de Notificaciones</h1>
-            <p class="text-muted">Gestiona las notificaciones de check-in y check-out</p>
+            <h2 class="title m-0">Panel de Notificaciones</h2>
+            <p class="sub m-0">Gestiona las notificaciones de check-in y check-out</p>
         </div>
         <div>
-            <a href="{{ url_for('admin.notification_settings') }}" class="btn btn-outline-primary">
+            <a href="{{ url_for('admin.notification_settings') }}" class="btn btn-gradient">
                 <i class="bi bi-gear me-2"></i>Configuración
             </a>
         </div>

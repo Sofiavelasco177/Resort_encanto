@@ -2,19 +2,19 @@
 
 {% block content %}
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-end mb-2">
+  <div class="page-header-card mb-3">
     <div>
-      <h2 class="mb-1">Estadísticas del Hotel</h2>
-      <p class="text-muted mb-0">Panel de control y análisis de datos</p>
+      <h2 class="title">Estadísticas del Hotel</h2>
+      <p class="sub">Panel de control y análisis de datos</p>
     </div>
-    <form method="get" class="d-flex align-items-center gap-2">
-      <label class="text-muted">Año</label>
+    <form method="get" class="controls d-flex align-items-center gap-2">
+      <label class="text-muted mb-0">Año</label>
       <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
         {% for y in range(year-3, year+1) %}
           <option value="{{ y }}" {% if y==year %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
-      <a href="{{ url_for('admin.estadisticas_export_csv', year=year) }}" class="btn btn-sm btn-outline-secondary">
+      <a href="{{ url_for('admin.estadisticas_export_csv', year=year) }}" class="btn btn-gradient">
         <i class="bi bi-download me-1"></i> Exportar CSV
       </a>
     </form>

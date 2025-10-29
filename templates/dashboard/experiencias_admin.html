@@ -2,8 +2,11 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Experiencias</h3>
+  <div class="page-header-card mb-3">
+    <div>
+      <h2 class="title m-0">Experiencias</h2>
+      <p class="sub m-0">Gestión de experiencias y reseñas</p>
+    </div>
     <div class="text-muted small">Total: {{ experiencias|length }}</div>
   </div>
 
@@ -58,8 +61,11 @@
   </div>
 
   <!-- Reseñas -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0">Reseñas</h4>
+  <div class="page-header-card mb-3">
+    <div>
+      <h4 class="title m-0" style="font-size:1.5rem">Reseñas</h4>
+      <p class="sub m-0">Últimas opiniones</p>
+    </div>
     <div class="d-flex align-items-center gap-2">
       <div class="btn-group btn-group-sm me-2" role="group" aria-label="Vista reseñas">
         <button type="button" class="btn btn-outline-secondary resenas-view" data-view="cards"><i class="bi bi-grid-3x3-gap me-1"></i>Tarjetas</button>

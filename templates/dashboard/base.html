@@ -19,11 +19,8 @@
         <!-- Sidebar izquierdo -->
         <aside class="sidebar-app bg-light border-end">
             <div class="sidebar-brand d-flex align-items-center gap-2 border-bottom">
-                <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo" class="sidebar-logo">
+                <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Logo" class="sidebar-logo" title="Colapsar/Expandir menú" data-bs-toggle="tooltip" data-bs-placement="right">
                 <span class="fw-bold nav-text">Hotel Isla Encanto</span>
-                <button class="btn btn-sm btn-outline-secondary ms-auto sidebar-toggle" type="button" aria-label="Colapsar menú" title="Colapsar menú" data-bs-toggle="tooltip" data-bs-placement="right">
-                    <i class="bi bi-layout-sidebar-inset"></i>
-                </button>
             </div>
             <nav class="nav flex-column p-3">
                 <a class="nav-link {% if request.endpoint == 'main.home_admin' %}active fw-semibold{% endif %}" href="{{ url_for('main.home_admin') }}" title="Inicio" data-bs-toggle="tooltip" data-bs-placement="right"><i class="bi bi-house-door me-2"></i><span class="nav-text">Inicio</span></a>
@@ -51,10 +48,7 @@
                 </div>
             </nav>
         </aside>
-        <!-- Botón flotante para expandir cuando está colapsado -->
-        <button class="sidebar-expander btn btn-primary btn-sm" type="button" aria-label="Expandir menú" title="Expandir menú" data-bs-toggle="tooltip" data-bs-placement="right">
-            <i class="bi bi-layout-sidebar"></i>
-        </button>
+        <!-- Botón flotante eliminado: expansión/colapso solo con el logo -->
     <!-- Backdrop overlay -->
     <div class="sidebar-backdrop d-lg-none"></div>
     <!-- Contenido principal -->
@@ -121,17 +115,12 @@
                 const host = document.querySelector('.layout-app');
                 const key = 'adminSidebarCollapsed';
                 try { if (localStorage.getItem(key) === '1') host.classList.add('collapsed'); } catch(e){}
-                const btn = document.querySelector('.sidebar-toggle');
-                const expander = document.querySelector('.sidebar-expander');
+                const brandLogo = document.querySelector('.sidebar-logo');
                 const mobileBtn = document.querySelector('.mobile-toggle');
                 const backdrop = document.querySelector('.sidebar-backdrop');
-                if (btn) btn.addEventListener('click', () => {
+                if (brandLogo) brandLogo.addEventListener('click', () => {
                     host.classList.toggle('collapsed');
                     try { localStorage.setItem(key, host.classList.contains('collapsed') ? '1' : '0'); } catch(e){}
-                });
-                if (expander) expander.addEventListener('click', () => {
-                    host.classList.remove('collapsed');
-                    try { localStorage.setItem(key, '0'); } catch(e){}
                 });
                 // móvil overlay open/close
                 const openMobile = () => host.classList.add('sidebar-open');
