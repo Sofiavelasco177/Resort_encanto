@@ -2,61 +2,43 @@
 
 {% block content %}
 <div class="container my-4">
+	<div class="p-3 p-md-4 rounded-4 shadow-sm form-dark-box form-dark">
+		<h3 class="mb-2">Nosotros — Gestión de contenido</h3>
+		<div class="inv-accent mb-3"></div>
+		<form class="row g-3" action="{{ url_for('admin.admin_nosotros_nuevo') }}" method="POST" enctype="multipart/form-data">
+			<div class="col-md-6">
+				<label class="form-label">Título</label>
+				<input class="form-control" name="titulo" required>
+			</div>
+			<div class="col-md-3">
+				<label class="form-label">Categoría</label>
+				<select class="form-select" name="categoria">
+					<option value="noticia">Noticia</option>
+					<option value="marketing">Marketing</option>
+					<option value="descuento">Descuento</option>
+				</select>
+			</div>
+			<div class="col-md-3 d-flex align-items-end">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" name="activo" id="activo" checked>
+					<label class="form-check-label" for="activo">Activo</label>
+				</div>
+			</div>
+			<div class="col-12">
+				<label class="form-label">Contenido</label>
+				<textarea class="form-control" name="contenido" rows="4" required></textarea>
+			</div>
+			<div class="col-md-6">
+				<label class="form-label">Imagen (opcional)</label>
+				<input class="form-control" type="file" name="imagen" accept="image/*">
+			</div>
+			<div class="col-12">
+				<button class="btn btn-main" type="submit">Publicar</button>
+			</div>
+		</form>
+	</div>
 
-    <!-- Crear Nueva Sección (colapsable) -->
-    <div class="form-section">
-        <div class="form-header" onclick="toggleSection('nosForm','nosIcon')">
-            <div>
-                <h3>Crear Nueva Sección</h3>
-                <div class="sub">Completa la información para agregar una nueva sección</div>
-            </div>
-            <span class="toggle-icon" id="nosIcon">▼</span>
-        </div>
-        <div class="form-content" id="nosForm">
-            <form class="row g-3" action="{{ url_for('admin.admin_nosotros_nuevo') }}" method="POST" enctype="multipart/form-data" onsubmit="return true;">
-                <div class="col-md-6">
-                    <label class="form-label">Título</label>
-                    <input class="form-control" name="titulo" required placeholder="Ingresa el título de la sección">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Categoría</label>
-                    <select class="form-select" name="categoria">
-                        <option value="noticia">Noticia</option>
-                        <option value="marketing">Marketing</option>
-                        <option value="descuento">Descuento</option>
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="activo" id="activo" checked>
-                        <label class="form-check-label" for="activo">Activo</label>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Imagen (opcional)</label>
-                    <div class="upload-area" onclick="document.getElementById('nosImg').click()">
-                        <p>Haz clic para seleccionar o arrastra una imagen</p>
-                        <small>PNG, JPG o GIF (máx. 5MB)</small>
-                        <input id="nosImg" class="file-input" type="file" name="imagen" accept="image/*" onchange="document.getElementById('nosImgName').textContent = this.files[0] ? ('Archivo seleccionado: '+this.files[0].name) : ''">
-                    </div>
-                    <p id="nosImgName" class="mt-2" style="color:#667eea;font-size:14px"></p>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Contenido</label>
-                    <textarea class="form-control" name="contenido" rows="4" placeholder="Escribe el contenido de la sección..." required></textarea>
-                </div>
-                <div class="col-12 d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-cancel" onclick="collapseSection('nosForm','nosIcon')">Cancelar</button>
-                    <button class="btn btn-submit" type="submit"><span class="me-1">+</span> Publicar Sección</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Secciones existentes -->
-    <div class="sections-list">
-        <h3>Secciones existentes</h3>
-        <div class="row g-3 g-md-4">
+	<div class="row g-3 g-md-4 mt-3">
 		{% for p in posts %}
 		<div class="col-12 col-md-6">
 			<div class="card h-100">
@@ -101,24 +83,8 @@
 			</div>
 		</div>
 		{% else %}
-			<div class="col-12"><div class="empty-state">No hay secciones creadas aún</div></div>
+			<div class="col-12"><div class="text-muted">Sin contenido aún. ¡Publica el primero!</div></div>
 		{% endfor %}
 	</div>
-    </div>
-
-    <script>
-    function toggleSection(contentId, iconId){
-        const content = document.getElementById(contentId);
-        const icon = document.getElementById(iconId);
-        content.classList.toggle('expanded');
-        icon.classList.toggle('rotated');
-    }
-    function collapseSection(contentId, iconId){
-        const content = document.getElementById(contentId);
-        const icon = document.getElementById(iconId);
-        content.classList.remove('expanded');
-        icon.classList.remove('rotated');
-    }
-    </script>
 </div>
 {% endblock %}
