@@ -35,7 +35,7 @@
         <form method="POST" action="{{ url_for('experiencias') }}">
             <div class="mb-3">
                 <label class="form-label">Tu nombre</label>
-                <input type="text" class="form-control" value="{{ (_user.nombre or _user.usuario) if _user else '' }}" readonly>
+                <input type="text" class="form-control" name="nombre" value="{{ (_user.nombre or _user.usuario) if _user else '' }}" readonly>
             </div>
             <div class="mb-3">
                 <label for="rating" class="form-label">Tu calificación</label>

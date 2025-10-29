@@ -30,10 +30,12 @@
                   </td>
                   <td class="text-end">${{ '{:,.0f}'.format(it.subtotal) }}</td>
                   <td>
-                    <form method="post" action="{{ url_for('restaurante_cart.cart_remove') }}">
-                      <input type="hidden" name="plato_id" value="{{ it.plato_id }}" />
-                      <button class="btn btn-link text-danger p-0">Quitar</button>
-                    </form>
+                    <!-- Evitamos formularios anidados: usamos formaction/formmethod en el botón -->
+                    <button class="btn btn-link text-danger p-0" type="submit"
+                            formaction="{{ url_for('restaurante_cart.cart_remove') }}"
+                            formmethod="post" name="plato_id" value="{{ it.plato_id }}">
+                      Quitar
+                    </button>
                   </td>
                 </tr>
               {% endfor %}

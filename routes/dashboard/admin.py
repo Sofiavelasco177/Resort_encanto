@@ -1253,6 +1253,12 @@ def hospedaje_nueva():
 def hospedaje_eliminar(habitacion_id):
     habitacion = nuevaHabitacion.query.get_or_404(habitacion_id)
     try:
+        # Bloquear eliminación si existen reservas asociadas (clave foránea no permite NULL)
+        res_count = Reserva.query.filter_by(habitacion_id=habitacion_id).count()
+        if res_count > 0:
+            flash(f"❌ No se puede eliminar: hay {res_count} reserva(s) asociada(s). Cancela o reasigna esas reservas antes de eliminar la habitación.", "danger")
+            return redirect(url_for("admin.hospedaje_index"))
+
         db.session.delete(habitacion)
         db.session.commit()
         flash("🗑️ Habitación eliminada", "warning")
