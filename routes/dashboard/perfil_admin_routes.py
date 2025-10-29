@@ -79,6 +79,13 @@ def update():
     try:
         db.session.commit()
         flash('Perfil actualizado correctamente', 'success')
+        # Actualizar avatar en la sesión para reflejarlo en la UI inmediatamente
+        try:
+            sess_user = session.get('user') or {}
+            sess_user['avatar'] = usuario.avatar
+            session['user'] = sess_user
+        except Exception:
+            pass
     except Exception as e:
         db.session.rollback()
         flash(f'Error al actualizar el perfil: {e}', 'danger')

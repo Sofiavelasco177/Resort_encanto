@@ -84,6 +84,13 @@ def editar_perfil():
     try:
         db.session.commit()
         flash('Perfil actualizado', 'success')
+        # Refrescar avatar en la sesión para que se vea de inmediato en el navbar
+        try:
+            sess_user = session.get('user') or {}
+            sess_user['avatar'] = user.avatar
+            session['user'] = sess_user
+        except Exception:
+            pass
     except Exception as e:
         db.session.rollback()
         flash(f'Error: {e}', 'danger')
@@ -322,6 +329,13 @@ def cambiar_avatar():
         avatar_file.save(os.path.join(dest, unique))
         user.avatar = f"img/avatars/{unique}"
         db.session.commit()
+        # Refrescar avatar en la sesión
+        try:
+            sess_user = session.get('user') or {}
+            sess_user['avatar'] = user.avatar
+            session['user'] = sess_user
+        except Exception:
+            pass
         return jsonify({'success': True, 'avatar_url': url_for('static', filename=user.avatar)})
     except Exception as e:
         db.session.rollback()

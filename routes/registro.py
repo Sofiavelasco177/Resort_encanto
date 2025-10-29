@@ -36,7 +36,8 @@ def login():
                         'id': user.idUsuario,
                         'nombre': user.usuario,
                         'correo': user.correo,
-                        'rol': user.rol or 'usuario'
+                        'rol': user.rol or 'usuario',
+                        'avatar': getattr(user, 'avatar', None)
                     }
                     flash(f'¡Bienvenido, {user.usuario}!', 'success')
 
@@ -55,7 +56,8 @@ def login():
                         'id': user.idUsuario,
                         'nombre': user.usuario,
                         'correo': user.correo,
-                        'rol': user.rol or 'usuario'
+                        'rol': user.rol or 'usuario',
+                        'avatar': getattr(user, 'avatar', None)
                     }
                     flash(f'¡Bienvenido, {user.usuario}! (contraseña actualizada a hash)', 'success')
 

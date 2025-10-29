@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash
 from jinja2 import TemplateNotFound
 from datetime import datetime
-from models.baseDatos import nuevaHabitacion, Post, PlatoRestaurante, ResenaExperiencia
+from models.baseDatos import nuevaHabitacion, Post, PlatoRestaurante, ResenaExperiencia, Usuario
 
 main_bp = Blueprint('main', __name__)
 
@@ -62,8 +62,18 @@ def experiencias():
     try:
         db_comments = ResenaExperiencia.query.filter_by(aprobado=True).order_by(ResenaExperiencia.creado_en.desc()).limit(100).all()
         for r in db_comments:
+            avatar_url = None
+            try:
+                if r.usuario_id:
+                    u = Usuario.query.get(r.usuario_id)
+                    if u and getattr(u, 'avatar', None):
+                        # Construir URL absoluta para la plantilla
+                        avatar_path = u.avatar.replace('\\', '/')
+                        avatar_url = url_for('static', filename=avatar_path) if not avatar_path.startswith('http') else avatar_path
+            except Exception:
+                pass
             comentarios.append({
-                'user': {'username': 'Usuario ' + str(r.usuario_id or ''), 'avatar': None},
+                'user': {'username': 'Usuario ' + str(r.usuario_id or ''), 'avatar': avatar_url},
                 'contenido': r.contenido,
                 'rating': int(r.calificacion or 0),
                 'created_at': r.creado_en,
@@ -96,8 +106,17 @@ def experiencias():
                 pass
             # Añadir también al contexto actual para reflejarlo al instante
             username = getattr(current_user, 'usuario', None) or getattr(current_user, 'username', None) or session.get('user', {}).get('nombre')
+            # Avatar desde sesión o perfil
+            avatar_url = None
+            try:
+                sess_avatar = session.get('user', {}).get('avatar')
+                if sess_avatar:
+                    ap = str(sess_avatar).replace('\\', '/')
+                    avatar_url = url_for('static', filename=ap) if not ap.startswith('http') else ap
+            except Exception:
+                pass
             comentarios.insert(0, {
-                'user': {'username': username or 'Anónimo', 'avatar': None},
+                'user': {'username': username or 'Anónimo', 'avatar': avatar_url},
                 'contenido': contenido,
                 'rating': rating,
                 'created_at': datetime.now()

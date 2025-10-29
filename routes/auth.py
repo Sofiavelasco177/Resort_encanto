@@ -69,12 +69,13 @@ def google_authorize():
         db.session.add(usuario)
         db.session.commit()
 
-    # Guardar sesión
+    # Guardar sesión (incluir avatar si existe en BD o si Google entrega picture)
     session['user'] = {
         'id': usuario.idUsuario,
         'nombre': usuario.usuario,
         'correo': usuario.correo,
-        'rol': usuario.rol or 'usuario'
+        'rol': usuario.rol or 'usuario',
+        'avatar': getattr(usuario, 'avatar', None) or user_info.get('picture')
     }
 
     flash(f'¡Bienvenido, {usuario.usuario}!', 'success')
@@ -123,7 +124,8 @@ def google_dev_login():
         'id': usuario.idUsuario,
         'nombre': usuario.usuario,
         'correo': usuario.correo,
-        'rol': getattr(usuario, 'rol', 'usuario')
+        'rol': getattr(usuario, 'rol', 'usuario'),
+        'avatar': getattr(usuario, 'avatar', None)
     }
 
     flash('Inicio de sesión simulado en modo desarrollo', 'info')

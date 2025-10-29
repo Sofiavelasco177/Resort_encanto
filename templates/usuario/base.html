@@ -42,8 +42,13 @@
                         <span class="d-none d-sm-inline ms-1">Volver</span>
                     </a>
                     {% if session.get('user') %}
-                        <a href="{{ url_for('perfil_usuario.perfil') }}" class="btn btn-outline-light btn-profile" title="Perfil">
-                            <i class="bi bi-person-circle fs-4"></i>
+                        {% set avatar_path = (user.avatar if (user is defined and user and user.avatar) else (session.get('user', {}).get('avatar'))) %}
+                        <a href="{{ url_for('perfil_usuario.perfil') }}" class="profile-avatar-btn" title="Perfil">
+                            {% if avatar_path %}
+                              <img src="{{ url_for('static', filename=avatar_path) if not avatar_path.startswith('http') else avatar_path }}" alt="Avatar" />
+                            {% else %}
+                              <i class="bi bi-person-circle icon"></i>
+                            {% endif %}
                         </a>
                         <a href="{{ url_for('auth.logout') }}" class="btn btn-logout" title="Cerrar sesión">
                             <i class="bi bi-box-arrow-right fs-5"></i>
