@@ -402,7 +402,7 @@ main { padding-top: 72px; }
    Collapsible gradient headers (admin forms)
    ======================= */
 .toggle-gradient {
-    background: linear-gradient(90deg, #6d5ef3, #7f4bb2);
+    background: linear-gradient(90deg, #cfccef, #7f4bb2);
     color: #fff;
     padding: 12px 16px;
     border-radius: 12px;
