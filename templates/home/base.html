@@ -44,10 +44,22 @@
                         <a href="{{ url_for('perfil_usuario.perfil') }}" class="btn btn-login" title="Perfil">
                             <i class="bi bi-person-circle fs-4"></i>
                         </a>
-                        <a href="{{ url_for('auth.logout') }}" class="btn btn-logout" title="Cerrar sesión">
-                            <i class="bi bi-box-arrow-right fs-5"></i>
-                            <span class="d-none d-sm-inline ms-1">Cerrar sesión</span>
-                        </a>
+                        {% if session.get('user').get('rol') == 'admin' %}
+                        <div class="d-flex flex-column align-items-end">
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-logout" title="Cerrar sesión">
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                <span class="d-none d-sm-inline ms-1">Cerrar sesión</span>
+                            </a>
+                            <a href="{{ url_for('main.home_admin') }}" class="btn btn-sm btn-outline-secondary mt-1" title="Volver al admin">
+                                <i class="bi bi-speedometer2 me-1"></i> Volver al admin
+                            </a>
+                        </div>
+                        {% else %}
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-logout" title="Cerrar sesión">
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                <span class="d-none d-sm-inline ms-1">Cerrar sesión</span>
+                            </a>
+                        {% endif %}
                     {% else %}
                         <a href="{{ url_for('registro.login') }}" class="btn btn-login" title="Iniciar sesión">
                             <i class="bi bi-box-arrow-right fs-4"></i>

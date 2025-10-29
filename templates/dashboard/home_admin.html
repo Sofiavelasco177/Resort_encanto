@@ -10,11 +10,6 @@
             <h2 class="title m-0">Inicio</h2>
             <p class="sub m-0">Gestión de secciones del home</p>
         </div>
-        <div>
-            <a class="btn btn-gradient" href="{{ url_for('main.home') }}" target="_blank" rel="noopener">
-                Ver Home público
-            </a>
-        </div>
     </div>
         {% if session.get('user') and session.get('user').get('rol') == 'admin' %}
             <button class="toggle-gradient w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#homeCreateForm" aria-expanded="false">
