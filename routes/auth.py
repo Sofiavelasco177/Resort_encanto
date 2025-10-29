@@ -6,6 +6,29 @@ auth_bp = Blueprint('auth', __name__)
 
 # ---------------- GOOGLE LOGIN ---------------- #
 
+def _build_google_redirect_uri(next_param=None):
+   
+    try:
+        host = request.host or ''
+        # Dominios locales típicos
+        is_local = ('localhost' in host) or host.startswith('127.0.0.1')
+        if not is_local:
+            base = 'https://hotelencanto.isladigital.xyz'
+            uri = f"{base}{url_for('auth.google_authorize')}"
+        else:
+            # Local: respetar host y esquema http
+            uri = url_for('auth.google_authorize', _external=True, _scheme='http')
+        if next_param:
+            # Propagar next como query param
+            from urllib.parse import urlencode
+            sep = '&' if ('?' in uri) else '?'
+            uri = f"{uri}{sep}{urlencode({'next': next_param})}"
+        return uri
+    except Exception:
+        # Fallback general
+        return url_for('auth.google_authorize', _external=True)
+
+
 @auth_bp.route('/google-login')
 def google_login():
     # Propagar `next` para volver post-login
@@ -20,8 +43,7 @@ def google_login():
 
     try:
         # Respetar esquema preferido (https en prod) si está configurado
-        scheme = current_app.config.get('PREFERRED_URL_SCHEME', 'http')
-        redirect_uri = url_for('auth.google_authorize', _external=True, _scheme=scheme, next=next_param)
+    redirect_uri = _build_google_redirect_uri(next_param)
         current_app.logger.info(f"Iniciando login con Google. redirect_uri={redirect_uri}")
         return oauth.google.authorize_redirect(redirect_uri)
     except Exception as e:
@@ -92,6 +114,12 @@ def google_authorize():
     if session['user']['rol'] == 'admin':
         return redirect(url_for('main.home_admin'))
     return redirect(url_for('main.home_usuario'))
+
+
+# Alias solicitado: /login/google → mismo flujo que /google-login
+@auth_bp.route('/login/google')
+def login_google():
+    return google_login()
 
 
 @auth_bp.route('/google_dev_login')

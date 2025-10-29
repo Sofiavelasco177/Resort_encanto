@@ -43,7 +43,7 @@ try:
 except Exception:
     pass
 
-# Soportar nombres de carpetas con mayúsculas (por compatibilidad)
+
 base_dir = os.path.dirname(os.path.abspath(__file__))
 templates_dir = os.path.join(base_dir, 'templates')
 templates_dir_cap = os.path.join(base_dir, 'Templates')
@@ -137,7 +137,7 @@ extensions.serializer = URLSafeTimedSerializer(app.secret_key)
 perfil_bp = Blueprint("perfil_usuario", __name__, url_prefix="/usuario")
 
 
-# Inyectar el usuario actual en todas las plantillas (aunque flask_login no esté instalado)
+# Inyectar el usuario actual en todas las plantillas
 @app.context_processor
 
 def inject_current_user():
@@ -491,6 +491,23 @@ def init_database():
                 except Exception as e:
                     app.logger.warning('No se pudieron crear tablas de restaurante: %s', e)
 
+                # Migración defensiva: agregar columna 'estado' a inventario_habitacion si falta
+                try:
+                    table_names = inspector.get_table_names()
+                    if 'inventario_habitacion' in table_names:
+                        inv_cols = [c['name'] for c in inspector.get_columns('inventario_habitacion')]
+                        if 'estado' not in inv_cols:
+                            stmt = "ALTER TABLE inventario_habitacion ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'Pendiente'"
+                            try:
+                                db.session.execute(text(stmt))
+                                db.session.commit()
+                                app.logger.info('Migración aplicada a inventario_habitacion: %s', stmt)
+                            except Exception as e_alter:
+                                db.session.rollback()
+                                app.logger.exception('No se pudo agregar columna estado a inventario_habitacion: %s', e_alter)
+                except Exception as e_inv:
+                    app.logger.warning('No se pudo inspeccionar/migrar inventario_habitacion: %s', e_inv)
+
             except Exception as e:
                 app.logger.exception('Error revisando/alterando la tabla usuario al iniciar: %s', e)
 
@@ -718,7 +735,8 @@ def handle_not_found(e):
         if request.path.startswith('/static/'):
             # Fallback para imágenes faltantes
             if any(request.path.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
-                logger.warning(f"Imagen estática faltante: {request.path}")
+                # Reducir el nivel de severidad: estos 404 de imágenes son esperables
+                logger.info(f"Imagen estática faltante: {request.path}")
                 # Redirigir a imagen por defecto
                 return redirect(url_for('static', filename='img/OIP.webp'))
             
