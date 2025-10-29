@@ -57,6 +57,16 @@ def editar_perfil():
     user.usuario = request.form.get('usuario') or user.usuario
     user.correo = request.form.get('correo') or user.correo
     user.telefono = request.form.get('telefono') or user.telefono
+    # Documento: tipo y número
+    tipo_doc = (request.form.get('tipo_documento') or '').strip()
+    num_doc = (request.form.get('numero_documento') or '').strip()
+    if tipo_doc:
+        user.tipoDocumento = tipo_doc
+    if num_doc:
+        # Permitir solo dígitos y algunos separadores comunes, normalizar a dígitos
+        nd_norm = ''.join(ch for ch in num_doc if ch.isdigit())
+        if nd_norm:
+            user.numeroDocumento = nd_norm
     user.direccion = request.form.get('direccion') or user.direccion
     user.plan_tipo = request.form.get('plan_tipo') or user.plan_tipo
     user.membresia_activa = True if request.form.get('membresia_activa') == 'on' else False

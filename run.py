@@ -244,6 +244,10 @@ def init_database():
                 # Columnas nuevas del modelo Usuario para compatibilidad con esquemas antiguos
                 if cols and 'telefono' not in cols:
                     stmts.append("ALTER TABLE usuario ADD COLUMN telefono VARCHAR(20) NULL")
+                if cols and 'tipoDocumento' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN tipoDocumento VARCHAR(50) NULL")
+                if cols and 'numeroDocumento' not in cols:
+                    stmts.append("ALTER TABLE usuario ADD COLUMN numeroDocumento VARCHAR(30) NULL")
                 if cols and 'avatar' not in cols:
                     stmts.append("ALTER TABLE usuario ADD COLUMN avatar VARCHAR(255) NULL")
                 if cols and 'plan_tipo' not in cols:

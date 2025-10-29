@@ -78,6 +78,22 @@
                                 <input type="email" id="email" name="correo" value="{{ user.correo or '' }}">
                             </div>
                             <div class="form-group">
+                                <label for="tipo_documento">Tipo de documento</label>
+                                <select id="tipo_documento" name="tipo_documento">
+                                    {% set td = (user.tipoDocumento or '') %}
+                                    <option value="" {{ 'selected' if not td else '' }}>Selecciona...</option>
+                                    <option value="CC" {{ 'selected' if td == 'CC' else '' }}>Cédula de ciudadanía (CC)</option>
+                                    <option value="CE" {{ 'selected' if td == 'CE' else '' }}>Cédula de extranjería (CE)</option>
+                                    <option value="TI" {{ 'selected' if td == 'TI' else '' }}>Tarjeta de identidad (TI)</option>
+                                    <option value="Pasaporte" {{ 'selected' if td == 'Pasaporte' else '' }}>Pasaporte</option>
+                                    <option value="NIT" {{ 'selected' if td == 'NIT' else '' }}>NIT</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="numero_documento">Cédula / Documento</label>
+                                <input type="text" id="numero_documento" name="numero_documento" value="{{ user.numeroDocumento or '' }}" placeholder="Ej: 1234567890">
+                            </div>
+                            <div class="form-group">
                                 <label for="phone">Teléfono</label>
                                 <input type="tel" id="phone" name="telefono" value="{{ user.telefono or '' }}" placeholder="+57 300 123 4567">
                             </div>

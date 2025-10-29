@@ -18,6 +18,9 @@ class Usuario(db.Model):
     direccion = db.Column(db.String(255), nullable=True)
     fechaNacimiento = db.Column(db.Date, nullable=True)
     telefono = db.Column(db.String(20), nullable=True)
+    # Documento de identidad
+    tipoDocumento = db.Column(db.String(50), nullable=True)
+    numeroDocumento = db.Column(db.String(30), nullable=True)
     avatar = db.Column(db.String(255), nullable=True)
     rol = db.Column(db.String(20), nullable=True, default='usuario')
     # Perfil de usuario extendido
