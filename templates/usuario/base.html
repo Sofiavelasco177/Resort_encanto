@@ -37,10 +37,6 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center ms-auto gap-2">
-                    <a href="javascript:history.back()" class="btn btn-outline-light" title="Volver">
-                        <i class="bi bi-arrow-left"></i>
-                        <span class="d-none d-sm-inline ms-1">Volver</span>
-                    </a>
                     {% if session.get('user') %}
                         {% set avatar_path = (user.avatar if (user is defined and user and user.avatar) else (session.get('user', {}).get('avatar'))) %}
                         <a href="{{ url_for('perfil_usuario.perfil') }}" class="profile-avatar-btn" title="Perfil">

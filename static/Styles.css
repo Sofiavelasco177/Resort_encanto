@@ -402,7 +402,7 @@ main { padding-top: 72px; }
    Collapsible gradient headers (admin forms)
    ======================= */
 .toggle-gradient {
-    background: linear-gradient(90deg, #cfccef, #7f4bb2);
+    background: linear-gradient(90deg, #6659f5, #ccbfda);
     color: #fff;
     padding: 12px 16px;
     border-radius: 12px;
@@ -411,7 +411,7 @@ main { padding-top: 72px; }
     justify-content: space-between;
     cursor: pointer;
     user-select: none;
-    box-shadow: 0 8px 18px rgba(233, 232, 239, 0.25);
+    box-shadow: 0 8px 18px rgba(248, 248, 249, 0.25);
 }
 .toggle-gradient .label { font-weight: 600; }
 .toggle-gradient .chev { transition: transform .2s ease; }
@@ -425,7 +425,7 @@ main { padding-top: 72px; }
 .perfil-usuario #profile-section .section-title,
 .perfil-usuario #password-section .section-title,
 .perfil-usuario #payments-section .section-title,
-.perfil-usuario .card .notification-item { margin-left: 0; }
+.perfil-usuario .card .notification-item { margin-left: 144px; }
 
 /* Alinear iconos del menú lateral y textos en una misma columna */
 .perfil-usuario .menu-item-content i { width: 20px; text-align: center; }
