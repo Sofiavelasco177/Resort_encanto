@@ -355,12 +355,24 @@ main { padding-top: 72px; }
 @media (max-width: 1024px) {
     .perfil-usuario .perfil-layout { grid-template-columns:1fr; }
     /* En pantallas pequeñas apilar verticalmente */
-    .perfil-usuario .sidebar { order:1; }
+    .perfil-usuario .sidebar { order:1; width:100%; margin-bottom:16px; }
 }
 @media (max-width: 768px) {
     .perfil-usuario .form-grid { grid-template-columns:1fr; }
     .perfil-usuario .payment-methods { grid-template-columns:repeat(2,1fr); }
     .perfil-usuario .card { padding:20px; }
+    .perfil-usuario .profile-header { flex-direction: column; align-items:flex-start; gap:16px; }
+    .perfil-usuario .avatar { width:96px; height:96px; font-size:32px; }
+    .perfil-usuario .section-title { font-size:18px; }
+    .perfil-usuario label { font-size:13px; }
+    .perfil-usuario input, .perfil-usuario select, .perfil-usuario textarea { font-size:14px; padding:10px 12px; }
+    .perfil-usuario .notification-item { flex-direction: column; align-items: stretch; gap:8px; }
+}
+@media (max-width: 576px) {
+    .perfil-usuario .card { padding:16px; }
+    .perfil-usuario .avatar { width:84px; height:84px; font-size:28px; }
+    .perfil-usuario .payment-methods { grid-template-columns:1fr; }
+    .perfil-usuario .btn-primary { width:100%; text-align:center; }
 }
 
 /* ----------------- Responsive (<= lg) para sidebars como overlay ----------------- */

@@ -14,9 +14,11 @@ def _build_google_redirect_uri(next_param=None):
         is_local = ('localhost' in host) or host.startswith('127.0.0.1')
         if not is_local:
             base = 'https://hotelencanto.isladigital.xyz'
-            uri = f"{base}{url_for('auth.google_authorize')}"
+            # Usar el alias '/google/authorize' (más común en consolas de Google)
+            uri = f"{base}{url_for('auth.google_authorize_alias')}"
         else:
-            # Local: respetar host y esquema http
+            # Local: respetar host y esquema http y usar la ruta histórica '/google_authorize'
+            # para coincidir con las URIs autorizadas en la consola de Google.
             uri = url_for('auth.google_authorize', _external=True, _scheme='http')
         # No anexamos `next` a la redirect_uri para evitar redirect_uri_mismatch en Google.
         # El `next` lo persistimos en sesión.
@@ -132,6 +134,28 @@ def google_authorize():
 @auth_bp.route('/google/authorize')
 def google_authorize_alias():
     return google_authorize()
+
+
+# Endpoint de depuración para verificar configuración de OAuth (no expone secretos)
+@auth_bp.route('/oauth/debug')
+def oauth_debug():
+    try:
+        host = request.host or ''
+        is_local = ('localhost' in host) or host.startswith('127.0.0.1')
+        redirect_uri = _build_google_redirect_uri(None)
+        # Evitar exponer secretos; solo mostramos prefijo del client_id si existe en config/env
+        import os
+        client_id = os.environ.get('GOOGLE_CLIENT_ID') or current_app.config.get('GOOGLE_CLIENT_ID')
+        client_id_preview = (client_id[:12] + '…') if client_id else None
+        return {
+            'host': host,
+            'is_local': is_local,
+            'computed_redirect_uri': redirect_uri,
+            'client_id_preview': client_id_preview,
+            'oauth_configured': bool(current_app.config.get('OAUTH'))
+        }
+    except Exception as e:
+        return {'error': str(e)}, 500
 
 
 # Alias solicitado: /login/google → mismo flujo que /google-login
