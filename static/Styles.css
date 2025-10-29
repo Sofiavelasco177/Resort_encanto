@@ -1849,7 +1849,7 @@ body > nav, body > main, body > footer{ position: relative; z-index: auto; }
 .category.active { display: block; animation: fadeInUp 0.6s ease; }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px);} to { opacity: 1; transform: translateY(0);} }
 .cat-title { color: #2c3e50; font-size: 1.8rem; margin: 0 0 30px; padding-bottom: 15px; border-bottom: 3px solid #4f7fff; font-weight: 800; position: relative; }
-.menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 30px; }
+.menu-container .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 30px; }
 .menu-item { background: #fff; border-radius: 20px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 1px solid #f1f3f5; position: relative; overflow: hidden; }
 .menu-item::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #4f7fff, #7b68ee); transform: scaleX(0); transition: transform 0.3s ease; }
 .menu-item:hover::before { transform: scaleX(1); }
@@ -1875,7 +1875,7 @@ body > nav, body > main, body > footer{ position: relative; z-index: auto; }
 .cart-cta .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(79, 127, 255, 0.4); }
 @media (max-width: 768px) { 
     .menu-container { padding: 24px; border-radius: 16px; }
-    .menu-grid { grid-template-columns: 1fr; gap: 20px; }
+    .menu-container .menu-grid { grid-template-columns: 1fr; gap: 20px; }
     .menu-item { padding: 20px; }
     .item-footer { flex-direction: column; align-items: stretch; gap: 16px; }
     .item-actions { justify-content: space-between; }
@@ -1891,7 +1891,7 @@ body > nav, body > main, body > footer{ position: relative; z-index: auto; }
 
 /* Ensure only two columns even on very wide screens */
 @media (min-width: 1400px){
-    .menu-grid{ grid-template-columns: repeat(2, 1fr); }
+    .menu-container .menu-grid{ grid-template-columns: repeat(2, 1fr); }
 }
 
 /* Improve Back button visibility in light navbar */

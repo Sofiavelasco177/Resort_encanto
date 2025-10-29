@@ -10,16 +10,13 @@
                     {% for h in rooms %}
                         <article class="room-card-v2">
                             <div class="room-media">
-                                {% set raw = h.imagen or '' %}
-                                {% if raw and (raw[:4]|lower == 'http') %}
-                                    {% set img_url = raw %}
-                                {% else %}
-                                    {% set fn = (raw|replace('\\\\','/')|replace('\\','/') ) %}
-                                    {% if fn.startswith('/static/') %}{% set fn = fn[8:] %}{% endif %}
-                                    {% if fn.startswith('static/') %}{% set fn = fn[7:] %}{% endif %}
-                                    {% set img_url = url_for('static', filename=fn if fn else 'img/default.jpg') %}
-                                {% endif %}
-                                <img src="{{ img_url }}" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+                                {#
+                                  Usar helper media_url que resuelve correctamente rutas de instance/uploads,
+                                  legacy static e incluso URLs absolutas. Esto garantiza que los cambios de imagen
+                                  al editar una habitación se reflejen en esta vista sin problemas de caché.
+                                #}
+                                {% set uimg = media_url(h.imagen) if h.imagen else url_for('static', filename='img/default.jpg') %}
+                                <img src="{{ uimg }}" alt="{{ h.nombre }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default.jpg') }}'">
                             </div>
                             <div class="room-index-title">
                                 <div class="room-index">{{ '%02d'|format(loop.index) }}</div>

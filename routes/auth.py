@@ -123,6 +123,13 @@ def google_authorize():
     return redirect(url_for('main.home_usuario'))
 
 
+# Alias adicional para evitar errores de configuración en Google Console
+# Si la consola tiene registrado /google/authorize, aceptamos también esa ruta
+@auth_bp.route('/google/authorize')
+def google_authorize_alias():
+    return google_authorize()
+
+
 # Alias solicitado: /login/google → mismo flujo que /google-login
 @auth_bp.route('/login/google')
 def login_google():
