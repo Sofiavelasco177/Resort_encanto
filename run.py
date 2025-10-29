@@ -554,7 +554,8 @@ if client_id and client_secret:
             client_id=client_id,
             client_secret=client_secret,
             authorize_url=GOOGLE_AUTHORIZE_URL,
-            token_url=GOOGLE_TOKEN_URL,
+            token_url=GOOGLE_TOKEN_URL,            # Authlib >=1.x
+            access_token_url=GOOGLE_TOKEN_URL,     # Compat con nombres antiguos
             client_kwargs={"scope": "openid email profile", "timeout": 10}
         )
         app.logger.info('Google OAuth registrado exitosamente')
@@ -568,6 +569,7 @@ if client_id and client_secret:
             client_secret='dummy',
             authorize_url=GOOGLE_AUTHORIZE_URL,
             token_url=GOOGLE_TOKEN_URL,
+            access_token_url=GOOGLE_TOKEN_URL,
             client_kwargs={"scope": "openid email profile"}
         )
 else:
@@ -580,6 +582,7 @@ else:
         client_secret='dummy',
         authorize_url=GOOGLE_AUTHORIZE_URL,
         token_url=GOOGLE_TOKEN_URL,
+        access_token_url=GOOGLE_TOKEN_URL,
         client_kwargs={"scope": "openid email profile"}
     )
 
