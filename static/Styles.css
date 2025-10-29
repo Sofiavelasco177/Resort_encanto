@@ -411,7 +411,7 @@ main { padding-top: 72px; }
     justify-content: space-between;
     cursor: pointer;
     user-select: none;
-    box-shadow: 0 8px 18px rgba(109,94,243,0.25);
+    box-shadow: 0 8px 18px rgba(233, 232, 239, 0.25);
 }
 .toggle-gradient .label { font-weight: 600; }
 .toggle-gradient .chev { transition: transform .2s ease; }
@@ -425,7 +425,7 @@ main { padding-top: 72px; }
 .perfil-usuario #profile-section .section-title,
 .perfil-usuario #password-section .section-title,
 .perfil-usuario #payments-section .section-title,
-.perfil-usuario .card .notification-item { margin-left: 144px; }
+.perfil-usuario .card .notification-item { margin-left: 0; }
 
 /* Alinear iconos del menú lateral y textos en una misma columna */
 .perfil-usuario .menu-item-content i { width: 20px; text-align: center; }
