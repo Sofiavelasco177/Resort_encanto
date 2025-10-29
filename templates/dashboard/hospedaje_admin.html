@@ -47,87 +47,88 @@
 	<!-- Formulario: Agregar Nueva Habitación (arriba) -->
 	<div class="form-card mb-5">
 		<div class="form-header">
-			<h3> Agregar Nueva Habitación</h3>
-			<div class="sub">Complete los detalles de la habitación</div>
-		</div>
-		<div class="form-body">
-			<form action="{{ url_for('admin.hospedaje_nueva') }}" method="POST" enctype="multipart/form-data" class="row g-3">
-				<div class="col-md-6">
-					<label for="nombre" class="form-label">Nombre de la Habitación <span class="text-danger">*</span></label>
-					<input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Suite Deluxe" required>
-				</div>
-				<div class="col-md-3">
-					<label for="plan" class="form-label">Plan</label>
-					<select class="form-select" id="plan" name="plan">
-						<option value="">Sin plan</option>
-						<option value="Oro">Oro</option>
-						<option value="Plata">Plata</option>
-						<option value="Bronce">Bronce</option>
-					</select>
-				</div>
-				<div class="col-md-3">
-					<label for="numero" class="form-label">Número</label>
-					<input type="number" class="form-control" id="numero" name="numero" min="1" placeholder="01">
-				</div>
-				<div class="col-md-6">
-					<label for="precio" class="form-label">Precio por Noche <span class="text-danger">*</span></label>
-					<input type="number" class="form-control" id="precio" name="precio" min="0" step="0.01" placeholder="$150.000" required>
-				</div>
-				<div class="col-md-6">
-					<label for="cupo_personas" class="form-label">Capacidad de Personas <span class="text-danger">*</span></label>
-					<input type="number" class="form-control" id="cupo_personas" name="cupo_personas" min="1" placeholder="2" required>
-				</div>
-				<div class="col-md-6">
-					<label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
-					<select class="form-select" id="estado" name="estado" required>
-						<option value="Disponible">Disponible</option>
-						<option value="Mantenimiento">Mantenimiento</option>
-						<option value="Ocupada">Ocupada</option>
-					</select>
-				</div>
-				<div class="col-12">
-					<label class="form-label">Imagen de la Habitación</label>
-					<div class="upload-dropzone">
-						<button type="button" class="btn btn-cta-gradient" onclick="document.getElementById('imagen').click()">
-							<i class="bi bi-folder2-open me-1"></i> Seleccionar Archivo
-						</button>
-						<span class="ms-2 text-muted small" id="file-name">Ningún archivo seleccionado</span>
-						<input type="file" class="form-control mt-2 d-none" id="imagen" name="imagen" accept="image/*">
+			<!-- Formulario: Agregar Nueva Habitación (colapsable) -->
+			<div class="form-section mb-5">
+				<div class="form-header" onclick="toggleSection('habForm','habIcon')">
+					<div>
+						<h3>Agregar Nueva Habitación</h3>
+						<div class="sub">Complete los detalles de la habitación</div>
 					</div>
+					<span class="toggle-icon" id="habIcon">▼</span>
 				</div>
-				<div class="col-12">
-					<label for="descripcion" class="form-label">Descripción</label>
-					<textarea class="form-control" id="descripcion" name="descripcion" rows="4" placeholder="Describa las características de la habitación, comodidades, servicios incluidos, etc."></textarea>
+				<div class="form-content" id="habForm">
+					<form action="{{ url_for('admin.hospedaje_nueva') }}" method="POST" enctype="multipart/form-data" class="row g-3">
+						<div class="col-md-6">
+							<label for="nombre" class="form-label">Nombre de la Habitación <span class="text-danger">*</span></label>
+							<input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Suite Deluxe" required>
+						</div>
+						<div class="col-md-3">
+							<label for="plan" class="form-label">Plan</label>
+							<select class="form-select" id="plan" name="plan">
+								<option value="">Sin plan</option>
+								<option value="Oro">Oro</option>
+								<option value="Plata">Plata</option>
+								<option value="Bronce">Bronce</option>
+							</select>
+						</div>
+						<div class="col-md-3">
+							<label for="numero" class="form-label">Número</label>
+							<input type="number" class="form-control" id="numero" name="numero" min="1" placeholder="01">
+						</div>
+						<div class="col-md-6">
+							<label for="precio" class="form-label">Precio por Noche <span class="text-danger">*</span></label>
+							<input type="number" class="form-control" id="precio" name="precio" min="0" step="0.01" placeholder="$150.000" required>
+						</div>
+						<div class="col-md-6">
+							<label for="cupo_personas" class="form-label">Capacidad de Personas <span class="text-danger">*</span></label>
+							<input type="number" class="form-control" id="cupo_personas" name="cupo_personas" min="1" placeholder="2" required>
+						</div>
+						<div class="col-md-6">
+							<label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
+							<select class="form-select" id="estado" name="estado" required>
+								<option value="Disponible">Disponible</option>
+								<option value="Mantenimiento">Mantenimiento</option>
+								<option value="Ocupada">Ocupada</option>
+							</select>
+						</div>
+						<div class="col-12">
+							<label class="form-label">Imagen de la Habitación</label>
+							<div class="upload-area" onclick="document.getElementById('imagen').click()">
+								<p>Haz clic para seleccionar o arrastra una imagen</p>
+								<small>PNG o JPG (máx. 5MB)</small>
+								<input id="imagen" class="file-input" type="file" name="imagen" accept="image/*" onchange="document.getElementById('habImgName').textContent = this.files[0] ? ('Archivo seleccionado: '+this.files[0].name) : ''">
+							</div>
+							<div id="habImgName" class="mt-2" style="color:#667eea;font-size:14px"></div>
+						</div>
+						<div class="col-12">
+							<label for="descripcion" class="form-label">Descripción</label>
+							<textarea class="form-control" id="descripcion" name="descripcion" rows="4" placeholder="Describa las características de la habitación, comodidades, servicios incluidos, etc."></textarea>
+						</div>
+						<div class="col-12">
+							<label for="caracteristicas" class="form-label">Características (JSON o texto)</label>
+							<textarea class="form-control" id="caracteristicas" name="caracteristicas" rows="4" placeholder='Ej: {"area_interior": ["Cama King"], "servicios": ["Room service 24h"]}'></textarea>
+						</div>
+						<div class="col-12">
+							<label for="objetos_inventario" class="form-label">Objetos para Inventario (opcional)</label>
+							<textarea class="form-control" id="objetos_inventario" name="objetos_inventario" rows="4" placeholder="Una línea por objeto. Formato: Categoria | Nombre del objeto | Cantidad
+		Ejemplos:
+		Mobiliario | Silla ejecutiva | 1
+		Electrónicos | Smart TV 50'' | 1
+		Baño | Toalla de mano | 2"></textarea>
+							<small class="text-muted">Se generará automáticamente un inventario inicial para esta habitación con estos objetos. Luego podrás chequear su estado.</small>
+						</div>
+						<div class="col-12">
+							<label for="model3d" class="form-label">URL del modelo 3D (GLB, USDZ, etc)</label>
+							<input type="url" class="form-control" id="model3d" name="model3d" placeholder="https://.../modelo.glb">
+							<small class="text-muted">Opcional. Si se proporciona, se mostrará el modelado 3D en la vista pública.</small>
+						</div>
+						<div class="col-12 d-flex justify-content-end gap-2">
+							<button type="button" class="btn btn-cancel" onclick="collapseSection('habForm','habIcon')">Cancelar</button>
+							<button type="submit" class="btn btn-submit"><span class="me-1">+</span> Agregar Habitación</button>
+						</div>
+					</form>
 				</div>
-				<div class="col-12">
-					<label for="caracteristicas" class="form-label">Características (JSON o texto)</label>
-					<textarea class="form-control" id="caracteristicas" name="caracteristicas" rows="4" placeholder='Ej: {"area_interior": ["Cama King"], "servicios": ["Room service 24h"]}'></textarea>
-				</div>
-				<div class="col-12">
-					<label for="objetos_inventario" class="form-label">Objetos para Inventario (opcional)</label>
-					<textarea class="form-control" id="objetos_inventario" name="objetos_inventario" rows="4" placeholder="Una línea por objeto. Formato: Categoria | Nombre del objeto | Cantidad\nEjemplos:\nMobiliario | Silla ejecutiva | 1\nElectrónicos | Smart TV 50'' | 1\nBaño | Toalla de mano | 2"></textarea>
-					<small class="text-muted">Se generará automáticamente un inventario inicial para esta habitación con estos objetos. Luego podrás chequear su estado.</small>
-				</div>
-				<div class="col-12">
-					<label for="model3d" class="form-label">URL del modelo 3D (GLB, USDZ, etc)</label>
-					<input type="url" class="form-control" id="model3d" name="model3d" placeholder="https://.../modelo.glb">
-					<small class="text-muted">Opcional. Si se proporciona, se mostrará el modelado 3D en la vista pública.</small>
-				</div>
-				<div class="col-12 d-flex justify-content-center">
-					<button type="submit" class="btn btn-form-primary w-100" style="max-width: 520px;">
-						<i class="bi bi-check2-square me-2"></i> Agregar Habitación
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-
-	<!-- Vistas: Tarjetas y Tabla -->
-	<div id="habitaciones-admin">
-		{% if plan_order and habitaciones_por_plan %}
-			<!-- Tarjetas (default) -->
-			<div id="view-cards" class="admin-card-grid">
-				{% for plan in plan_order %}
+			</div>
 					{% set group = habitaciones_por_plan[plan] %}
 					{% for h in group %}
 					<div class="admin-room-card">
@@ -408,3 +409,19 @@
 	{% endif %}
 
 {% endblock %}
+<script>
+function toggleSection(contentId, iconId){
+	const content = document.getElementById(contentId);
+	const icon = document.getElementById(iconId);
+	if(!content||!icon) return;
+	content.classList.toggle('expanded');
+	icon.classList.toggle('rotated');
+}
+function collapseSection(contentId, iconId){
+	const content = document.getElementById(contentId);
+	const icon = document.getElementById(iconId);
+	if(!content||!icon) return;
+	content.classList.remove('expanded');
+	icon.classList.remove('rotated');
+}
+</script>

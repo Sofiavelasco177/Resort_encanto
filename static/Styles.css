@@ -265,6 +265,28 @@ body {
     color: #111827;
 }
 
+/* =======================
+    Bloque formulario colapsable (admin CRUD)
+    ======================= */
+.form-section{background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);margin-bottom:20px;overflow:hidden;transition:all .3s ease}
+.form-section .form-header{background:linear-gradient(135deg,#667eea 0%, #764ba2 100%);color:#fff;padding:20px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.form-section .form-header:hover{filter:brightness(1.02)}
+.form-section .form-header h3{font-size:20px;font-weight:700;margin:0}
+.form-section .form-header .sub{font-size:13px;opacity:.95;margin-top:4px}
+.form-section .toggle-icon{font-size:22px;transition:transform .25s ease;font-weight:700}
+.form-section .toggle-icon.rotated{transform:rotate(180deg)}
+.form-section .form-content{max-height:0;overflow:hidden;transition:max-height .35s ease, padding .35s ease}
+.form-section .form-content.expanded{max-height:1200px;padding:22px}
+.upload-area{border:2px dashed #d0d0d0;border-radius:8px;padding:22px;text-align:center;background:#fafafa;transition:all .2s ease;cursor:pointer}
+.upload-area:hover{border-color:#667eea;background:#f5f7ff}
+.upload-area p{color:#666;margin-bottom:6px}
+.upload-area small{color:#999;font-size:12px}
+.btn-submit{background:linear-gradient(135deg,#667eea 0%, #764ba2 100%);color:#fff;border:none}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,.35)}
+.sections-list{background:#fff;border-radius:12px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.sections-list h3{font-size:20px;color:#111;margin-bottom:14px}
+.empty-state{color:#94a3b8;text-align:center;padding:32px}
+
 /* Cuando se usa navbar superior, empuja el contenido hacia abajo */
 main { padding-top: 72px; }
 /* Páginas con sidebar no necesitan offset superior */
