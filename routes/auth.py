@@ -18,11 +18,8 @@ def _build_google_redirect_uri(next_param=None):
         else:
             # Local: respetar host y esquema http
             uri = url_for('auth.google_authorize', _external=True, _scheme='http')
-        if next_param:
-            # Propagar next como query param
-            from urllib.parse import urlencode
-            sep = '&' if ('?' in uri) else '?'
-            uri = f"{uri}{sep}{urlencode({'next': next_param})}"
+        # No anexamos `next` a la redirect_uri para evitar redirect_uri_mismatch en Google.
+        # El `next` lo persistimos en sesión.
         return uri
     except Exception:
         # Fallback general
@@ -42,8 +39,14 @@ def google_login():
         return redirect(url_for('registro.login', next=next_param))
 
     try:
+        # Guardar `next` en sesión (no en redirect_uri)
+        try:
+            if next_param:
+                session['oauth_next'] = next_param
+        except Exception:
+            pass
         # Respetar esquema preferido (https en prod) si está configurado
-        redirect_uri = _build_google_redirect_uri(next_param)
+        redirect_uri = _build_google_redirect_uri(None)
         current_app.logger.info(f"Iniciando login con Google. redirect_uri={redirect_uri}")
         return oauth.google.authorize_redirect(redirect_uri)
     except Exception as e:
@@ -57,7 +60,8 @@ def google_login():
 
 @auth_bp.route('/google_authorize')
 def google_authorize():
-    next_param = request.args.get('next')
+    # Recuperar `next` desde query (si viniera) o desde sesión
+    next_param = request.args.get('next') or session.pop('oauth_next', None)
     oauth = current_app.config.get('OAUTH')
     if oauth is None:
         flash('Google OAuth no está configurado.')
@@ -67,7 +71,7 @@ def google_authorize():
     try:
         # Forzar endpoints explícitos para entornos donde el discovery falle
         TOKEN_URL = "https://oauth2.googleapis.com/token"
-        redirect_uri = _build_google_redirect_uri(next_param)
+        redirect_uri = _build_google_redirect_uri(None)
         # Si no viene 'code' en la URL, no intentes intercambiar token
         if not request.args.get('code'):
             current_app.logger.warning('Google authorize sin parámetro code; redirigiendo al login de Google')

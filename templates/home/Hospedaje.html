@@ -97,7 +97,8 @@
                                 {% if model_url %}
                                     <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar></model-viewer>
                                 {% else %}
-                                    <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}">
+                                    {% set uimg = media_url(h.imagen) if h.imagen else url_for('static', filename='img/default.jpg') %}
+                                    <img loading="lazy" src="{{ uimg }}" alt="{{ h.nombre }}">
                                 {% endif %}
                             </div>
                             <div class="room-index-title">
@@ -125,7 +126,8 @@
                                 {% if model_url %}
                                     <model-viewer src="{{ model_url }}" alt="{{ h.nombre }}" camera-controls touch-action="pan-y" ar></model-viewer>
                                 {% else %}
-                                    <img loading="lazy" src="{{ url_for('static', filename=h.imagen if h.imagen else 'img/default.jpg') }}" alt="{{ h.nombre }}">
+                                    {% set uimg = media_url(h.imagen) if h.imagen else url_for('static', filename='img/default.jpg') %}
+                                    <img loading="lazy" src="{{ uimg }}" alt="{{ h.nombre }}">
                                 {% endif %}
                             </div>
                             <div class="room-index-title">
